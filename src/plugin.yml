@@ -1,0 +1,7 @@
+main: com.minecraftmod.AstarPlugin
+name: astarmod
+version: 1
+commands:
+  astar:
+    description: implements astar algorithm
+    usage: /astar
