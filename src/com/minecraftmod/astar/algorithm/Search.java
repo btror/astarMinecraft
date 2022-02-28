@@ -1,29 +1,20 @@
 package com.minecraftmod.astar.algorithm;
 
-import com.minecraftmod.AstarPlugin;
-import com.minecraftmod.astar.AstarCommand;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.bootstrap.Main;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
-
-import java.awt.*;
 import java.util.*;
-
 import static org.bukkit.Bukkit.getServer;
 
 public class Search {
 
-//    private final Node[][] grid = new Node[15][15];
     private final int SIZE;
+    private final Material WALL_MATERIAL;
+    private final Material PATH_MATERIAL;
+    private final Material PATH_SPREAD_MATERIAL;
     private final Node[][] grid;
     private final PriorityQueue<Node> open_list = new PriorityQueue<>(10, new NodeComparator()); // sorted by f value
     private final ArrayList<Node> closed_list = new ArrayList<>();
     private final Location[][] tile_grid;
-
     private final Node start_node;
     private Node current_node;
     private final Node end_node;
@@ -31,9 +22,12 @@ public class Search {
     /*
      * Default constructor
      */
-    public Search(Location[][] tiles, int[] startCoordinate, int[] endCoordinate, int size) {
+    public Search(Location[][] tiles, int[] startCoordinate, int[] endCoordinate, int size, Material wallMaterial, Material pathMaterial, Material pathSpreadMaterial) {
         grid = new Node[size][size];
         SIZE = size;
+        WALL_MATERIAL = wallMaterial;
+        PATH_MATERIAL = pathMaterial;
+        PATH_SPREAD_MATERIAL = pathSpreadMaterial;
         tile_grid = tiles;
         current_node = new Node(startCoordinate[1], startCoordinate[0], 0);
         end_node = new Node(endCoordinate[1], endCoordinate[0], 0);
@@ -45,7 +39,7 @@ public class Search {
                     Node node = new Node(i, j, 0);
                     grid[i][j] = node;
                 }
-                if (tiles[i][j].getBlock().getType() == Material.DIRT) {
+                if (tiles[i][j].getBlock().getType() == WALL_MATERIAL) {
                     Node node = new Node(i, j, 1);
                     grid[i][j] = node;
                 }
@@ -68,8 +62,6 @@ public class Search {
      * Method that starts the A* search
      */
     public void start() {
-       // Thread thread = new Thread(()-> {
-
             while (!open_list.isEmpty() && !current_node.equals(end_node)) { // open list isn't empty or goal node isn't reached
                 current_node = open_list.peek();
                 // remove the node with lowest f score
@@ -84,17 +76,18 @@ public class Search {
                         int row = path.get(i).getRow();
                         int col = path.get(i).getCol();
 
-                        if (tile_grid[row][col].getBlock().getType() == Material.BIRCH_WOOD) {
-                            tile_grid[row][col].getBlock().setType(Material.DARK_OAK_WOOD);
+                        if (tile_grid[row][col].getBlock().getType() == PATH_SPREAD_MATERIAL) {
+                            // tile_grid[row][col].getBlock().setType(PATH_MATERIAL);
+                            int x = tile_grid[row][col].getBlockX();
+                            int y = tile_grid[row][col].getBlockY() - 1;
+                            int z = tile_grid[row][col].getBlockZ();
+                            Location floor = new Location(tile_grid[row][col].getWorld(), x, y, z);
+                            floor.getBlock().setType(PATH_MATERIAL);
+
+                            if (row == end_node.getRow() && col == end_node.getCol()) {
+                                floor.getBlock().setType(Material.RED_STAINED_GLASS);
+                            }
                         }
-
-//                        try {
-//                            Thread.sleep(250);
-//                        } catch (InterruptedException e) {
-//                            e.printStackTrace();
-//                        }
-
-
                     }
                     getServer().broadcastMessage("Path found!");
                     break;
@@ -106,8 +99,13 @@ public class Search {
                         System.out.println(np);
                     }
 
-                    tile_grid[start_node.getRow()][start_node.getCol()].getBlock().setType(Material.DIAMOND_BLOCK);
-                    tile_grid[end_node.getRow()][end_node.getCol()].getBlock().setType(Material.REDSTONE_BLOCK);
+                    // tile_grid[start_node.getRow()][start_node.getCol()].getBlock().setType(Material.DIAMOND_BLOCK);
+                    int x = tile_grid[start_node.getRow()][start_node.getCol()].getBlockX();
+                    int y = tile_grid[start_node.getRow()][start_node.getCol()].getBlockY() - 2;
+                    int z = tile_grid[start_node.getRow()][start_node.getCol()].getBlockZ();
+                    Location newLoc = new Location(tile_grid[start_node.getRow()][start_node.getCol()].getWorld(), x, y, z);
+                    newLoc.getBlock().setType(Material.BEACON);
+                    // tile_grid[end_node.getRow()][end_node.getCol()].getBlock().setType(Material.REDSTONE_BLOCK);
 
                     try {
                         assert open_list.peek() != null;
@@ -121,9 +119,6 @@ public class Search {
 
                 }
             }
-
-//        });
-//        thread.start();
     }
 
 
@@ -207,9 +202,8 @@ public class Search {
             int h = calculateH(grid[row - 1][col]);
             grid[row - 1][col].setH(h);
             grid[row - 1][col].setF();
-            System.out.println("north node g: " + g + "\nnorth node h: " + h + "\nnorth node f: " + grid[row - 1][col].getF());
             open_list.add(grid[row - 1][col]);
-            tile_grid[row - 1][col].getBlock().setType(Material.BIRCH_WOOD);
+            tile_grid[row - 1][col].getBlock().setType(PATH_SPREAD_MATERIAL);
         }
 
         // east node
@@ -220,9 +214,8 @@ public class Search {
             int h = calculateH(grid[row][col + 1]);
             grid[row][col + 1].setH(h);
             grid[row][col + 1].setF();
-            System.out.println("east node g: " + g + "\neast node h: " + h + "\neast node f: " + grid[row][col + 1].getF());
             open_list.add(grid[row][col + 1]);
-            tile_grid[row][col + 1].getBlock().setType(Material.BIRCH_WOOD);
+            tile_grid[row][col + 1].getBlock().setType(PATH_SPREAD_MATERIAL);
         }
 
         // south node
@@ -233,9 +226,8 @@ public class Search {
             int h = calculateH(grid[row + 1][col]);
             grid[row + 1][col].setH(h);
             grid[row + 1][col].setF();
-            System.out.println("south node g: " + g + "\nsouth node h: " + h + "\nsouth node f: " + grid[row + 1][col].getF());
             open_list.add(grid[row + 1][col]);
-            tile_grid[row + 1][col].getBlock().setType(Material.BIRCH_WOOD);
+            tile_grid[row + 1][col].getBlock().setType(PATH_SPREAD_MATERIAL);
         }
 
         // west node
@@ -246,9 +238,8 @@ public class Search {
             int h = calculateH(grid[row][col - 1]);
             grid[row][col - 1].setH(h);
             grid[row][col - 1].setF();
-            System.out.println("west node g: " + g + "\nwest node h: " + h + "\nwest node f: " + grid[row][col - 1].getF());
             open_list.add(grid[row][col - 1]);
-            tile_grid[row][col - 1].getBlock().setType(Material.BIRCH_WOOD);
+            tile_grid[row][col - 1].getBlock().setType(PATH_SPREAD_MATERIAL);
         }
     }
 
