@@ -3,6 +3,6 @@ name: astarmod
 api-version: 1.13
 version: 1
 commands:
-  astar:
-    description: implements astar algorithm
-    usage: /astar
+  genmaze:
+    description: creates a maze
+    usage: /genmaze

@@ -66,7 +66,6 @@ public class Search {
                 current_node = open_list.peek();
                 // remove the node with lowest f score
                 open_list.remove(open_list.peek());
-                System.out.println("open list: " + open_list);
                 // check if current node is goal node
                 if (current_node.equals(end_node)) {
                     // if yes, generate a path
@@ -96,7 +95,6 @@ public class Search {
                     try {
                         calculateNeighborValues();
                     } catch (NullPointerException np){
-                        System.out.println(np);
                     }
 
                     // tile_grid[start_node.getRow()][start_node.getCol()].getBlock().setType(Material.DIAMOND_BLOCK);
@@ -110,12 +108,11 @@ public class Search {
                     try {
                         assert open_list.peek() != null;
                     } catch (NullPointerException e){
-                        getServer().broadcastMessage("No path could be found");
+                        getServer().broadcastMessage("Path from start coord to end coord not found.");
                     }
 
                     // add current node to closed list
                     closed_list.add(current_node);
-                    System.out.println("\n-----new current node-----\n");
 
                 }
             }

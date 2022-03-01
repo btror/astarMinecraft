@@ -8,9 +8,9 @@ public class AstarPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        System.out.println("starting up astar...");
+        System.out.println("Initializing plugin...");
         AstarCommand astarCommand = new AstarCommand();
-        getCommand("astar").setExecutor(astarCommand);
+        getCommand("genmaze").setExecutor(astarCommand);
         getServer().getPluginManager().registerEvents(astarCommand, this);
     }
 
