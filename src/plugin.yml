@@ -1,5 +1,5 @@
-main: com.minecraftmod.AstarPlugin
-name: astarmod
+main: com.minecraftmod.GenMazePlugin
+name: genmaze
 api-version: 1.13
 version: 1
 commands:

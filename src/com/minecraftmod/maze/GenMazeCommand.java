@@ -1,6 +1,6 @@
-package com.minecraftmod.astar;
+package com.minecraftmod.maze;
 
-import com.minecraftmod.astar.algorithm.Search;
+import com.minecraftmod.maze.algorithm.Search;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -11,7 +11,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import static org.bukkit.Bukkit.getServer;
 
-public class AstarCommand implements CommandExecutor, Listener {
+public class GenMazeCommand implements CommandExecutor, Listener {
 
     private boolean aStarEnabled = false;
     private int SIZE = 15;

@@ -2,7 +2,7 @@
   <artifact type="jar" name="Project:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/Project_jar</output-path>
     <root id="archive" name="Project.jar">
-      <element id="module-output" name="Project" />
+      <element id="module-output" name="MazeGenerator" />
       <element id="extracted-dir" path="$PROJECT_DIR$/../spigot-1.18.1.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/../bundler/libraries/asm-9.2.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$PROJECT_DIR$/../bundler/libraries/jna-5.9.0.jar" path-in-jar="/" />

@@ -1,4 +1,4 @@
-package com.minecraftmod.astar.algorithm;
+package com.minecraftmod.maze.algorithm;
 
 public class Node {
     private int row, col, f, g, h, type;

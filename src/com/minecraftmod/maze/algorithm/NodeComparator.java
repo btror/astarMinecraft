@@ -1,4 +1,4 @@
-package com.minecraftmod.astar.algorithm;
+package com.minecraftmod.maze.algorithm;
 
 import java.util.Comparator;
 

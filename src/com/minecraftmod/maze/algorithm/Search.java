@@ -1,4 +1,4 @@
-package com.minecraftmod.astar.algorithm;
+package com.minecraftmod.maze.algorithm;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -88,7 +88,6 @@ public class Search {
                             }
                         }
                     }
-                    getServer().broadcastMessage("Path found!");
                     break;
                 } else {
                     // generate neighbors
@@ -108,7 +107,6 @@ public class Search {
                     try {
                         assert open_list.peek() != null;
                     } catch (NullPointerException e){
-                        getServer().broadcastMessage("Path from start coord to end coord not found.");
                     }
 
                     // add current node to closed list
