@@ -19,6 +19,7 @@ public class Search {
     private final PriorityQueue<Node> open_list = new PriorityQueue<>(10, new NodeComparator()); // sorted by f value
     private final ArrayList<Node> closed_list = new ArrayList<>();
     private final Location[][] tile_grid;
+    private final int[][] tile_grid_int;
     private final Node start_node;
     private Node current_node;
     private final Node end_node;
@@ -32,6 +33,15 @@ public class Search {
      */
     public Search(GenMazePlugin plugin, Location[][] tiles, int[] startCoordinate, int[] endCoordinate, int size, Material wallMaterial, Material pathMaterial, Material pathSpreadMaterial) {
         grid = new Node[size][size];
+
+        int[][] tempArray = new int[size][size];
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                tempArray[i][j] = 0;
+            }
+        }
+        tile_grid_int = tempArray;
+
         this.plugin = plugin;
         SIZE = size;
         WALL_MATERIAL = wallMaterial;
@@ -84,7 +94,8 @@ public class Search {
                         int row = path.get(i).getRow();
                         int col = path.get(i).getCol();
 
-                        if (tile_grid[row][col].getBlock().getType() == PATH_SPREAD_MATERIAL) {
+                        //if (tile_grid[row][col].getBlock().getType() == PATH_SPREAD_MATERIAL) { // duplicate of tile_grid
+                        if (tile_grid_int[row][col] == 1) {
                             // tile_grid[row][col].getBlock().setType(PATH_MATERIAL);
                             int x = tile_grid[row][col].getBlockX();
                             int y = tile_grid[row][col].getBlockY() - 1;
@@ -128,8 +139,12 @@ public class Search {
             // loop through "thePath" array to change blocks with a runnable
             long time = 0;
             for (Location loc : thePath) {
-                runnableDelayed(loc, time);
-                time += 10L;
+                if (thePath.get(thePath.size() - 1) == loc) {
+                    // do something cool
+                } else {
+                    runnableDelayed(loc, time);
+                    time += 5L;
+                }
             }
     }
 
@@ -137,10 +152,10 @@ public class Search {
         new BukkitRunnable() {
             @Override
             public void run() {
-                getServer().broadcastMessage("test " + time);
                 loc.getBlock().setType(PATH_MATERIAL);
+                cancel();
             }
-        }.runTaskTimer(this.plugin, time, time);
+        }.runTaskTimer(this.plugin, time, 20L);
     }
 
 
@@ -225,7 +240,8 @@ public class Search {
             grid[row - 1][col].setH(h);
             grid[row - 1][col].setF();
             open_list.add(grid[row - 1][col]);
-            tile_grid[row - 1][col].getBlock().setType(PATH_SPREAD_MATERIAL);
+            // tile_grid[row - 1][col].getBlock().setType(PATH_SPREAD_MATERIAL); uncomment to show places explored
+            tile_grid_int[row - 1][col] = 1;
         }
 
         // east node
@@ -237,7 +253,8 @@ public class Search {
             grid[row][col + 1].setH(h);
             grid[row][col + 1].setF();
             open_list.add(grid[row][col + 1]);
-            tile_grid[row][col + 1].getBlock().setType(PATH_SPREAD_MATERIAL);
+            // tile_grid[row][col + 1].getBlock().setType(PATH_SPREAD_MATERIAL); uncomment to show places explored
+            tile_grid_int[row][col + 1] = 1;
         }
 
         // south node
@@ -249,7 +266,8 @@ public class Search {
             grid[row + 1][col].setH(h);
             grid[row + 1][col].setF();
             open_list.add(grid[row + 1][col]);
-            tile_grid[row + 1][col].getBlock().setType(PATH_SPREAD_MATERIAL);
+            // tile_grid[row + 1][col].getBlock().setType(PATH_SPREAD_MATERIAL); uncomment to show places explored
+            tile_grid_int[row + 1][col] = 1;
         }
 
         // west node
@@ -261,7 +279,8 @@ public class Search {
             grid[row][col - 1].setH(h);
             grid[row][col - 1].setF();
             open_list.add(grid[row][col - 1]);
-            tile_grid[row][col - 1].getBlock().setType(PATH_SPREAD_MATERIAL);
+            // tile_grid[row][col - 1].getBlock().setType(PATH_SPREAD_MATERIAL); uncomment to show places explored
+            tile_grid_int[row][col - 1] = 1;
         }
     }
 

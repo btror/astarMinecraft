@@ -25,7 +25,7 @@ public class GenMazeCommand implements CommandExecutor, Listener {
     private final Material GROUND_MATERIAL = Material.GRASS_BLOCK;
     private final Material WALL_MATERIAL = Material.STONE_BRICKS;
     private final Material SIDE_WALLS = Material.IRON_BARS;
-    private final Material PATH_MATERIAL = Material.DIRT_PATH;
+    private final Material PATH_MATERIAL = Material.SANDSTONE;
     private final Material PATH_SPREAD_MATERIAL = Material.REDSTONE_TORCH;
     private final Material START_POINT_MATERIAL = Material.BEACON;
     private final Material END_POINT_MATERIAL = Material.BEACON;
@@ -114,8 +114,8 @@ public class GenMazeCommand implements CommandExecutor, Listener {
                 }
 
                 // Create a glass ceiling to stand on.
-                Location top = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() + 10, e.getBlock().getZ() + j);
-                top.getBlock().setType(Material.GLASS);
+//                Location top = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() + 10, e.getBlock().getZ() + j);
+//                top.getBlock().setType(Material.GLASS);
 
                 // Teleport command user on top of the glass.
                 Location playerLocation = new Location(e.getPlayer().getWorld(), e.getBlock().getX(), e.getBlock().getY() + 11, e.getBlock().getZ());
