@@ -1,7 +1,11 @@
 package com.minecraftmod.maze.algorithm;
 
+import com.minecraftmod.GenMazePlugin;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.scheduler.BukkitRunnable;
+
 import java.util.*;
 import static org.bukkit.Bukkit.getServer;
 
@@ -18,12 +22,17 @@ public class Search {
     private final Node start_node;
     private Node current_node;
     private final Node end_node;
+    private final GenMazePlugin plugin;
+
+    // new
+    private ArrayList<Location> thePath = new ArrayList<>();
 
     /*
      * Default constructor
      */
-    public Search(Location[][] tiles, int[] startCoordinate, int[] endCoordinate, int size, Material wallMaterial, Material pathMaterial, Material pathSpreadMaterial) {
+    public Search(GenMazePlugin plugin, Location[][] tiles, int[] startCoordinate, int[] endCoordinate, int size, Material wallMaterial, Material pathMaterial, Material pathSpreadMaterial) {
         grid = new Node[size][size];
+        this.plugin = plugin;
         SIZE = size;
         WALL_MATERIAL = wallMaterial;
         PATH_MATERIAL = pathMaterial;
@@ -81,7 +90,8 @@ public class Search {
                             int y = tile_grid[row][col].getBlockY() - 1;
                             int z = tile_grid[row][col].getBlockZ();
                             Location floor = new Location(tile_grid[row][col].getWorld(), x, y, z);
-                            floor.getBlock().setType(PATH_MATERIAL);
+                            // floor.getBlock().setType(PATH_MATERIAL); uncomment to change blocks to path
+                            thePath.add(floor);
 
                             if (row == end_node.getRow() && col == end_node.getCol()) {
                                 floor.getBlock().setType(Material.RED_STAINED_GLASS);
@@ -114,6 +124,23 @@ public class Search {
 
                 }
             }
+
+            // loop through "thePath" array to change blocks with a runnable
+            long time = 0;
+            for (Location loc : thePath) {
+                runnableDelayed(loc, time);
+                time += 10L;
+            }
+    }
+
+    public void runnableDelayed(Location loc, long time) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                getServer().broadcastMessage("test " + time);
+                loc.getBlock().setType(PATH_MATERIAL);
+            }
+        }.runTaskTimer(this.plugin, time, time);
     }
 
 

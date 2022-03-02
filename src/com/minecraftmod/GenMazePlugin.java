@@ -9,7 +9,7 @@ public class GenMazePlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         System.out.println("Initializing plugin...");
-        GenMazeCommand genMazeCommand = new GenMazeCommand();
+        GenMazeCommand genMazeCommand = new GenMazeCommand(this);
         getCommand("genmaze").setExecutor(genMazeCommand);
         getServer().getPluginManager().registerEvents(genMazeCommand, this);
     }

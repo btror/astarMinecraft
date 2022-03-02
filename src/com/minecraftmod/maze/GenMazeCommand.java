@@ -1,5 +1,6 @@
 package com.minecraftmod.maze;
 
+import com.minecraftmod.GenMazePlugin;
 import com.minecraftmod.maze.algorithm.Search;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -28,6 +29,11 @@ public class GenMazeCommand implements CommandExecutor, Listener {
     private final Material PATH_SPREAD_MATERIAL = Material.REDSTONE_TORCH;
     private final Material START_POINT_MATERIAL = Material.BEACON;
     private final Material END_POINT_MATERIAL = Material.BEACON;
+    private final GenMazePlugin plugin;
+
+    public GenMazeCommand(GenMazePlugin plugin) {
+        this.plugin = plugin;
+    }
 
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String alias, String[] args) {
@@ -83,7 +89,7 @@ public class GenMazeCommand implements CommandExecutor, Listener {
             generateRandomArenaMaze(e, coordinates[0], coordinates[1], coordinates[2], coordinates[3]);
 
             // Check for viable paths using A* pathfinding.
-            Search search = new Search(locations, startCoordinate, endCoordinate, SIZE, WALL_MATERIAL, PATH_MATERIAL, PATH_SPREAD_MATERIAL);
+            Search search = new Search(this.plugin, locations, startCoordinate, endCoordinate, SIZE, WALL_MATERIAL, PATH_MATERIAL, PATH_SPREAD_MATERIAL);
             search.start();
         }
     }
