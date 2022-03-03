@@ -1,6 +1,6 @@
 # Minecraft pathfinding plugin
 
-### A program that generates random mazes and solves it with AI.
+### A program that generates random mazes and solves them with AI.
 
 ### This is an implementation of the A* pathfinding algorithm.
 
