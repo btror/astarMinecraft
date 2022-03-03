@@ -9,7 +9,7 @@
 <br>
 
 ### Commands
-- /genmaze < width > < difficulty >
+<code>/genmaze &lt;width&gt; &lt;difficulty&gt;</code>
 - width is required and must be an integer 
 - difficulty is optional (set  to medium by default)
   - easy | simple
