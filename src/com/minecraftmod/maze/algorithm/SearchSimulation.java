@@ -1,64 +1,39 @@
 package com.minecraftmod.maze.algorithm;
 
-import com.minecraftmod.GenMazePlugin;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.scheduler.BukkitRunnable;
-
 import java.util.*;
-import static org.bukkit.Bukkit.getServer;
 
-public class Search {
+public class SearchSimulation {
 
     private final int SIZE;
-    private final Material WALL_MATERIAL;
-    private final Material PATH_MATERIAL;
-    private final Material PATH_SPREAD_MATERIAL;
     private final Node[][] grid;
     private final PriorityQueue<Node> open_list = new PriorityQueue<>(10, new NodeComparator()); // sorted by f value
     private final ArrayList<Node> closed_list = new ArrayList<>();
-    private final Location[][] tile_grid;
-    private final int[][] tile_grid_int;
+    private final int[][] tile_grid;
     private final Node start_node;
     private Node current_node;
     private final Node end_node;
-    private final GenMazePlugin plugin;
-
-    // new
-    private final ArrayList<Location> thePath = new ArrayList<>();
+    private final ArrayList<Integer> thePath = new ArrayList<>();
 
     /*
      * Default constructor
      */
-    public Search(GenMazePlugin plugin, Location[][] tiles, int[] startCoordinate, int[] endCoordinate, int size, Material wallMaterial, Material pathMaterial, Material pathSpreadMaterial) {
-        grid = new Node[size][size];
-
-        int[][] tempArray = new int[size][size];
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                tempArray[i][j] = 0;
-            }
-        }
-        tile_grid_int = tempArray;
-
-        this.plugin = plugin;
+    public SearchSimulation(int[][] maze, int[] startCoordinate, int[] endCoordinate) {
+        int size = maze[0].length;
         SIZE = size;
-        WALL_MATERIAL = wallMaterial;
-        PATH_MATERIAL = pathMaterial;
-        PATH_SPREAD_MATERIAL = pathSpreadMaterial;
-        tile_grid = tiles;
+        grid = new Node[size][size];
+        tile_grid = maze;
+
         current_node = new Node(startCoordinate[1], startCoordinate[0], 0);
         end_node = new Node(endCoordinate[1], endCoordinate[0], 0);
         grid[startCoordinate[1]][startCoordinate[0]] = current_node;
         grid[endCoordinate[1]][endCoordinate[0]] = end_node;
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
-                if (tiles[i][j].getBlock().getType() == Material.AIR) {
+                if (tile_grid[i][j] == 0) {
                     Node node = new Node(i, j, 0);
                     grid[i][j] = node;
                 }
-                if (tiles[i][j].getBlock().getType() == WALL_MATERIAL) {
+                if (tile_grid[i][j] == 1) {
                     Node node = new Node(i, j, 1);
                     grid[i][j] = node;
                 }
@@ -81,93 +56,55 @@ public class Search {
      * Method that starts the A* search
      */
     public boolean start() {
-            boolean pathFound = true;
-            while (!open_list.isEmpty() && !current_node.equals(end_node)) { // open list isn't empty or goal node isn't reached
-                current_node = open_list.peek();
-                // remove the node with lowest f score
-                open_list.remove(open_list.peek());
-                // check if current node is goal node
-                if (current_node.equals(end_node)) {
-                    // if yes, generate a path
-                    closed_list.add(current_node);
-                    ArrayList<Node> path = generatePath();
-                    for (int i = path.size() - 1; i > -1; i--) {
-                        int row = path.get(i).getRow();
-                        int col = path.get(i).getCol();
+        boolean pathFound = true;
+        while (!open_list.isEmpty() && !current_node.equals(end_node)) { // open list isn't empty or goal node isn't reached
+            current_node = open_list.peek();
+            // remove the node with lowest f score
+            open_list.remove(open_list.peek());
+            // check if current node is goal node
+            if (current_node.equals(end_node)) {
+                // if yes, generate a path
+                closed_list.add(current_node);
+                ArrayList<Node> path = generatePath();
+                for (int i = path.size() - 1; i > -1; i--) {
+                    int row = path.get(i).getRow();
+                    int col = path.get(i).getCol();
 
-                        //if (tile_grid[row][col].getBlock().getType() == PATH_SPREAD_MATERIAL) { // duplicate of tile_grid
-                        if (tile_grid_int[row][col] == 1) {
-                            // tile_grid[row][col].getBlock().setType(PATH_MATERIAL);
-                            int x = tile_grid[row][col].getBlockX();
-                            int y = tile_grid[row][col].getBlockY() - 1;
-                            int z = tile_grid[row][col].getBlockZ();
-                            Location floor = new Location(tile_grid[row][col].getWorld(), x, y, z);
-                            // floor.getBlock().setType(PATH_MATERIAL); uncomment to change blocks to path
-                            thePath.add(floor);
-
-                            if (row == end_node.getRow() && col == end_node.getCol()) {
-                                floor.getBlock().setType(Material.RED_STAINED_GLASS);
-                            }
-                        }
+                    //if (tile_grid[row][col].getBlock().getType() == PATH_SPREAD_MATERIAL) { // duplicate of tile_grid (0 is empty, 1 is WALL, 2 is visited nodes, 3 is path, 4 is start, 5 is end)
+                    if (tile_grid[row][col] == 2) {
+                        tile_grid[row][col] = 3;
                     }
-                    break;
-                } else {
-                    // generate neighbors
-                    try {
-                        calculateNeighborValues();
-                    } catch (NullPointerException np){
-                    }
-
-                    // tile_grid[start_node.getRow()][start_node.getCol()].getBlock().setType(Material.DIAMOND_BLOCK);
-                    int x = tile_grid[start_node.getRow()][start_node.getCol()].getBlockX();
-                    int y = tile_grid[start_node.getRow()][start_node.getCol()].getBlockY() - 2;
-                    int z = tile_grid[start_node.getRow()][start_node.getCol()].getBlockZ();
-                    Location newLoc = new Location(tile_grid[start_node.getRow()][start_node.getCol()].getWorld(), x, y, z);
-                    newLoc.getBlock().setType(Material.BEACON);
-                    // tile_grid[end_node.getRow()][end_node.getCol()].getBlock().setType(Material.REDSTONE_BLOCK);
-
-                    try {
-                        assert open_list.peek() != null;
-                    } catch (NullPointerException e){
-                        pathFound = false;
-                    }
-
-                    // add current node to closed list
-                    closed_list.add(current_node);
-
                 }
-            }
-            
-            if (open_list.size() == 0) {
-                pathFound = false;
-            }
-            return pathFound;
-    }
-
-    public void showAnimation() {
-        // loop through "thePath" array to change blocks with a runnable
-        long time = 0;
-        for (Location loc : thePath) {
-            if (thePath.get(thePath.size() - 1) == loc) {
-                // do something cool
+                // path found at this point
+                break;
             } else {
-                runnableDelayed(loc, time);
-                time += 5L;
+                // generate neighbors
+                try {
+                    calculateNeighborValues();
+                } catch (NullPointerException np){
+                    System.out.println(np.getMessage());
+                }
+
+                tile_grid[start_node.getRow()][start_node.getCol()] = 4;
+                tile_grid[end_node.getRow()][end_node.getCol()] = 5;
+
+                try {
+                    assert open_list.peek() != null;
+                } catch (NullPointerException e){
+                    pathFound = false;
+                }
+
+                // add current node to closed list
+                closed_list.add(current_node);
+
             }
         }
-    }
 
-    public void runnableDelayed(Location loc, long time) {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                loc.getBlock().setType(PATH_MATERIAL);
-                cancel();
-            }
-        //}.runTaskTimerAsynchronously(this.plugin, time, 20L);
-        }.runTaskTimer(this.plugin, time, 20L);
+        if (open_list.size() == 0) {
+            pathFound = false;
+        }
+        return pathFound;
     }
-
 
     /*
      * method that calculates distance from start
@@ -235,7 +172,7 @@ public class Search {
      * neighbors must be within the bounds of the world
      * neighbors must be pathable (type 0)
      * neighbors must not exist in the closed list
-     *
+     * (0 is empty, 1 is WALL, 2 is visited nodes, 3 is path, 4 is start, 5 is end)
      */
     public void calculateNeighborValues() {
         int row = current_node.getRow();
@@ -251,7 +188,7 @@ public class Search {
             grid[row - 1][col].setF();
             open_list.add(grid[row - 1][col]);
             // tile_grid[row - 1][col].getBlock().setType(PATH_SPREAD_MATERIAL); uncomment to show places explored
-            tile_grid_int[row - 1][col] = 1;
+            tile_grid[row - 1][col] = 2;
         }
 
         // east node
@@ -264,7 +201,7 @@ public class Search {
             grid[row][col + 1].setF();
             open_list.add(grid[row][col + 1]);
             // tile_grid[row][col + 1].getBlock().setType(PATH_SPREAD_MATERIAL); uncomment to show places explored
-            tile_grid_int[row][col + 1] = 1;
+            tile_grid[row][col + 1] = 2;
         }
 
         // south node
@@ -277,7 +214,7 @@ public class Search {
             grid[row + 1][col].setF();
             open_list.add(grid[row + 1][col]);
             // tile_grid[row + 1][col].getBlock().setType(PATH_SPREAD_MATERIAL); uncomment to show places explored
-            tile_grid_int[row + 1][col] = 1;
+            tile_grid[row + 1][col] = 2;
         }
 
         // west node
@@ -290,7 +227,7 @@ public class Search {
             grid[row][col - 1].setF();
             open_list.add(grid[row][col - 1]);
             // tile_grid[row][col - 1].getBlock().setType(PATH_SPREAD_MATERIAL); uncomment to show places explored
-            tile_grid_int[row][col - 1] = 1;
+            tile_grid[row][col - 1] = 2;
         }
     }
 
