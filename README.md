@@ -5,7 +5,13 @@
 ### This is an implementation of the A* pathfinding algorithm.
 
 <br>
-<img src="Resources/demo1.gif" width="775" height="350">
+Small example
+<br>
+<img src="Resources/smallDemo.gif" width="550" height="330">
+
+Large example
+<br>
+<img src="Resources/largeDemo.gif" width="550" height="330">
 <br>
 
 ### Commands

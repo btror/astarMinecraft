@@ -137,7 +137,7 @@ public class Search {
 
                 }
             }
-            
+
             if (open_list.size() == 0) {
                 pathFound = false;
             }
