@@ -1,10 +1,12 @@
 package com.minecraftmod.maze.algorithm;
 
 import com.minecraftmod.GenMazePlugin;
+import io.netty.channel.local.LocalChannel;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.checkerframework.checker.units.qual.A;
 
 import java.util.*;
 import static org.bukkit.Bukkit.getServer;
@@ -27,6 +29,7 @@ public class Search {
 
     // new
     private final ArrayList<Location> thePath = new ArrayList<>();
+    private final ArrayList<Location> exploredPlaces = new ArrayList<>();
 
     /*
      * Default constructor
@@ -134,7 +137,6 @@ public class Search {
 
                     // add current node to closed list
                     closed_list.add(current_node);
-
                 }
             }
 
@@ -145,26 +147,36 @@ public class Search {
     }
 
     public void showAnimation() {
-        // loop through "thePath" array to change blocks with a runnable
-        long time = 0;
+        long time = 50L;
+        int count = 1;
+        for (Location loc : exploredPlaces) {
+            if (loc.getBlock().getType() != Material.RED_STAINED_GLASS) {
+                runnableDelayed(loc, time, PATH_SPREAD_MATERIAL);
+                count++;
+                if (count % (int)(SIZE * 0.08) == 0) {
+                    time += 1L;
+                }
+            }
+        }
+
+        time += 10L;
         for (Location loc : thePath) {
             if (thePath.get(thePath.size() - 1) == loc) {
                 // do something cool
             } else {
-                runnableDelayed(loc, time);
-                time += 5L;
+                runnableDelayed(loc, time, PATH_MATERIAL);
+                time += 1L;
             }
         }
     }
 
-    public void runnableDelayed(Location loc, long time) {
+    public void runnableDelayed(Location loc, long time, Material material) {
         new BukkitRunnable() {
             @Override
             public void run() {
-                loc.getBlock().setType(PATH_MATERIAL);
+                loc.getBlock().setType(material);
                 cancel();
             }
-        //}.runTaskTimerAsynchronously(this.plugin, time, 20L);
         }.runTaskTimer(this.plugin, time, 20L);
     }
 
@@ -252,6 +264,12 @@ public class Search {
             open_list.add(grid[row - 1][col]);
             // tile_grid[row - 1][col].getBlock().setType(PATH_SPREAD_MATERIAL); uncomment to show places explored
             tile_grid_int[row - 1][col] = 1;
+
+            Location loc = tile_grid[row - 1][col];
+            if (!exploredPlaces.contains(loc)) {
+                loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ());
+                exploredPlaces.add(loc);
+            }
         }
 
         // east node
@@ -265,6 +283,12 @@ public class Search {
             open_list.add(grid[row][col + 1]);
             // tile_grid[row][col + 1].getBlock().setType(PATH_SPREAD_MATERIAL); uncomment to show places explored
             tile_grid_int[row][col + 1] = 1;
+
+            Location loc = tile_grid[row][col + 1];
+            if (!exploredPlaces.contains(loc)) {
+                loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ());
+                exploredPlaces.add(loc);
+            }
         }
 
         // south node
@@ -278,6 +302,12 @@ public class Search {
             open_list.add(grid[row + 1][col]);
             // tile_grid[row + 1][col].getBlock().setType(PATH_SPREAD_MATERIAL); uncomment to show places explored
             tile_grid_int[row + 1][col] = 1;
+
+            Location loc = tile_grid[row + 1][col];
+            if (!exploredPlaces.contains(loc)) {
+                loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ());
+                exploredPlaces.add(loc);
+            }
         }
 
         // west node
@@ -291,6 +321,12 @@ public class Search {
             open_list.add(grid[row][col - 1]);
             // tile_grid[row][col - 1].getBlock().setType(PATH_SPREAD_MATERIAL); uncomment to show places explored
             tile_grid_int[row][col - 1] = 1;
+
+            Location loc = tile_grid[row][col - 1];
+            if (!exploredPlaces.contains(loc)) {
+                loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ());
+                exploredPlaces.add(loc);
+            }
         }
     }
 

@@ -7,11 +7,11 @@
 <br>
 Small example
 <br>
-<img src="Resources/smallDemo.gif" width="550" height="330">
+<img src="Resources/smallExample.gif" width="550" height="330">
 
 Large example
 <br>
-<img src="Resources/largeDemo.gif" width="550" height="330">
+<img src="Resources/largeExample.gif" width="550" height="330">
 <br>
 
 ### Commands

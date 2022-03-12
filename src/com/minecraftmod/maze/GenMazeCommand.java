@@ -33,8 +33,8 @@ public class GenMazeCommand implements CommandExecutor, Listener {
     private final Material GROUND_MATERIAL = Material.GRASS_BLOCK;
     private final Material WALL_MATERIAL = Material.STONE_BRICKS;
     private final Material SIDE_WALLS = Material.IRON_BARS;
-    private final Material PATH_MATERIAL = Material.SANDSTONE;
-    private final Material PATH_SPREAD_MATERIAL = Material.REDSTONE_TORCH;
+    private final Material PATH_MATERIAL = Material.BLUE_WOOL;
+    private final Material PATH_SPREAD_MATERIAL = Material.SANDSTONE;
     private final Material START_POINT_MATERIAL = Material.BEACON;
     private final Material END_POINT_MATERIAL = Material.BEACON;
 
@@ -222,11 +222,11 @@ public class GenMazeCommand implements CommandExecutor, Listener {
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
                 // Create the floor.
-                Location floor = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() - 2, e.getBlock().getZ() + j);
+                Location floor = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY(), e.getBlock().getZ() + j);
                 floor.getBlock().setType(GROUND_MATERIAL);
 
                 // Store the location above the floor to the locations array.
-                Location loc = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() - 1, e.getBlock().getZ() + j);
+                Location loc = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() + 1, e.getBlock().getZ() + j);
                 loc.getBlock().setType(Material.AIR);
                 locations[i][j] = loc;
             }
@@ -238,7 +238,7 @@ public class GenMazeCommand implements CommandExecutor, Listener {
             for (int j = 0; j < SIZE; j++) {
                 // Clear all debris from the floor up to the ceiling.
                 for (int k = 1; k < 5; k++) {
-                    Location locationAbove = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() - 2 + k, e.getBlock().getZ() + j);
+                    Location locationAbove = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() + k, e.getBlock().getZ() + j);
                     locationAbove.getBlock().setType(Material.AIR);
                 }
             }
@@ -248,43 +248,17 @@ public class GenMazeCommand implements CommandExecutor, Listener {
     public void generateArenaWalls(BlockBreakEvent e) {
         // Create the walls around the arena.
         for (int i = -1; i < SIZE + 1; i++) {
-            for (int j = 0; j < 4; j++) {
-                Location loc1 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() - 2 + j, e.getBlock().getZ() - 1);
+            for (int j = 0; j < 3; j++) {
+                Location loc1 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() + j, e.getBlock().getZ() - 1);
                 loc1.getBlock().setType(WALL_MATERIAL);
 
-                Location loc2 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() - 1, e.getBlock().getY() - 2 + j, e.getBlock().getZ() + i);
+                Location loc2 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() - 1, e.getBlock().getY() + j, e.getBlock().getZ() + i);
                 loc2.getBlock().setType(WALL_MATERIAL);
 
-                Location loc3 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + SIZE, e.getBlock().getY() - 2 + j, e.getBlock().getZ() + i);
+                Location loc3 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + SIZE, e.getBlock().getY() + j, e.getBlock().getZ() + i);
                 loc3.getBlock().setType(WALL_MATERIAL);
 
-                Location loc4 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() - 2 + j, e.getBlock().getZ() + SIZE);
-                loc4.getBlock().setType(WALL_MATERIAL);
-            }
-            for (int j = 4; j < 9; j++) {
-                Location loc1 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() - 2 + j, e.getBlock().getZ() - 1);
-                loc1.getBlock().setType(SIDE_WALLS);
-
-                Location loc2 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() - 1, e.getBlock().getY() - 2 + j, e.getBlock().getZ() + i);
-                loc2.getBlock().setType(SIDE_WALLS);
-
-                Location loc3 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + SIZE, e.getBlock().getY() - 2 + j, e.getBlock().getZ() + i);
-                loc3.getBlock().setType(SIDE_WALLS);
-
-                Location loc4 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() - 2 + j, e.getBlock().getZ() + SIZE);
-                loc4.getBlock().setType(SIDE_WALLS);
-            }
-            for (int j = 9; j < 13; j++) {
-                Location loc1 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() - 2 + j, e.getBlock().getZ() - 1);
-                loc1.getBlock().setType(WALL_MATERIAL);
-
-                Location loc2 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() - 1, e.getBlock().getY() - 2 + j, e.getBlock().getZ() + i);
-                loc2.getBlock().setType(WALL_MATERIAL);
-
-                Location loc3 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + SIZE, e.getBlock().getY() - 2 + j, e.getBlock().getZ() + i);
-                loc3.getBlock().setType(WALL_MATERIAL);
-
-                Location loc4 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() - 2 + j, e.getBlock().getZ() + SIZE);
+                Location loc4 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() + j, e.getBlock().getZ() + SIZE);
                 loc4.getBlock().setType(WALL_MATERIAL);
             }
         }
@@ -298,7 +272,7 @@ public class GenMazeCommand implements CommandExecutor, Listener {
         int randomEndY = endCoordinate[0];
 
         // Create the start point block.
-        Location startPoint = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + randomStartX, e.getBlock().getY() - 3, e.getBlock().getZ() + randomStartY);
+        Location startPoint = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + randomStartX, e.getBlock().getY() - 1, e.getBlock().getZ() + randomStartY);
         startPoint.getBlock().setType(START_POINT_MATERIAL);
         startCoordinate[0] = randomStartY;
         startCoordinate[1] = randomStartX;
@@ -306,29 +280,29 @@ public class GenMazeCommand implements CommandExecutor, Listener {
         // Put iron blocks under the start point to power the beacon.
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                Location ironBlock = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + randomStartX + (i - 1), e.getBlock().getY() - 4, e.getBlock().getZ() + randomStartY + (j - 1));
+                Location ironBlock = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + randomStartX + (i - 1), e.getBlock().getY() - 2, e.getBlock().getZ() + randomStartY + (j - 1));
                 ironBlock.getBlock().setType(Material.IRON_BLOCK);
             }
         }
 
         // Make the start point beacon blue.
-        Location glassBlock1 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + randomStartX, e.getBlock().getY() - 2, e.getBlock().getZ() + randomStartY);
+        Location glassBlock1 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + randomStartX, e.getBlock().getY(), e.getBlock().getZ() + randomStartY);
         glassBlock1.getBlock().setType(Material.BLUE_STAINED_GLASS);
 
         // Create the end point block.
-        Location endPoint = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + randomEndX, e.getBlock().getY() - 3, e.getBlock().getZ() + randomEndY);
+        Location endPoint = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + randomEndX, e.getBlock().getY() - 1, e.getBlock().getZ() + randomEndY);
         endPoint.getBlock().setType(END_POINT_MATERIAL);
 
         // Put iron blocks under the end point to power the beacon.
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                Location ironBlock = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + randomEndX + (i - 1), e.getBlock().getY() - 4, e.getBlock().getZ() + randomEndY + (j - 1));
+                Location ironBlock = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + randomEndX + (i - 1), e.getBlock().getY() - 2, e.getBlock().getZ() + randomEndY + (j - 1));
                 ironBlock.getBlock().setType(Material.IRON_BLOCK);
             }
         }
 
         // Make the end point beacon red.
-        Location glassBlock2 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + randomEndX, e.getBlock().getY() - 2, e.getBlock().getZ() + randomEndY);
+        Location glassBlock2 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + randomEndX, e.getBlock().getY(), e.getBlock().getZ() + randomEndY);
         glassBlock2.getBlock().setType(Material.RED_STAINED_GLASS);
     }
 
@@ -336,13 +310,13 @@ public class GenMazeCommand implements CommandExecutor, Listener {
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
                 if (maze[i][j] == 1) {
-                    Location newWall1 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() - 1, e.getBlock().getZ() + j);
+                    Location newWall1 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() + 1, e.getBlock().getZ() + j);
                     newWall1.getBlock().setType(WALL_MATERIAL);
                     locations[i][j] = newWall1;
 
                     // Make the maze walls taller.
                     for (int k = 0; k < 2; k++) {
-                        Location newWallAbove = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() + k, e.getBlock().getZ() + j);
+                        Location newWallAbove = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() + 1 + k, e.getBlock().getZ() + j);
                         newWallAbove.getBlock().setType(WALL_MATERIAL);
                     }
 
@@ -367,7 +341,7 @@ public class GenMazeCommand implements CommandExecutor, Listener {
         clearDebrisAboveArena(e);
 
         // Generate walls around the maze.
-        // generateArenaWalls(e);
+        generateArenaWalls(e);
 
         // Generate start and end coordinates.
         generateArenaStartAndEndPoints(e);
