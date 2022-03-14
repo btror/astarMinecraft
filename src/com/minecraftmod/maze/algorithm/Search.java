@@ -105,7 +105,6 @@ public class Search {
                             int y = tile_grid[row][col].getBlockY() - 1;
                             int z = tile_grid[row][col].getBlockZ();
                             Location floor = new Location(tile_grid[row][col].getWorld(), x, y, z);
-                            // floor.getBlock().setType(PATH_MATERIAL); uncomment to change blocks to path
                             thePath.add(floor);
 
                             if (row == end_node.getRow() && col == end_node.getCol()) {
@@ -146,14 +145,14 @@ public class Search {
             return pathFound;
     }
 
-    public void showAnimation() {
-        long time = 50L;
+    public void showAnimation(long time) {
+        time += 50L;
         int count = 1;
         for (Location loc : exploredPlaces) {
             if (loc.getBlock().getType() != Material.RED_STAINED_GLASS) {
                 runnableDelayed(loc, time, PATH_SPREAD_MATERIAL);
                 count++;
-                if (count % (int)(SIZE * 0.08) == 0) {
+                if (count % (int)(SIZE * 0.15) == 0) {
                     time += 1L;
                 }
             }

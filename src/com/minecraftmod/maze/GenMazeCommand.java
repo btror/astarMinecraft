@@ -38,6 +38,8 @@ public class GenMazeCommand implements CommandExecutor, Listener {
     private final Material START_POINT_MATERIAL = Material.BEACON;
     private final Material END_POINT_MATERIAL = Material.BEACON;
 
+    private long time = 0;
+
     private final GenMazePlugin plugin;
 
     public GenMazeCommand(GenMazePlugin plugin) {
@@ -90,12 +92,12 @@ public class GenMazeCommand implements CommandExecutor, Listener {
 
         locations = new Location[SIZE][SIZE];
         aStarEnabled = true;
+        time = 0;
         return true;
     }
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
-//        this.plugin.getServer().getScheduler().scheduleSyncDelayedTask(this.plugin, () -> {
         if (aStarEnabled) {
             getServer().broadcastMessage("Spawned " + SIZE + "x" + SIZE + " maze...");
             e.isCancelled();
@@ -121,18 +123,24 @@ public class GenMazeCommand implements CommandExecutor, Listener {
                     // Render an actual maze.
                     generateRandomArenaMaze(e);
 
-                    Search search = new Search(plugin, locations, startCoordinate, endCoordinate, SIZE, WALL_MATERIAL, PATH_MATERIAL, PATH_SPREAD_MATERIAL);
-                    validMaze = search.start();
+                    time += 10L;
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            Search search = new Search(plugin, locations, startCoordinate, endCoordinate, SIZE, WALL_MATERIAL, PATH_MATERIAL, PATH_SPREAD_MATERIAL);
+                            validMaze = search.start();
 
-                    // TP on top of maze.
-                    Location playerLocation = new Location(e.getPlayer().getWorld(), e.getBlock().getX(), e.getBlock().getY() + 11, e.getBlock().getZ());
-                    e.getPlayer().teleport(playerLocation);
+                            // TP on top of maze.
+//                            Location playerLocation = new Location(e.getPlayer().getWorld(), e.getBlock().getX(), e.getBlock().getY() + 11, e.getBlock().getZ());
+//                            e.getPlayer().teleport(playerLocation);
 
-                    getServer().broadcastMessage("Maze generated.");
+                            getServer().broadcastMessage("Maze generated.");
 
-                    // Start A* animation.
-                    search.showAnimation();
-
+                            // Start A* animation.
+                            search.showAnimation(time);
+                            cancel();
+                        }
+                    }.runTaskTimer(this.plugin, time, 20L);
                 } else {
                     getServer().broadcastMessage("Invalid maze - retrying..." + i);
                     i++;
@@ -140,7 +148,6 @@ public class GenMazeCommand implements CommandExecutor, Listener {
             }
 
         }
-//        }, 20L);
     }
 
     public int[][] generateSimulationMaze() {
@@ -223,12 +230,17 @@ public class GenMazeCommand implements CommandExecutor, Listener {
             for (int j = 0; j < SIZE; j++) {
                 // Create the floor.
                 Location floor = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY(), e.getBlock().getZ() + j);
-                floor.getBlock().setType(GROUND_MATERIAL);
+                // floor.getBlock().setType(GROUND_MATERIAL);
+                runnableDelayed(floor, time, GROUND_MATERIAL, -1, -1);
 
                 // Store the location above the floor to the locations array.
                 Location loc = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() + 1, e.getBlock().getZ() + j);
-                loc.getBlock().setType(Material.AIR);
-                locations[i][j] = loc;
+                runnableDelayed(loc, time, Material.AIR, i, j);
+                // loc.getBlock().setType(Material.AIR);
+                // locations[i][j] = loc;
+            }
+            if (i % (int)(SIZE * .15) == 0) {
+                time += 1L;
             }
         }
     }
@@ -237,10 +249,14 @@ public class GenMazeCommand implements CommandExecutor, Listener {
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
                 // Clear all debris from the floor up to the ceiling.
-                for (int k = 1; k < 5; k++) {
+                for (int k = 1; k < 15; k++) {
                     Location locationAbove = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() + k, e.getBlock().getZ() + j);
-                    locationAbove.getBlock().setType(Material.AIR);
+                    // locationAbove.getBlock().setType(Material.AIR);
+                    runnableDelayed(locationAbove, time, Material.AIR, -1, -1);
                 }
+            }
+            if (i % (int)(SIZE * .05) == 0) {
+                time += 1L;
             }
         }
     }
@@ -250,16 +266,23 @@ public class GenMazeCommand implements CommandExecutor, Listener {
         for (int i = -1; i < SIZE + 1; i++) {
             for (int j = 0; j < 3; j++) {
                 Location loc1 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() + j, e.getBlock().getZ() - 1);
-                loc1.getBlock().setType(WALL_MATERIAL);
+                // loc1.getBlock().setType(WALL_MATERIAL);
+                runnableDelayed(loc1, time, WALL_MATERIAL, -1, -1);
 
                 Location loc2 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() - 1, e.getBlock().getY() + j, e.getBlock().getZ() + i);
-                loc2.getBlock().setType(WALL_MATERIAL);
+                // loc2.getBlock().setType(WALL_MATERIAL);
+                runnableDelayed(loc2, time, WALL_MATERIAL, -1, -1);
 
                 Location loc3 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + SIZE, e.getBlock().getY() + j, e.getBlock().getZ() + i);
-                loc3.getBlock().setType(WALL_MATERIAL);
+                // loc3.getBlock().setType(WALL_MATERIAL);
+                runnableDelayed(loc3, time, WALL_MATERIAL, -1, -1);
 
                 Location loc4 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() + j, e.getBlock().getZ() + SIZE);
-                loc4.getBlock().setType(WALL_MATERIAL);
+                // loc4.getBlock().setType(WALL_MATERIAL);
+                runnableDelayed(loc4, time, WALL_MATERIAL, -1, -1);
+            }
+            if (i > -1 && i % (int)(SIZE * .15) == 0) {
+                time += 1L;
             }
         }
     }
@@ -281,29 +304,34 @@ public class GenMazeCommand implements CommandExecutor, Listener {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 Location ironBlock = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + randomStartX + (i - 1), e.getBlock().getY() - 2, e.getBlock().getZ() + randomStartY + (j - 1));
-                ironBlock.getBlock().setType(Material.IRON_BLOCK);
+                // ironBlock.getBlock().setType(Material.IRON_BLOCK);
+                runnableDelayed(ironBlock, time, Material.IRON_BLOCK, -1, -1);
             }
         }
 
         // Make the start point beacon blue.
         Location glassBlock1 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + randomStartX, e.getBlock().getY(), e.getBlock().getZ() + randomStartY);
-        glassBlock1.getBlock().setType(Material.BLUE_STAINED_GLASS);
+        // glassBlock1.getBlock().setType(Material.BLUE_STAINED_GLASS);
+        runnableDelayed(glassBlock1, time, Material.BLUE_STAINED_GLASS, -1, -1);
 
         // Create the end point block.
         Location endPoint = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + randomEndX, e.getBlock().getY() - 1, e.getBlock().getZ() + randomEndY);
-        endPoint.getBlock().setType(END_POINT_MATERIAL);
+        // endPoint.getBlock().setType(END_POINT_MATERIAL);
+        runnableDelayed(endPoint, time, END_POINT_MATERIAL, -1, -1);
 
         // Put iron blocks under the end point to power the beacon.
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 Location ironBlock = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + randomEndX + (i - 1), e.getBlock().getY() - 2, e.getBlock().getZ() + randomEndY + (j - 1));
-                ironBlock.getBlock().setType(Material.IRON_BLOCK);
+                // ironBlock.getBlock().setType(Material.IRON_BLOCK);
+                runnableDelayed(ironBlock, time, Material.IRON_BLOCK, -1, -1);
             }
         }
 
         // Make the end point beacon red.
         Location glassBlock2 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + randomEndX, e.getBlock().getY(), e.getBlock().getZ() + randomEndY);
-        glassBlock2.getBlock().setType(Material.RED_STAINED_GLASS);
+        // glassBlock2.getBlock().setType(Material.RED_STAINED_GLASS);
+        runnableDelayed(glassBlock2, time, Material.RED_STAINED_GLASS, -1, -1);
     }
 
     public void generateMazeWalls(BlockBreakEvent e) {
@@ -312,28 +340,24 @@ public class GenMazeCommand implements CommandExecutor, Listener {
                 if (maze[i][j] == 1) {
                     Location newWall1 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() + 1, e.getBlock().getZ() + j);
                     newWall1.getBlock().setType(WALL_MATERIAL);
-                    locations[i][j] = newWall1;
+                    runnableDelayed(newWall1, time, WALL_MATERIAL, i, j);
+                    // locations[i][j] = newWall1;
 
                     // Make the maze walls taller.
                     for (int k = 0; k < 2; k++) {
                         Location newWallAbove = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() + 1 + k, e.getBlock().getZ() + j);
-                        newWallAbove.getBlock().setType(WALL_MATERIAL);
+                        // newWallAbove.getBlock().setType(WALL_MATERIAL);
+                        runnableDelayed(newWallAbove, time, WALL_MATERIAL, -1, -1);
                     }
-
                 }
+            }
+            if (i % (int)(SIZE * .15) == 0) {
+                time += 1L;
             }
         }
     }
 
     public void generateRandomArenaMaze(BlockBreakEvent e) {
-//        new BukkitRunnable() {
-//            @Override
-//            public void run() {
-//                generateArenaFloor(e);
-//                cancel();
-//            }
-//        }.runTaskTimer(this.plugin, 0L, 20L);
-
         // Generate the maze floor.
         generateArenaFloor(e);
 
@@ -348,5 +372,21 @@ public class GenMazeCommand implements CommandExecutor, Listener {
 
         // Generate maze walls.
         generateMazeWalls(e);
+    }
+
+    public void runnableDelayed(Location loc, long time, Material material, int i, int j) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (i < 0 || j < 0) {
+                    loc.getBlock().setType(material);
+                    cancel();
+                } else {
+                    loc.getBlock().setType(material);
+                    locations[i][j] = loc;
+                    cancel();
+                }
+            }
+        }.runTaskTimer(this.plugin, time, 20L);
     }
 }

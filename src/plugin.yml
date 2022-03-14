@@ -6,3 +6,6 @@ commands:
   genmaze:
     description: creates a maze
     usage: /genmaze
+  test:
+    description: test commands
+    usage: /test
