@@ -33,10 +33,10 @@ public class TestCommand implements CommandExecutor, Listener  {
     public void onBlockBreak(BlockBreakEvent e) {
         if (commandEnabled) {
             long time = 0;
-            for (int i = 0; i < 20; i++) {
+            for (int i = 0; i < 200000; i++) {
                 Location loc = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY(), e.getBlock().getZ());
                 runnableDelayed(loc, time);
-                time += 10L;
+                time += 1L;
             }
             commandEnabled = false;
         }
