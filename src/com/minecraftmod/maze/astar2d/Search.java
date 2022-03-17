@@ -1,15 +1,11 @@
-package com.minecraftmod.maze.algorithm;
+package com.minecraftmod.maze.astar2d;
 
 import com.minecraftmod.GenMazePlugin;
-import io.netty.channel.local.LocalChannel;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.checkerframework.checker.units.qual.A;
 
 import java.util.*;
-import static org.bukkit.Bukkit.getServer;
 
 public class Search {
 

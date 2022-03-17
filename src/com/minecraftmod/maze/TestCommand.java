@@ -34,7 +34,7 @@ public class TestCommand implements CommandExecutor, Listener  {
         if (commandEnabled) {
             long time = 0;
             for (int i = 0; i < 200000; i++) {
-                Location loc = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY(), e.getBlock().getZ());
+                Location loc = new Location(e.getPlayer().getWorld(), e.getBlock().getX(), e.getBlock().getY() + i, e.getBlock().getZ());
                 runnableDelayed(loc, time);
                 time += 1L;
             }

@@ -1,4 +1,4 @@
-package com.minecraftmod.maze.algorithm;
+package com.minecraftmod.maze.astar2d;
 
 import java.util.*;
 
