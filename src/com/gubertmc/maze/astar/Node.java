@@ -1,10 +1,10 @@
-package com.minecraftmod.maze.astar3d;
+package com.gubertmc.maze.astar;
 
-public class Node3D {
+public class Node {
     private int row, col, z, f, g, h, type;
-    private Node3D parent;
+    private Node parent;
 
-    public Node3D(int r, int c, int z, int t){
+    public Node(int r, int c, int z, int t){
         row = r;
         col = c;
         this.z = z;
@@ -25,7 +25,7 @@ public class Node3D {
         h = value;
     }
 
-    public void setParent(Node3D n){
+    public void setParent(Node n){
         parent = n;
     }
 
@@ -46,7 +46,7 @@ public class Node3D {
         return type;
     }
 
-    public Node3D getParent(){
+    public Node getParent(){
         return parent;
     }
 
@@ -64,7 +64,7 @@ public class Node3D {
 
     public boolean equals(Object in) {
         // typecast to Node
-        Node3D n = (Node3D) in;
+        Node n = (Node) in;
         return row == n.getRow() && col == n.getCol() && z == n.getZ();
     }
 

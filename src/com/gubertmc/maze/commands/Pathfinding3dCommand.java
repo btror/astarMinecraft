@@ -1,8 +1,8 @@
-package com.minecraftmod.maze;
+package com.gubertmc.maze.commands;
 
-import com.minecraftmod.GenMazePlugin;
-import com.minecraftmod.maze.astar3d.Search3D;
-import com.minecraftmod.maze.astar3d.SearchSimulation3D;
+import com.gubertmc.MazeGeneratorPlugin;
+import com.gubertmc.maze.astar.algorithm3d.Search3D;
+import com.gubertmc.maze.astar.algorithm3d.SearchSimulation3D;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -17,7 +17,7 @@ import java.util.Arrays;
 
 import static org.bukkit.Bukkit.getServer;
 
-public class GenMaze3dCommand implements CommandExecutor, Listener {
+public class Pathfinding3dCommand implements CommandExecutor, Listener {
 
     private boolean aStarEnabled = false;
     private int SIZE = 15;
@@ -30,18 +30,18 @@ public class GenMaze3dCommand implements CommandExecutor, Listener {
     private final int[] startCoordinate = new int[3];
     private final int[] endCoordinate = new int[3];
 
-    private final Material GROUND_MATERIAL = Material.LIGHT_BLUE_STAINED_GLASS;
-    private final Material WALL_MATERIAL = Material.BLACK_STAINED_GLASS;
-    private final Material SIDE_WALLS = Material.IRON_BARS;
+    private final Material ARENA_MATERIAL = Material.AIR;
+    private final Material BLOCKER_MATERIAL = Material.LIGHT_BLUE_STAINED_GLASS;
     private final Material PATH_MATERIAL = Material.BLUE_WOOL;
-    private final Material PATH_SPREAD_MATERIAL = Material.RED_STAINED_GLASS;
+    private final Material EXPLORED_PATH_MATERIAL = Material.BLUE_STAINED_GLASS;
     private final Material START_POINT_MATERIAL = Material.BEACON;
     private final Material END_POINT_MATERIAL = Material.BEACON;
 
-    private long time = 0;
-    private final GenMazePlugin plugin;
 
-    public GenMaze3dCommand(GenMazePlugin plugin) {
+    private long time = 0;
+    private final MazeGeneratorPlugin plugin;
+
+    public Pathfinding3dCommand(MazeGeneratorPlugin plugin) {
         this.plugin = plugin;
         difficulties[0] = "EASY";
         difficulties[1] = "SIMPLE";
@@ -109,7 +109,7 @@ public class GenMaze3dCommand implements CommandExecutor, Listener {
 
             int i = 0;
             while (!validMaze) {
-                GenMaze3dCommand.this.maze = generateSimulationMaze();
+                Pathfinding3dCommand.this.maze = generateSimulationMaze();
                 SearchSimulation3D searchSimulation = new SearchSimulation3D(maze, startCoordinate, endCoordinate);
                 validMaze = searchSimulation.start();
 
@@ -120,10 +120,10 @@ public class GenMaze3dCommand implements CommandExecutor, Listener {
                     new BukkitRunnable() {
                         @Override
                         public void run() {
-                            Search3D search = new Search3D(plugin, locations, startCoordinate, endCoordinate, SIZE, WALL_MATERIAL, PATH_MATERIAL, PATH_SPREAD_MATERIAL);
-                            validMaze = search.start();
+                            Search3D search2D = new Search3D(plugin, locations, startCoordinate, endCoordinate, SIZE, BLOCKER_MATERIAL, PATH_MATERIAL, EXPLORED_PATH_MATERIAL, ARENA_MATERIAL);
+                            validMaze = search2D.start();
                             getServer().broadcastMessage("Maze generated.");
-                            search.showAnimation(time);
+                            search2D.showAnimation(time);
                             cancel();
                         }
                     }.runTaskTimer(this.plugin, time, 20L);
@@ -244,15 +244,19 @@ public class GenMaze3dCommand implements CommandExecutor, Listener {
             for (int j = 0; j < SIZE; j++) {
                 for (int k = 0; k < SIZE; k++) {
                     Location floor = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() + k, e.getBlock().getZ() + j);
-                    runnableDelayed(floor, time, GROUND_MATERIAL, i, j, k);
-                    if (count % 80 == 0) { // was 50
-                        time += 5L;
+                    if (floor.getBlock().getType() == ARENA_MATERIAL) {
+                        locations[i][j][k] = floor;
+                    } else {
+                        runnableDelayed(floor, time, ARENA_MATERIAL, i, j, k);
+                    }
+                    if (count % 90 == 0) { // was 50
+                        time += 1L;
                     }
                     count++;
                 }
             }
             if (i % 12 == 0) { // was 25
-                time += 20L;
+                time += 15L;
             }
         }
         time += 10L;
@@ -300,7 +304,7 @@ public class GenMaze3dCommand implements CommandExecutor, Listener {
                 for (int k = 0; k < SIZE; k++) {
                     if (maze[i][j][k] == 1) {
                         Location mazeWall = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() + k, e.getBlock().getZ() + j);
-                        runnableDelayed(mazeWall, time, WALL_MATERIAL, i, j, k);
+                        runnableDelayed(mazeWall, time, BLOCKER_MATERIAL, i, j, k);
                     }
                 }
             }

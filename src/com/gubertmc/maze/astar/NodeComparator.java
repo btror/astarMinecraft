@@ -1,4 +1,4 @@
-package com.minecraftmod.maze.astar2d;
+package com.gubertmc.maze.astar;
 
 import java.util.Comparator;
 

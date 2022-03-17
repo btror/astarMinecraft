@@ -1,8 +1,8 @@
-package com.minecraftmod.maze;
+package com.gubertmc.maze.commands;
 
-import com.minecraftmod.GenMazePlugin;
-import com.minecraftmod.maze.astar2d.Search;
-import com.minecraftmod.maze.astar2d.SearchSimulation;
+import com.gubertmc.MazeGeneratorPlugin;
+import com.gubertmc.maze.astar.algorithm2d.Search2D;
+import com.gubertmc.maze.astar.algorithm2d.SearchSimulation2D;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -17,7 +17,7 @@ import java.util.Arrays;
 
 import static org.bukkit.Bukkit.getServer;
 
-public class GenMazeCommand implements CommandExecutor, Listener {
+public class Pathfinding2dCommand implements CommandExecutor, Listener {
 
     private boolean aStarEnabled = false;
     private int SIZE = 15;
@@ -39,9 +39,9 @@ public class GenMazeCommand implements CommandExecutor, Listener {
     private final Material END_POINT_MATERIAL = Material.BEACON;
 
     private long time = 0;
-    private final GenMazePlugin plugin;
+    private final MazeGeneratorPlugin plugin;
 
-    public GenMazeCommand(GenMazePlugin plugin) {
+    public Pathfinding2dCommand(MazeGeneratorPlugin plugin) {
         this.plugin = plugin;
         difficulties[0] = "EASY";
         difficulties[1] = "SIMPLE";
@@ -109,9 +109,9 @@ public class GenMazeCommand implements CommandExecutor, Listener {
 
             int i = 0;
             while (!validMaze) {
-                GenMazeCommand.this.maze = generateSimulationMaze();
-                SearchSimulation searchSimulation = new SearchSimulation(maze, startCoordinate, endCoordinate);
-                validMaze = searchSimulation.start();
+                Pathfinding2dCommand.this.maze = generateSimulationMaze();
+                SearchSimulation2D searchSimulation2D = new SearchSimulation2D(maze, startCoordinate, endCoordinate);
+                validMaze = searchSimulation2D.start();
 
                 if (validMaze) {
                     generateRandomArenaMaze(e);
@@ -120,10 +120,10 @@ public class GenMazeCommand implements CommandExecutor, Listener {
                     new BukkitRunnable() {
                         @Override
                         public void run() {
-                            Search search = new Search(plugin, locations, startCoordinate, endCoordinate, SIZE, WALL_MATERIAL, PATH_MATERIAL, PATH_SPREAD_MATERIAL);
-                            validMaze = search.start();
+                            Search2D search2D = new Search2D(plugin, locations, startCoordinate, endCoordinate, SIZE, WALL_MATERIAL, PATH_MATERIAL, PATH_SPREAD_MATERIAL);
+                            validMaze = search2D.start();
                             getServer().broadcastMessage("Maze generated.");
-                            search.showAnimation(time);
+                            search2D.showAnimation(time);
                             cancel();
                         }
                     }.runTaskTimer(this.plugin, time, 20L);

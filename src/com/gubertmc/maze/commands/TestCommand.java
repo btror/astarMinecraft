@@ -1,6 +1,6 @@
-package com.minecraftmod.maze;
+package com.gubertmc.maze.commands;
 
-import com.minecraftmod.GenMazePlugin;
+import com.gubertmc.MazeGeneratorPlugin;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -16,9 +16,9 @@ import static org.bukkit.Bukkit.getServer;
 public class TestCommand implements CommandExecutor, Listener  {
 
     private boolean commandEnabled = false;
-    private final GenMazePlugin plugin;
+    private final MazeGeneratorPlugin plugin;
 
-    public TestCommand(GenMazePlugin plugin) {
+    public TestCommand(MazeGeneratorPlugin plugin) {
         this.plugin = plugin;
     }
 

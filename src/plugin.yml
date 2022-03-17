@@ -1,14 +1,14 @@
-main: com.minecraftmod.GenMazePlugin
+main: com.gubertmc.MazeGeneratorPlugin
 name: genmaze
 api-version: 1.13
 version: 1
 commands:
-  genmaze:
+  astar2d:
     description: creates a maze
-    usage: /genmaze
-  genmaze3d:
+    usage: /astar2d
+  astar3d:
     description: creates a 3d maze
-    usage: /genmaze3d
+    usage: /astar3d
   test:
     description: test commands
     usage: /test

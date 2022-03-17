@@ -1,8 +1,11 @@
-package com.minecraftmod.maze.astar2d;
+package com.gubertmc.maze.astar.algorithm2d;
+
+import com.gubertmc.maze.astar.Node;
+import com.gubertmc.maze.astar.NodeComparator;
 
 import java.util.*;
 
-public class SearchSimulation {
+public class SearchSimulation2D {
 
     private final int SIZE;
     private final Node[][] grid;
@@ -17,24 +20,24 @@ public class SearchSimulation {
     /*
      * Default constructor
      */
-    public SearchSimulation(int[][] maze, int[] startCoordinate, int[] endCoordinate) {
+    public SearchSimulation2D(int[][] maze, int[] startCoordinate, int[] endCoordinate) {
         int size = maze[0].length;
         SIZE = size;
         grid = new Node[size][size];
         tile_grid = maze;
 
-        current_node = new Node(startCoordinate[1], startCoordinate[0], 0);
-        end_node = new Node(endCoordinate[1], endCoordinate[0], 0);
+        current_node = new Node(startCoordinate[1], startCoordinate[0], -1, 0);
+        end_node = new Node(endCoordinate[1], endCoordinate[0], -1, 0);
         grid[startCoordinate[1]][startCoordinate[0]] = current_node;
         grid[endCoordinate[1]][endCoordinate[0]] = end_node;
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
                 if (tile_grid[i][j] == 0) {
-                    Node node = new Node(i, j, 0);
+                    Node node = new Node(i, j, -1, 0);
                     grid[i][j] = node;
                 }
                 if (tile_grid[i][j] == 1) {
-                    Node node = new Node(i, j, 1);
+                    Node node = new Node(i, j, -1, 1);
                     grid[i][j] = node;
                 }
             }

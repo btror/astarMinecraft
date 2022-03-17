@@ -1,13 +1,15 @@
-package com.minecraftmod.maze.astar2d;
+package com.gubertmc.maze.astar.algorithm2d;
 
-import com.minecraftmod.GenMazePlugin;
+import com.gubertmc.MazeGeneratorPlugin;
+import com.gubertmc.maze.astar.Node;
+import com.gubertmc.maze.astar.NodeComparator;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
 
-public class Search {
+public class Search2D {
 
     private final int SIZE;
     private final Material WALL_MATERIAL;
@@ -21,7 +23,7 @@ public class Search {
     private final Node start_node;
     private Node current_node;
     private final Node end_node;
-    private final GenMazePlugin plugin;
+    private final MazeGeneratorPlugin plugin;
 
     // new
     private final ArrayList<Location> thePath = new ArrayList<>();
@@ -30,7 +32,7 @@ public class Search {
     /*
      * Default constructor
      */
-    public Search(GenMazePlugin plugin, Location[][] tiles, int[] startCoordinate, int[] endCoordinate, int size, Material wallMaterial, Material pathMaterial, Material pathSpreadMaterial) {
+    public Search2D(MazeGeneratorPlugin plugin, Location[][] tiles, int[] startCoordinate, int[] endCoordinate, int size, Material wallMaterial, Material pathMaterial, Material pathSpreadMaterial) {
         grid = new Node[size][size];
 
         int[][] tempArray = new int[size][size];
@@ -47,18 +49,18 @@ public class Search {
         PATH_MATERIAL = pathMaterial;
         PATH_SPREAD_MATERIAL = pathSpreadMaterial;
         tile_grid = tiles;
-        current_node = new Node(startCoordinate[1], startCoordinate[0], 0);
-        end_node = new Node(endCoordinate[1], endCoordinate[0], 0);
+        current_node = new Node(startCoordinate[1], startCoordinate[0], -1, 0);
+        end_node = new Node(endCoordinate[1], endCoordinate[0], -1, 0);
         grid[startCoordinate[1]][startCoordinate[0]] = current_node;
         grid[endCoordinate[1]][endCoordinate[0]] = end_node;
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
                 if (tiles[i][j].getBlock().getType() == Material.AIR) {
-                    Node node = new Node(i, j, 0);
+                    Node node = new Node(i, j, -1, 0);
                     grid[i][j] = node;
                 }
                 if (tiles[i][j].getBlock().getType() == WALL_MATERIAL) {
-                    Node node = new Node(i, j, 1);
+                    Node node = new Node(i, j, -1, 1);
                     grid[i][j] = node;
                 }
             }
