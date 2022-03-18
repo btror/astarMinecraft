@@ -22,6 +22,7 @@ public abstract class Search {
     public Node start_node;
     public Node current_node;
     public Node end_node;
+    public boolean is3d;
     public MazeGeneratorPlugin plugin;
     public ArrayList<Location> thePath = new ArrayList<>();
     public ArrayList<Location> exploredPlaces = new ArrayList<>();
@@ -40,6 +41,7 @@ public abstract class Search {
         tile_grid_int = tempArray;
 
         this.plugin = plugin;
+        this.is3d = is3d;
         SIZE = size;
         WALL_MATERIAL = wallMaterial;
         PATH_MATERIAL = pathMaterial;
@@ -95,9 +97,57 @@ public abstract class Search {
         open_list.add(current_node);
     }
 
-    public abstract boolean start();
+    public boolean start() {
+        boolean pathFound = true;
+        while (!open_list.isEmpty() && !current_node.equals(end_node)) {
+            current_node = open_list.peek();
+            open_list.remove(open_list.peek());
 
-    public abstract void calculateNeighborValues();
+            if (current_node.equals(end_node)) {
+                closed_list.add(current_node);
+                ArrayList<Node> path = generatePath();
+
+                for (int i = path.size() - 1; i > -1; i--) {
+                    int row = path.get(i).getRow();
+                    int col = path.get(i).getCol();
+                    int zNum = path.get(i).getZ();
+                    if (!is3d) {
+                        zNum = 0;
+                    }
+                    if (tile_grid_int[row][col][zNum] == 1) {
+                        int x = tile_grid[row][col][zNum].getBlockX();
+                        int y;
+                        if (is3d) {
+                            y = tile_grid[row][col][zNum].getBlockY();
+                        } else {
+                            y = tile_grid[row][col][0].getBlockY() - 1;
+                        }
+                        int z = tile_grid[row][col][zNum].getBlockZ();
+
+                        Location floor = new Location(tile_grid[row][col][zNum].getWorld(), x, y, z);
+                        thePath.add(floor);
+                    }
+                }
+                break;
+            } else {
+                try {
+                    calculateNeighborValues();
+                } catch (NullPointerException np) {}
+
+                try {
+                    assert open_list.peek() != null;
+                } catch (NullPointerException e) {
+                    pathFound = false;
+                }
+                closed_list.add(current_node);
+            }
+        }
+
+        if (open_list.size() == 0) {
+            pathFound = false;
+        }
+        return pathFound;
+    }
 
     public void showAnimation(long time) {
         time += 50L;
@@ -105,7 +155,7 @@ public abstract class Search {
         for (Location loc : exploredPlaces) {
             runnableDelayed(loc, time, PATH_SPREAD_MATERIAL);
             count++;
-            if (count % (int) (SIZE * 0.15) == 0) {
+            if (count % (int) (SIZE * 0.25) == 0) {
                 time += 1L;
             }
         }
@@ -125,7 +175,11 @@ public abstract class Search {
         new BukkitRunnable() {
             @Override
             public void run() {
-                loc.getBlock().setType(material);
+                if (loc.getBlock().getType() != Material.RED_STAINED_GLASS && !is3d) {
+                    loc.getBlock().setType(material);
+                } else if (loc.getBlock().getType() != Material.BEACON && is3d) {
+                    loc.getBlock().setType(material);
+                }
                 cancel();
             }
         }.runTaskTimer(this.plugin, time, 20L);
@@ -221,5 +275,141 @@ public abstract class Search {
             path.add(temp);
         }
         return path;
+    }
+
+    public void calculateNeighborValues() {
+        int row = current_node.getRow();
+        int col = current_node.getCol();
+        int zNum = current_node.getZ();
+
+        if (!is3d) {
+            zNum = 0;
+        }
+
+        // front node
+        if (row - 1 > -1 && grid[row - 1][col][zNum].getType() == 0 && !closed_list.contains(grid[row - 1][col][zNum])) {
+            grid[row - 1][col][zNum].setParent(current_node);
+            int g = calculateG(grid[row - 1][col][zNum]);
+            grid[row - 1][col][zNum].setG(g);
+            int h = calculateH(grid[row - 1][col][zNum]);
+            grid[row - 1][col][zNum].setH(h);
+            grid[row - 1][col][zNum].setF();
+            open_list.add(grid[row - 1][col][zNum]);
+            tile_grid_int[row - 1][col][zNum] = 1;
+
+            Location loc = tile_grid[row - 1][col][zNum];
+            if (!exploredPlaces.contains(loc)) {
+                if (is3d) {
+                    loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ());
+                } else {
+                    loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ());
+                }
+                exploredPlaces.add(loc);
+            }
+        }
+
+        // left node
+        if (col + 1 < SIZE && grid[row][col + 1][zNum].getType() == 0 && !closed_list.contains(grid[row][col + 1][zNum])) {
+            grid[row][col + 1][zNum].setParent(current_node);
+            int g = calculateG(grid[row][col + 1][zNum]);
+            grid[row][col + 1][zNum].setG(g);
+            int h = calculateH(grid[row][col + 1][zNum]);
+            grid[row][col + 1][zNum].setH(h);
+            grid[row][col + 1][zNum].setF();
+            open_list.add(grid[row][col + 1][zNum]);
+            tile_grid_int[row][col + 1][zNum] = 1;
+
+            Location loc = tile_grid[row][col + 1][zNum];
+            if (!exploredPlaces.contains(loc)) {
+                if (is3d) {
+                    loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ());
+                } else {
+                    loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ());
+                }
+                exploredPlaces.add(loc);
+            }
+        }
+
+        // behind node
+        if (row + 1 < SIZE && grid[row + 1][col][zNum].getType() == 0 && !closed_list.contains(grid[row + 1][col][zNum])) {
+            grid[row + 1][col][zNum].setParent(current_node);
+            int g = calculateG(grid[row + 1][col][zNum]);
+            grid[row + 1][col][zNum].setG(g);
+            int h = calculateH(grid[row + 1][col][zNum]);
+            grid[row + 1][col][zNum].setH(h);
+            grid[row + 1][col][zNum].setF();
+            open_list.add(grid[row + 1][col][zNum]);
+            tile_grid_int[row + 1][col][zNum] = 1;
+
+            Location loc = tile_grid[row + 1][col][zNum];
+            if (!exploredPlaces.contains(loc)) {
+                if (is3d) {
+                    loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ());
+                } else {
+                    loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ());
+                }
+                exploredPlaces.add(loc);
+            }
+        }
+
+        // right node
+        if (col - 1 > -1 && grid[row][col - 1][zNum].getType() == 0 && !closed_list.contains(grid[row][col - 1][zNum])) {
+            grid[row][col - 1][zNum].setParent(current_node);
+            int g = calculateG(grid[row][col - 1][zNum]);
+            grid[row][col - 1][zNum].setG(g);
+            int h = calculateH(grid[row][col - 1][zNum]);
+            grid[row][col - 1][zNum].setH(h);
+            grid[row][col - 1][zNum].setF();
+            open_list.add(grid[row][col - 1][zNum]);
+            tile_grid_int[row][col - 1][zNum] = 1;
+
+            Location loc = tile_grid[row][col - 1][zNum];
+            if (!exploredPlaces.contains(loc)) {
+                if (is3d) {
+                    loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ());
+                } else {
+                    loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ());
+                }
+                exploredPlaces.add(loc);
+            }
+        }
+
+        if (is3d) {
+            // bottom node
+            if (zNum - 1 > -1 && grid[row][col][zNum - 1].getType() == 0 && !closed_list.contains(grid[row][col][zNum - 1])) {
+                grid[row][col][zNum - 1].setParent(current_node);
+                int g = calculateG(grid[row][col][zNum - 1]);
+                grid[row][col][zNum - 1].setG(g);
+                int h = calculateH(grid[row][col][zNum - 1]);
+                grid[row][col][zNum - 1].setH(h);
+                grid[row][col][zNum - 1].setF();
+                open_list.add(grid[row][col][zNum - 1]);
+                tile_grid_int[row][col][zNum - 1] = 1;
+
+                Location loc = tile_grid[row][col][zNum - 1];
+                if (!exploredPlaces.contains(loc)) {
+                    loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ());
+                    exploredPlaces.add(loc);
+                }
+            }
+
+            // top node
+            if (zNum + 1 < SIZE && grid[row][col][zNum + 1].getType() == 0 && !closed_list.contains(grid[row][col][zNum + 1])) {
+                grid[row][col][zNum + 1].setParent(current_node);
+                int g = calculateG(grid[row][col][zNum + 1]);
+                grid[row][col][zNum + 1].setG(g);
+                int h = calculateH(grid[row][col][zNum + 1]);
+                grid[row][col][zNum + 1].setH(h);
+                grid[row][col][zNum + 1].setF();
+                open_list.add(grid[row][col][zNum + 1]);
+                tile_grid_int[row][col][zNum + 1] = 1;
+
+                Location loc = tile_grid[row][col][zNum + 1];
+                if (!exploredPlaces.contains(loc)) {
+                    loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ());
+                    exploredPlaces.add(loc);
+                }
+            }
+        }
     }
 }

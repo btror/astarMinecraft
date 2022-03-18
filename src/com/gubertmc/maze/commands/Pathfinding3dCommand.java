@@ -21,7 +21,7 @@ public class Pathfinding3dCommand implements CommandExecutor, Listener {
 
     private boolean aStarEnabled = false;
     private int SIZE = 15;
-    private double MAZE_WALL_PERCENTAGE = .40;
+    private double MAZE_WALL_PERCENTAGE = .02;
     private Location[][][] locations;
     private int[][][] maze;
     private final String[] difficulties = new String[6];
@@ -30,9 +30,9 @@ public class Pathfinding3dCommand implements CommandExecutor, Listener {
     private final int[] startCoordinate = new int[3];
     private final int[] endCoordinate = new int[3];
 
-    private final Material ARENA_MATERIAL = Material.AIR;
-    private final Material BLOCKER_MATERIAL = Material.LIGHT_BLUE_STAINED_GLASS;
-    private final Material PATH_MATERIAL = Material.BLUE_WOOL;
+    private final Material ARENA_MATERIAL = Material.LIGHT_BLUE_STAINED_GLASS;
+    private final Material BLOCKER_MATERIAL = Material.EMERALD_BLOCK;
+    private final Material PATH_MATERIAL = Material.GREEN_WOOL;
     private final Material EXPLORED_PATH_MATERIAL = Material.BLUE_STAINED_GLASS;
     private final Material START_POINT_MATERIAL = Material.BEACON;
     private final Material END_POINT_MATERIAL = Material.BEACON;
@@ -83,9 +83,9 @@ public class Pathfinding3dCommand implements CommandExecutor, Listener {
         }
 
         switch (difficulty) {
-            case "EASY", "SIMPLE" -> MAZE_WALL_PERCENTAGE = .20;
-            case "MEDIUM", "MODERATE" -> MAZE_WALL_PERCENTAGE = .35;
-            case "HARD", "DIFFICULT" -> MAZE_WALL_PERCENTAGE = .50;
+            case "EASY", "SIMPLE" -> MAZE_WALL_PERCENTAGE = .02;
+            case "MEDIUM", "MODERATE" -> MAZE_WALL_PERCENTAGE = .06;
+            case "HARD", "DIFFICULT" -> MAZE_WALL_PERCENTAGE = .10;
         }
 
         locations = new Location[SIZE][SIZE][SIZE];
