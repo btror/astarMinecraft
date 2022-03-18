@@ -4,57 +4,51 @@ public class Node {
     private int row, col, z, f, g, h, type;
     private Node parent;
 
-    public Node(int r, int c, int z, int t){
+    public Node(int r, int c, int z, int t) {
         row = r;
         col = c;
         this.z = z;
         type = t;
         parent = null;
-        //type 0 is traversable, 1 is not
     }
-    //mutator methods to set values
-    public void setF(){
+
+    public void setF() {
         f = g + h;
     }
 
-    public void setG(int value){
+    public void setG(int value) {
         g = value;
     }
 
-    public void setH(int value){
+    public void setH(int value) {
         h = value;
     }
 
-    public void setParent(Node n){
+    public void setParent(Node n) {
         parent = n;
     }
 
-    //accessor methods to get values
-    public int getF(){
+    public int getF() {
         return f;
     }
 
-    public int getG(){
+    public int getG() {
         return g;
-    }
-
-    public int getH(){
-        return h;
     }
 
     public int getType() {
         return type;
     }
 
-    public Node getParent(){
+    public Node getParent() {
         return parent;
     }
 
-    public int getRow(){
+    public int getRow() {
         return row;
     }
 
-    public int getCol(){
+    public int getCol() {
         return col;
     }
 
@@ -63,12 +57,11 @@ public class Node {
     }
 
     public boolean equals(Object in) {
-        // typecast to Node
         Node n = (Node) in;
         return row == n.getRow() && col == n.getCol() && z == n.getZ();
     }
 
-    public String toString(){
+    public String toString() {
         return "Node: " + row + "_" + col + "_" + z;
     }
 }

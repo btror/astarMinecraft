@@ -22,13 +22,13 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
     private boolean aStarEnabled = false;
     private int SIZE = 15;
     private double MAZE_WALL_PERCENTAGE = .40;
-    private Location[][] locations;
-    private int[][] maze;
+    private Location[][][] locations;
+    private int[][][] maze;
     private final String[] difficulties = new String[6];
     private boolean validMaze;
 
-    private final int[] startCoordinate = new int[2];
-    private final int[] endCoordinate = new int[2];
+    private final int[] startCoordinate = new int[3];
+    private final int[] endCoordinate = new int[3];
 
     private final Material GROUND_MATERIAL = Material.GRASS_BLOCK;
     private final Material WALL_MATERIAL = Material.STONE_BRICKS;
@@ -88,7 +88,7 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
             case "HARD", "DIFFICULT" -> MAZE_WALL_PERCENTAGE = .50;
         }
 
-        locations = new Location[SIZE][SIZE];
+        locations = new Location[SIZE][SIZE][SIZE];
         aStarEnabled = true;
         time = 0;
         return true;
@@ -120,7 +120,7 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
                     new BukkitRunnable() {
                         @Override
                         public void run() {
-                            Search2D search2D = new Search2D(plugin, locations, startCoordinate, endCoordinate, SIZE, WALL_MATERIAL, PATH_MATERIAL, PATH_SPREAD_MATERIAL);
+                            Search2D search2D = new Search2D(plugin, locations, startCoordinate, endCoordinate, SIZE, WALL_MATERIAL, PATH_MATERIAL, PATH_SPREAD_MATERIAL, GROUND_MATERIAL);
                             validMaze = search2D.start();
                             getServer().broadcastMessage("Maze generated.");
                             search2D.showAnimation(time);
@@ -142,13 +142,15 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
      *
      * @return a maze of integers where a path from start to finish exists.
      */
-    public int[][] generateSimulationMaze() {
+    public int[][][] generateSimulationMaze() {
 
-        int[][] maze = new int[SIZE][SIZE];
+        int[][][] maze = new int[SIZE][SIZE][SIZE];
 
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
-                maze[i][j] = 0;
+                for (int k = 0; k < SIZE; k++) {
+                    maze[i][j][k] = 0;
+                }
             }
         }
 
@@ -171,14 +173,16 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
             }
         }
 
-        maze[randomStartX][randomStartY] = 4;
-        maze[randomEndX][randomEndY] = 5;
+        maze[randomStartX][randomStartY][0] = 4;
+        maze[randomEndX][randomEndY][0] = 5;
 
         startCoordinate[0] = randomStartY;
         startCoordinate[1] = randomStartX;
+        startCoordinate[2] = 0;
 
         endCoordinate[0] = randomEndY;
         endCoordinate[1] = randomEndX;
+        endCoordinate[2] = 0;
 
         int k = 0;
         int randomX = (int) (Math.random() * SIZE);
@@ -203,7 +207,7 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
                 randomX = (int) (Math.random() * SIZE);
                 randomY = (int) (Math.random() * SIZE);
             }
-            maze[randomX][randomY] = 1;
+            maze[randomX][randomY][0] = 1;
             k++;
         }
 
@@ -345,7 +349,7 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
         time += 10L;
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
-                if (maze[i][j] == 1) {
+                if (maze[i][j][0] == 1) {
                     Location mazeWall = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() + 1, e.getBlock().getZ() + j);
                     runnableDelayed(mazeWall, time, WALL_MATERIAL, i, j);
 
@@ -393,7 +397,7 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
                     cancel();
                 } else {
                     loc.getBlock().setType(material);
-                    locations[i][j] = loc;
+                    locations[i][j][0] = loc;
                     cancel();
                 }
             }
