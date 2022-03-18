@@ -51,6 +51,6 @@ or
 - <a href="https://github.com/btror/AStar/edit/master/README.md">AStar</a> by <a href="https://github.com/btror/AStar">btror</a>
 
 
-### Techs tack
+### Tech stack
 - Minecraft 1.18.1
 - spigot 1.18.1
