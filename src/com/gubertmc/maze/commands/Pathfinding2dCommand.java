@@ -392,7 +392,7 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
         runnableDelayed(endPointGlass, time, Material.RED_STAINED_GLASS, -1, -1);
 
         time += 10L;
-    }
+    } 
 
     public void generateMazeWalls(BlockBreakEvent e) {
         time += 5L;
