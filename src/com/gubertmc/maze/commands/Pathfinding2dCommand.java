@@ -2,15 +2,24 @@ package com.gubertmc.maze.commands;
 
 import com.gubertmc.MazeGeneratorPlugin;
 import com.gubertmc.maze.astar.algorithm2d.Search2D;
-import com.gubertmc.maze.astar.algorithm2d.SearchSimulation2D;
+import com.gubertmc.maze.astar.algorithm2d.Simulation2D;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.material.Lever;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Arrays;
@@ -40,6 +49,8 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
 
     private long time = 0;
     private final MazeGeneratorPlugin plugin;
+    private BlockBreakEvent bbe;
+    private boolean platformExists;
 
     public Pathfinding2dCommand(MazeGeneratorPlugin plugin) {
         this.plugin = plugin;
@@ -94,11 +105,6 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
         return true;
     }
 
-    /**
-     * Generate a maze where a block was broken after initiating the genmaze command.
-     *
-     * @param e event
-     */
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
         if (aStarEnabled) {
@@ -106,42 +112,107 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
             e.isCancelled();
             aStarEnabled = false;
             validMaze = false;
+            this.bbe = e;
+            platformExists = true;
+            generatePlatform(e);
+            generateArenaFloor(e);
+            clearDebrisAboveArena(e);
+            generateArenaWalls(e);
 
-            int i = 0;
-            while (!validMaze) {
-                Pathfinding2dCommand.this.maze = generateSimulationMaze();
-                SearchSimulation2D searchSimulation2D = new SearchSimulation2D(maze, startCoordinate, endCoordinate);
-                validMaze = searchSimulation2D.start();
+//            int i = 0;
+//            while (!validMaze) {
+//                Pathfinding2dCommand.this.maze = generateSimulationMaze();
+//                Simulation2D simulation2D = new Simulation2D(maze, startCoordinate, endCoordinate);
+//                validMaze = simulation2D.start();
+//
+//                if (validMaze) {
+//                    generateRandomArenaMaze(e);
+//
+//                    time += 10L;
+//                    new BukkitRunnable() {
+//                        @Override
+//                        public void run() {
+//                            Search2D search2D = new Search2D(plugin, locations, startCoordinate, endCoordinate, SIZE, WALL_MATERIAL, PATH_MATERIAL, PATH_SPREAD_MATERIAL, GROUND_MATERIAL);
+//                            validMaze = search2D.start();
+//                            getServer().broadcastMessage("Maze generated.");
+//                            search2D.showAnimation(time);
+//                            cancel();
+//                        }
+//                    }.runTaskTimer(this.plugin, time, 20L);
+//
+//                    time = 0;
+//                } else {
+//                    getServer().broadcastMessage("Invalid maze - retrying..." + i);
+//                    i++;
+//                }
+//            }
+        }
+    }
 
-                if (validMaze) {
-                    generateRandomArenaMaze(e);
-
-                    time += 10L;
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            Search2D search2D = new Search2D(plugin, locations, startCoordinate, endCoordinate, SIZE, WALL_MATERIAL, PATH_MATERIAL, PATH_SPREAD_MATERIAL, GROUND_MATERIAL);
-                            validMaze = search2D.start();
-                            getServer().broadcastMessage("Maze generated.");
-                            search2D.showAnimation(time);
-                            cancel();
-                        }
-                    }.runTaskTimer(this.plugin, time, 20L);
-
-                    time = 0;
-                } else {
-                    getServer().broadcastMessage("Invalid maze - retrying..." + i);
-                    i++;
+    public void generatePlatform(BlockBreakEvent e) {
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 3; j++) {
+                Location floor = new Location(e.getBlock().getWorld(), e.getBlock().getX() + i, e.getBlock().getY(), e.getBlock().getZ() - 4 + j);
+                floor.getBlock().setType(GROUND_MATERIAL);
+            }
+            for (int k = 0; k < 2; k++) {
+                Location location = new Location(e.getBlock().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() + 1 + k, e.getBlock().getZ() - 2);
+                location.getBlock().setType(WALL_MATERIAL);
+                if (k == 1 && i != 2) {
+                    ItemFrame frame = e.getBlock().getWorld().spawn(location.add(0, 0, -1), ItemFrame.class);
+                    frame.setItem(new ItemStack(Material.DIAMOND_AXE));
+                }
+                if (k == 1 && i == 3) {
+                    Location loc = new Location(e.getBlock().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() + 1 + k, e.getBlock().getZ() - 3);
+                    loc.getBlock().getRelative(BlockFace.WEST).setType(Material.WARPED_BUTTON);
                 }
             }
         }
     }
 
-    /**
-     * Generate a simulation maze of integers.
-     *
-     * @return a maze of integers where a path from start to finish exists.
-     */
+    @EventHandler
+    public void generateNewMaze(PlayerInteractEvent e) {
+        if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            Block clicked = e.getClickedBlock();
+            assert clicked != null;
+            if (clicked.getType() == Material.WARPED_BUTTON) {
+                time = 0L;
+                if (platformExists) {
+                    getServer().broadcastMessage("Generating new maze...");
+                    generateArenaFloor(bbe);
+                }
+                int i = 0;
+                validMaze = false;
+                while (!validMaze) {
+                    Pathfinding2dCommand.this.maze = generateSimulationMaze();
+                    Simulation2D simulation2D = new Simulation2D(maze, startCoordinate, endCoordinate);
+                    validMaze = simulation2D.start();
+
+                    if (validMaze) {
+                        generateRandomArenaMaze(bbe);
+
+                        time += 10L;
+                        new BukkitRunnable() {
+                            @Override
+                            public void run() {
+                                Search2D search2D = new Search2D(plugin, locations, startCoordinate, endCoordinate, SIZE, WALL_MATERIAL, PATH_MATERIAL, PATH_SPREAD_MATERIAL, GROUND_MATERIAL);
+                                validMaze = search2D.start();
+                                getServer().broadcastMessage("Maze generated.");
+                                search2D.showAnimation(time);
+                                cancel();
+                            }
+                        }.runTaskTimer(this.plugin, time, 20L);
+
+                        time = 0;
+                    } else {
+                        getServer().broadcastMessage("Invalid maze - retrying..." + i);
+                        i++;
+                    }
+                }
+            }
+        }
+    }
+
     public int[][][] generateSimulationMaze() {
 
         int[][][] maze = new int[SIZE][SIZE][SIZE];
@@ -214,13 +285,8 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
         return maze;
     }
 
-    /**
-     * Generate the floor of the maze.
-     *
-     * @param e event
-     */
     public void generateArenaFloor(BlockBreakEvent e) {
-        time += 10L;
+        time += 5L;
         int count = 0;
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
@@ -230,23 +296,21 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
                 Location locationAboveFloor = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() + 1, e.getBlock().getZ() + j);
                 runnableDelayed(locationAboveFloor, time, Material.AIR, i, j);
 
+                Location debris = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() + 2, e.getBlock().getZ() + j);
+                runnableDelayed(debris, time, Material.AIR, -1, -1);
+
                 if (count % 80 == 0) { // was 50
                     time += 5L;
                 }
                 count++;
             }
             if (i % 12 == 0) { // was 25
-                time += 20L;
+                time += 5L;
             }
         }
-        time += 10L;
+        time += 5L;
     }
 
-    /**
-     * Clear the debris above the floor.
-     *
-     * @param e event
-     */
     public void clearDebrisAboveArena(BlockBreakEvent e) {
         time += 10L;
         for (int i = 0; i < SIZE; i++) {
@@ -268,13 +332,8 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
         time += 10L;
     }
 
-    /**
-     * Generate the walls that go around the entire maze.
-     *
-     * @param e event
-     */
     public void generateArenaWalls(BlockBreakEvent e) {
-        time += 10L;
+        time += 5L;
         for (int i = -1; i < SIZE + 1; i++) {
             for (int j = 0; j < 3; j++) {
                 Location side1 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() + j, e.getBlock().getZ() - 1);
@@ -293,14 +352,9 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
                 time += 2L;
             }
         }
-        time += 10L;
+        time += 5L;
     }
 
-    /**
-     * Generate maze start and end points.
-     *
-     * @param e event
-     */
     public void generateArenaStartAndEndPoints(BlockBreakEvent e) {
         time += 10L;
         int randomStartX = startCoordinate[1];
@@ -340,13 +394,8 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
         time += 10L;
     }
 
-    /**
-     * Generate the maze within the arena.
-     *
-     * @param e event
-     */
     public void generateMazeWalls(BlockBreakEvent e) {
-        time += 10L;
+        time += 5L;
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
                 if (maze[i][j][0] == 1) {
@@ -366,28 +415,14 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
         time += 10L;
     }
 
-    /**
-     * Generate the entire maze. Put all the parts together.
-     *
-     * @param e event
-     */
     public void generateRandomArenaMaze(BlockBreakEvent e) {
-        generateArenaFloor(e);
-        clearDebrisAboveArena(e);
-        generateArenaWalls(e);
+//        generateArenaFloor(e);
+//        clearDebrisAboveArena(e);
+//        generateArenaWalls(e);
         generateArenaStartAndEndPoints(e);
         generateMazeWalls(e);
     }
 
-    /**
-     * Animate the maze.
-     *
-     * @param loc location of a block.
-     * @param time when to place a block.
-     * @param material the type of block.
-     * @param i row of the block.
-     * @param j column of the block.
-     */
     public void runnableDelayed(Location loc, long time, Material material, int i, int j) {
         new BukkitRunnable() {
             @Override

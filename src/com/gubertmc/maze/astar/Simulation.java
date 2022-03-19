@@ -1,43 +1,62 @@
-package com.gubertmc.maze.astar.algorithm3d;
-
-import com.gubertmc.maze.astar.Node;
-import com.gubertmc.maze.astar.NodeComparator;
+package com.gubertmc.maze.astar;
 
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 
-public class SearchSimulation3D {
+public abstract class Simulation {
 
-    private final int SIZE;
-    private final Node[][][] grid;
-    private final PriorityQueue<Node> open_list = new PriorityQueue<>(10, new NodeComparator());
-    private final ArrayList<Node> closed_list = new ArrayList<>();
-    private final int[][][] tile_grid;
-    private final Node start_node;
-    private Node current_node;
-    private final Node end_node;
+    public int SIZE;
+    public Node[][][] grid;
+    public PriorityQueue<Node> open_list = new PriorityQueue<>(10, new NodeComparator());
+    public ArrayList<Node> closed_list = new ArrayList<>();
+    public int[][][] tile_grid;
+    public Node start_node;
+    public Node current_node;
+    public final Node end_node;
+    public boolean is3d;
 
-    public SearchSimulation3D(int[][][] maze, int[] startCoordinate, int[] endCoordinate) {
+    public Simulation(int[][][] maze, int[] startCoordinate, int[] endCoordinate, boolean is3d) {
         int size = maze[0].length;
         SIZE = size;
         grid = new Node[size][size][size];
         tile_grid = maze;
+        this.is3d = is3d;
 
-        current_node = new Node(startCoordinate[1], startCoordinate[0], startCoordinate[2], 0);
-        end_node = new Node(endCoordinate[1], endCoordinate[0], endCoordinate[2], 0);
-        grid[startCoordinate[1]][startCoordinate[0]][startCoordinate[2]] = current_node;
-        grid[endCoordinate[1]][endCoordinate[0]][endCoordinate[2]] = end_node;
+        if (!is3d) {
+            current_node = new Node(startCoordinate[1], startCoordinate[0], -1, 0);
+            end_node = new Node(endCoordinate[1], endCoordinate[0], -1, 0);
+            grid[startCoordinate[1]][startCoordinate[0]][0] = current_node;
+            grid[endCoordinate[1]][endCoordinate[0]][0] = end_node;
 
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                for (int k = 0; k < SIZE; k++) {
-                    if (tile_grid[i][j][k] == 0) {
-                        Node node = new Node(i, j, k, 0);
-                        grid[i][j][k] = node;
+            for (int i = 0; i < SIZE; i++) {
+                for (int j = 0; j < SIZE; j++) {
+                    if (tile_grid[i][j][0] == 0) {
+                        Node node = new Node(i, j, -1, 0);
+                        grid[i][j][0] = node;
                     }
-                    if (tile_grid[i][j][k] == 1) {
-                        Node node = new Node(i, j, k, 1);
-                        grid[i][j][k] = node;
+                    if (tile_grid[i][j][0] == 1) {
+                        Node node = new Node(i, j, -1, 1);
+                        grid[i][j][0] = node;
+                    }
+                }
+            }
+        } else {
+            current_node = new Node(startCoordinate[1], startCoordinate[0], startCoordinate[2], 0);
+            end_node = new Node(endCoordinate[1], endCoordinate[0], endCoordinate[2], 0);
+            grid[startCoordinate[1]][startCoordinate[0]][startCoordinate[2]] = current_node;
+            grid[endCoordinate[1]][endCoordinate[0]][endCoordinate[2]] = end_node;
+
+            for (int i = 0; i < SIZE; i++) {
+                for (int j = 0; j < SIZE; j++) {
+                    for (int k = 0; k < SIZE; k++) {
+                        if (tile_grid[i][j][k] == 0) {
+                            Node node = new Node(i, j, k, 0);
+                            grid[i][j][k] = node;
+                        }
+                        if (tile_grid[i][j][k] == 1) {
+                            Node node = new Node(i, j, k, 1);
+                            grid[i][j][k] = node;
+                        }
                     }
                 }
             }
@@ -60,10 +79,14 @@ public class SearchSimulation3D {
             if (current_node.equals(end_node)) {
                 closed_list.add(current_node);
                 ArrayList<Node> path = generatePath();
+
                 for (int i = path.size() - 1; i > -1; i--) {
                     int row = path.get(i).getRow();
                     int col = path.get(i).getCol();
                     int zNum = path.get(i).getZ();
+                    if (!is3d) {
+                        zNum = 0;
+                    }
 
                     if (tile_grid[row][col][zNum] == 2) {
                         tile_grid[row][col][zNum] = 3;
@@ -77,8 +100,13 @@ public class SearchSimulation3D {
                     System.out.println(np.getMessage());
                 }
 
-                tile_grid[start_node.getRow()][start_node.getCol()][start_node.getZ()] = 4;
-                tile_grid[end_node.getRow()][end_node.getCol()][end_node.getZ()] = 5;
+                if (!is3d) {
+                    tile_grid[start_node.getRow()][start_node.getCol()][0] = 4;
+                    tile_grid[end_node.getRow()][end_node.getCol()][0] = 5;
+                } else {
+                    tile_grid[start_node.getRow()][start_node.getCol()][start_node.getZ()] = 4;
+                    tile_grid[end_node.getRow()][end_node.getCol()][end_node.getZ()] = 5;
+                }
 
                 try {
                     assert open_list.peek() != null;
@@ -126,6 +154,10 @@ public class SearchSimulation3D {
                 zDistance = current_node.getZ() - zNum;
             }
 
+            if (zNum == -1) {
+                zDistance = 0;
+            }
+
             return (xDistance * 10) + (yDistance * 10) + (zDistance * 10);
         }
         return 10 + parent.getG();
@@ -157,15 +189,18 @@ public class SearchSimulation3D {
                 row--;
             }
         }
-        while (zNum < end_node.getZ() || zNum > end_node.getZ()) {
-            z += 10;
-            if (zNum < end_node.getZ()) {
-                zNum++;
-            }
-            if (zNum > end_node.getZ()) {
-                zNum--;
+        if (zNum != -1) {
+            while (zNum < end_node.getZ() || zNum > end_node.getZ()) {
+                z += 10;
+                if (zNum < end_node.getZ()) {
+                    zNum++;
+                }
+                if (zNum > end_node.getZ()) {
+                    zNum--;
+                }
             }
         }
+
         return x + y + z;
     }
 
@@ -173,6 +208,10 @@ public class SearchSimulation3D {
         int row = current_node.getRow();
         int col = current_node.getCol();
         int zNum = current_node.getZ();
+
+        if (!is3d) {
+            zNum = 0;
+        }
 
         // front node
         if (row - 1 > -1 && grid[row - 1][col][zNum].getType() == 0 && !closed_list.contains(grid[row - 1][col][zNum])) {
@@ -222,28 +261,30 @@ public class SearchSimulation3D {
             tile_grid[row][col - 1][zNum] = 2;
         }
 
-        // bottom node
-        if (zNum - 1 > -1 && grid[row][col][zNum - 1].getType() == 0 && !closed_list.contains(grid[row][col][zNum - 1])) {
-            grid[row][col][zNum - 1].setParent(current_node);
-            int g = calculateG(grid[row][col][zNum - 1]);
-            grid[row][col][zNum - 1].setG(g);
-            int h = calculateH(grid[row][col][zNum - 1]);
-            grid[row][col][zNum - 1].setH(h);
-            grid[row][col][zNum - 1].setF();
-            open_list.add(grid[row][col][zNum - 1]);
-            tile_grid[row][col][zNum - 1] = 2;
-        }
+        if (is3d) {
+            // bottom node
+            if (zNum - 1 > -1 && grid[row][col][zNum - 1].getType() == 0 && !closed_list.contains(grid[row][col][zNum - 1])) {
+                grid[row][col][zNum - 1].setParent(current_node);
+                int g = calculateG(grid[row][col][zNum - 1]);
+                grid[row][col][zNum - 1].setG(g);
+                int h = calculateH(grid[row][col][zNum - 1]);
+                grid[row][col][zNum - 1].setH(h);
+                grid[row][col][zNum - 1].setF();
+                open_list.add(grid[row][col][zNum - 1]);
+                tile_grid[row][col][zNum - 1] = 2;
+            }
 
-        // top node
-        if (zNum + 1 < SIZE && grid[row][col][zNum + 1].getType() == 0 && !closed_list.contains(grid[row][col][zNum + 1])) {
-            grid[row][col][zNum + 1].setParent(current_node);
-            int g = calculateG(grid[row][col][zNum + 1]);
-            grid[row][col][zNum + 1].setG(g);
-            int h = calculateH(grid[row][col][zNum + 1]);
-            grid[row][col][zNum + 1].setH(h);
-            grid[row][col][zNum + 1].setF();
-            open_list.add(grid[row][col][zNum + 1]);
-            tile_grid[row][col][zNum + 1] = 2;
+            // top node
+            if (zNum + 1 < SIZE && grid[row][col][zNum + 1].getType() == 0 && !closed_list.contains(grid[row][col][zNum + 1])) {
+                grid[row][col][zNum + 1].setParent(current_node);
+                int g = calculateG(grid[row][col][zNum + 1]);
+                grid[row][col][zNum + 1].setG(g);
+                int h = calculateH(grid[row][col][zNum + 1]);
+                grid[row][col][zNum + 1].setH(h);
+                grid[row][col][zNum + 1].setF();
+                open_list.add(grid[row][col][zNum + 1]);
+                tile_grid[row][col][zNum + 1] = 2;
+            }
         }
     }
 

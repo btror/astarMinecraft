@@ -2,7 +2,7 @@ package com.gubertmc.maze.commands;
 
 import com.gubertmc.MazeGeneratorPlugin;
 import com.gubertmc.maze.astar.algorithm3d.Search3D;
-import com.gubertmc.maze.astar.algorithm3d.SearchSimulation3D;
+import com.gubertmc.maze.astar.algorithm3d.Simulation3D;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
@@ -94,11 +94,6 @@ public class Pathfinding3dCommand implements CommandExecutor, Listener {
         return true;
     }
 
-    /**
-     * Generate a maze where a block was broken after initiating the genmaze command.
-     *
-     * @param e event
-     */
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
         if (aStarEnabled) {
@@ -110,7 +105,7 @@ public class Pathfinding3dCommand implements CommandExecutor, Listener {
             int i = 0;
             while (!validMaze) {
                 Pathfinding3dCommand.this.maze = generateSimulationMaze();
-                SearchSimulation3D searchSimulation = new SearchSimulation3D(maze, startCoordinate, endCoordinate);
+                Simulation3D searchSimulation = new Simulation3D(maze, startCoordinate, endCoordinate);
                 validMaze = searchSimulation.start();
 
                 if (validMaze) {
@@ -137,18 +132,6 @@ public class Pathfinding3dCommand implements CommandExecutor, Listener {
         }
     }
 
-    /**
-     * Generate a simulation maze of integers.
-     *
-     * @return a maze of integers where a path from start to finish exists.
-     *
-     * 0 - empty space
-     * 1 - wall
-     * 2 -
-     * 3 -
-     * 4 - start
-     * 5 - end
-     */
     public int[][][] generateSimulationMaze() {
 
         int[][][] maze = new int[SIZE][SIZE][SIZE];
@@ -232,11 +215,6 @@ public class Pathfinding3dCommand implements CommandExecutor, Listener {
         return maze;
     }
 
-    /**
-     * Generate the floor of the maze.
-     *
-     * @param e event
-     */
     public void generateArenaFloor(BlockBreakEvent e) {
         time += 10L;
         int count = 0;
@@ -262,11 +240,6 @@ public class Pathfinding3dCommand implements CommandExecutor, Listener {
         time += 10L;
     }
 
-    /**
-     * Generate maze start and end points.
-     *
-     * @param e event
-     */
     public void generateArenaStartAndEndPoints(BlockBreakEvent e) {
         time += 10L;
         int randomStartX = startCoordinate[1];
@@ -292,11 +265,6 @@ public class Pathfinding3dCommand implements CommandExecutor, Listener {
         time += 10L;
     }
 
-    /**
-     * Generate the maze within the arena.
-     *
-     * @param e event
-     */
     public void generateMazeWalls(BlockBreakEvent e) {
         time += 10L;
         for (int i = 0; i < SIZE; i++) {
@@ -315,11 +283,6 @@ public class Pathfinding3dCommand implements CommandExecutor, Listener {
         time += 10L;
     }
 
-    /**
-     * Generate the entire maze. Put all the parts together.
-     *
-     * @param e event
-     */
     public void generateRandomArenaMaze(BlockBreakEvent e) {
         generateArenaFloor(e);
         // clearDebrisAboveArena(e);
@@ -328,15 +291,6 @@ public class Pathfinding3dCommand implements CommandExecutor, Listener {
         generateMazeWalls(e);
     }
 
-    /**
-     * Animate the maze.
-     *
-     * @param loc location of a block.
-     * @param time when to place a block.
-     * @param material the type of block.
-     * @param i row of the block.
-     * @param j column of the block.
-     */
     public void runnableDelayed(Location loc, long time, Material material, int i, int j, int k) {
         new BukkitRunnable() {
             @Override
