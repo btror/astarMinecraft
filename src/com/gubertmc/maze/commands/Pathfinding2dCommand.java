@@ -18,34 +18,42 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+
 import java.util.Arrays;
+
 import static org.bukkit.Bukkit.getServer;
 
 public class Pathfinding2dCommand implements CommandExecutor, Listener {
 
-    private boolean aStarEnabled = false;
-    private int SIZE = 15;
-    private double MAZE_WALL_PERCENTAGE = .40;
-    private Location[][][] locations;
-    private int[][][] maze;
+    private final MazeGeneratorPlugin plugin;
+
     private final String[] difficulties = new String[6];
-    private boolean validMaze;
+
+    private int size = 15;
+    private double wallPercentage = .40;
+
+    private long time = 0;
 
     private final int[] startCoordinate = new int[3];
     private final int[] endCoordinate = new int[3];
 
+    private int[][][] maze;
+
+    private boolean validMaze;
+    private boolean platformExists;
+    private boolean aStarEnabled = false;
+
     private final Material GROUND_MATERIAL = Material.GRASS_BLOCK;
     private final Material WALL_MATERIAL = Material.STONE_BRICKS;
-    private final Material SIDE_WALLS = Material.IRON_BARS;
     private final Material PATH_MATERIAL = Material.BLUE_WOOL;
     private final Material PATH_SPREAD_MATERIAL = Material.SANDSTONE;
     private final Material START_POINT_MATERIAL = Material.BEACON;
     private final Material END_POINT_MATERIAL = Material.BEACON;
 
-    private long time = 0;
-    private final MazeGeneratorPlugin plugin;
+    private Location[][][] locations;
+    private Location startButtonLocation;
+
     private BlockBreakEvent bbe;
-    private boolean platformExists;
 
     public Pathfinding2dCommand(MazeGeneratorPlugin plugin) {
         this.plugin = plugin;
@@ -62,7 +70,7 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
         String difficulty = "MEDIUM";
         if (args.length > 0 && args.length < 3) {
             try {
-                SIZE = Integer.parseInt(args[0]);
+                size = Integer.parseInt(args[0]);
                 if (args.length == 2) {
                     difficulty = args[1].toUpperCase();
                     if (Arrays.asList(difficulties).contains(difficulty)) {
@@ -89,12 +97,12 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
         }
 
         switch (difficulty) {
-            case "EASY", "SIMPLE" -> MAZE_WALL_PERCENTAGE = .20;
-            case "MEDIUM", "MODERATE" -> MAZE_WALL_PERCENTAGE = .35;
-            case "HARD", "DIFFICULT" -> MAZE_WALL_PERCENTAGE = .50;
+            case "EASY", "SIMPLE" -> wallPercentage = .20;
+            case "MEDIUM", "MODERATE" -> wallPercentage = .35;
+            case "HARD", "DIFFICULT" -> wallPercentage = .50;
         }
 
-        locations = new Location[SIZE][SIZE][SIZE];
+        locations = new Location[size][size][size];
         aStarEnabled = true;
         time = 0;
         return true;
@@ -103,29 +111,29 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
     @EventHandler
     public void onBlockBreak(BlockBreakEvent e) {
         if (aStarEnabled) {
-            getServer().broadcastMessage("Spawned " + SIZE + "x" + SIZE + " maze...");
+            getServer().broadcastMessage("Spawned " + size + "x" + size + " maze...");
             e.isCancelled();
             aStarEnabled = false;
             validMaze = false;
             this.bbe = e;
             platformExists = true;
-            generatePlatform(e);
-            generateArenaFloor(e);
-            clearDebrisAboveArena(e);
-            generateArenaWalls(e);
+            spawnPlatform(e);
+            generateMazeFloor(e);
+            clearDebris(e);
+            generateMazeBorders(e);
         }
     }
 
     @EventHandler
-    public void generateNewMaze(PlayerInteractEvent e) {
+    public void onStartButtonClicked(PlayerInteractEvent e) {
         if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
             Block clicked = e.getClickedBlock();
             assert clicked != null;
-            if (clicked.getType() == Material.WARPED_BUTTON) {
+            if (clicked.getType() == Material.WARPED_BUTTON && startButtonLocation.getBlock().getRelative(BlockFace.WEST).getType() == clicked.getLocation().getBlock().getType()) {
                 time = 0L;
                 if (platformExists) {
                     getServer().broadcastMessage("Generating new maze...");
-                    generateArenaFloor(bbe);
+                    generateMazeFloor(bbe);
                 }
                 int i = 0;
                 validMaze = false;
@@ -135,13 +143,13 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
                     validMaze = simulation2D.start();
 
                     if (validMaze) {
-                        generateRandomArenaMaze(bbe);
+                        generateNewMaze(bbe);
 
                         time += 10L;
                         new BukkitRunnable() {
                             @Override
                             public void run() {
-                                Search2D search2D = new Search2D(plugin, locations, startCoordinate, endCoordinate, SIZE, WALL_MATERIAL, PATH_MATERIAL, PATH_SPREAD_MATERIAL, GROUND_MATERIAL);
+                                Search2D search2D = new Search2D(plugin, locations, startCoordinate, endCoordinate, size, WALL_MATERIAL, PATH_MATERIAL, PATH_SPREAD_MATERIAL, GROUND_MATERIAL);
                                 validMaze = search2D.start();
                                 getServer().broadcastMessage("Maze generated.");
                                 search2D.showAnimation(time);
@@ -161,31 +169,31 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
 
     public int[][][] generateSimulationMaze() {
 
-        int[][][] maze = new int[SIZE][SIZE][SIZE];
+        int[][][] maze = new int[size][size][size];
 
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                for (int k = 0; k < SIZE; k++) {
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                for (int k = 0; k < size; k++) {
                     maze[i][j][k] = 0;
                 }
             }
         }
 
-        int randomStartX = (int) (Math.random() * SIZE);
-        int randomStartY = (int) (Math.random() * SIZE);
+        int randomStartX = (int) (Math.random() * size);
+        int randomStartY = (int) (Math.random() * size);
 
-        int randomEndX = (int) (Math.random() * SIZE);
-        int randomEndY = (int) (Math.random() * SIZE);
+        int randomEndX = (int) (Math.random() * size);
+        int randomEndY = (int) (Math.random() * size);
 
         boolean badPositions = true;
         while (badPositions) {
-            randomStartX = (int) (Math.random() * SIZE);
-            randomStartY = (int) (Math.random() * SIZE);
-            randomEndX = (int) (Math.random() * SIZE);
-            randomEndY = (int) (Math.random() * SIZE);
+            randomStartX = (int) (Math.random() * size);
+            randomStartY = (int) (Math.random() * size);
+            randomEndX = (int) (Math.random() * size);
+            randomEndY = (int) (Math.random() * size);
 
             int distance = (int) Math.sqrt(Math.pow(randomEndX - randomStartX, 2) + Math.pow(randomEndY - randomStartY, 2));
-            if (SIZE / 1.3 < distance) {
+            if (size / 1.3 < distance) {
                 badPositions = false;
             }
         }
@@ -202,27 +210,27 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
         endCoordinate[2] = 0;
 
         int k = 0;
-        int randomX = (int) (Math.random() * SIZE);
-        int randomY = (int) (Math.random() * SIZE);
-        for (int i = 0; i < (SIZE * SIZE) * MAZE_WALL_PERCENTAGE; i++) {
+        int randomX = (int) (Math.random() * size);
+        int randomY = (int) (Math.random() * size);
+        for (int i = 0; i < (size * size) * wallPercentage; i++) {
             if (k % 2 == 0) {
-                randomX = (int) (Math.random() * SIZE);
-                randomY = (int) (Math.random() * SIZE);
+                randomX = (int) (Math.random() * size);
+                randomY = (int) (Math.random() * size);
             } else {
                 int random = (int) (Math.random() * 2);
                 if (random == 0) {
-                    if (randomX < SIZE - 1 && randomX + 1 != randomStartX && randomX + 1 != randomStartY) {
+                    if (randomX < size - 1 && randomX + 1 != randomStartX && randomX + 1 != randomStartY) {
                         randomX++;
                     }
                 } else {
-                    if (randomY < SIZE - 1 && randomY + 1 != randomStartX && randomY + 1 != randomStartY) {
+                    if (randomY < size - 1 && randomY + 1 != randomStartX && randomY + 1 != randomStartY) {
                         randomY++;
                     }
                 }
             }
             while ((randomX == randomStartX && randomY == randomStartY) || (randomX == randomEndX && randomY == randomEndY)) {
-                randomX = (int) (Math.random() * SIZE);
-                randomY = (int) (Math.random() * SIZE);
+                randomX = (int) (Math.random() * size);
+                randomY = (int) (Math.random() * size);
             }
             maze[randomX][randomY][0] = 1;
             k++;
@@ -231,7 +239,7 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
         return maze;
     }
 
-    public void generatePlatform(BlockBreakEvent e) {
+    public void spawnPlatform(BlockBreakEvent e) {
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 3; j++) {
                 Location floor = new Location(e.getBlock().getWorld(), e.getBlock().getX() + i, e.getBlock().getY(), e.getBlock().getZ() - 4 + j);
@@ -247,16 +255,22 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
                 if (k == 1 && i == 3) {
                     Location loc = new Location(e.getBlock().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() + 1 + k, e.getBlock().getZ() - 3);
                     loc.getBlock().getRelative(BlockFace.WEST).setType(Material.WARPED_BUTTON);
+                    startButtonLocation = loc.getBlock().getLocation();
                 }
             }
         }
     }
 
-    public void generateArenaFloor(BlockBreakEvent e) {
+    public void generateNewMaze(BlockBreakEvent e) {
+        generateMazeStartAndEndPoints(e);
+        generateMazeWalls(e);
+    }
+
+    public void generateMazeFloor(BlockBreakEvent e) {
         time += 5L;
         int count = 0;
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
                 Location floor = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY(), e.getBlock().getZ() + j);
                 runnableDelayed(floor, time, GROUND_MATERIAL, -1, -1);
 
@@ -278,30 +292,9 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
         time += 5L;
     }
 
-    public void clearDebrisAboveArena(BlockBreakEvent e) {
-        time += 10L;
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                for (int k = 1; k < 8; k++) {
-                    Location debris = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() + k, e.getBlock().getZ() + j);
-                    if (debris.getBlock().getType() != Material.AIR) {
-                        runnableDelayed(debris, time, Material.AIR, -1, -1);
-                        if (j % 50 == 0) {
-                            time += 5L;
-                        }
-                    }
-                }
-            }
-            if (i % 25 == 0) {
-                time += 10L;
-            }
-        }
-        time += 10L;
-    }
-
-    public void generateArenaWalls(BlockBreakEvent e) {
+    public void generateMazeBorders(BlockBreakEvent e) {
         time += 5L;
-        for (int i = -1; i < SIZE + 1; i++) {
+        for (int i = -1; i < size + 1; i++) {
             for (int j = 0; j < 3; j++) {
                 Location side1 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() + j, e.getBlock().getZ() - 1);
                 runnableDelayed(side1, time, WALL_MATERIAL, -1, -1);
@@ -309,20 +302,20 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
                 Location side2 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() - 1, e.getBlock().getY() + j, e.getBlock().getZ() + i);
                 runnableDelayed(side2, time, WALL_MATERIAL, -1, -1);
 
-                Location side3 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + SIZE, e.getBlock().getY() + j, e.getBlock().getZ() + i);
+                Location side3 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + size, e.getBlock().getY() + j, e.getBlock().getZ() + i);
                 runnableDelayed(side3, time, WALL_MATERIAL, -1, -1);
 
-                Location side4 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() + j, e.getBlock().getZ() + SIZE);
+                Location side4 = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() + j, e.getBlock().getZ() + size);
                 runnableDelayed(side4, time, WALL_MATERIAL, -1, -1);
             }
-            if (i > -1 && i % (int)(SIZE * .15) == 0) {
+            if (i > -1 && i % (int) (size * .15) == 0) {
                 time += 2L;
             }
         }
         time += 5L;
     }
 
-    public void generateArenaStartAndEndPoints(BlockBreakEvent e) {
+    public void generateMazeStartAndEndPoints(BlockBreakEvent e) {
         time += 10L;
         int randomStartX = startCoordinate[1];
         int randomStartY = startCoordinate[0];
@@ -359,12 +352,12 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
         runnableDelayed(endPointGlass, time, Material.RED_STAINED_GLASS, -1, -1);
 
         time += 10L;
-    } 
+    }
 
     public void generateMazeWalls(BlockBreakEvent e) {
         time += 5L;
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
                 if (maze[i][j][0] == 1) {
                     Location mazeWall = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() + 1, e.getBlock().getZ() + j);
                     runnableDelayed(mazeWall, time, WALL_MATERIAL, i, j);
@@ -375,23 +368,39 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
                     }
                 }
             }
-            if (i % (int)(SIZE * .15) == 0) {
+            if (i % (int) (size * .15) == 0) {
                 time += 2L;
             }
         }
         time += 10L;
     }
 
-    public void generateRandomArenaMaze(BlockBreakEvent e) {
-        generateArenaStartAndEndPoints(e);
-        generateMazeWalls(e);
+    public void clearDebris(BlockBreakEvent e) {
+        time += 10L;
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                for (int k = 1; k < 8; k++) {
+                    Location debris = new Location(e.getPlayer().getWorld(), e.getBlock().getX() + i, e.getBlock().getY() + k, e.getBlock().getZ() + j);
+                    if (debris.getBlock().getType() != Material.AIR) {
+                        runnableDelayed(debris, time, Material.AIR, -1, -1);
+                        if (j % 50 == 0) {
+                            time += 5L;
+                        }
+                    }
+                }
+            }
+            if (i % 25 == 0) {
+                time += 10L;
+            }
+        }
+        time += 10L;
     }
 
     public void runnableDelayed(Location loc, long time, Material material, int i, int j) {
         new BukkitRunnable() {
             @Override
             public void run() {
-                if (i < 0 || j < 0 || i > SIZE || j > SIZE) {
+                if (i < 0 || j < 0 || i > size || j > size) {
                     loc.getBlock().setType(material);
                     cancel();
                 } else {
