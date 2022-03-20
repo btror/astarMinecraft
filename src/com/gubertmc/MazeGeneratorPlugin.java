@@ -1,8 +1,8 @@
 package com.gubertmc;
 
-import com.gubertmc.maze.commands.Pathfinding3dCommand;
-import com.gubertmc.maze.commands.Pathfinding2dCommand;
-import com.gubertmc.maze.commands.TestCommand;
+import com.gubertmc.maze.old.commands.Pathfinding3dCommand;
+import com.gubertmc.maze.old.commands.Pathfinding2dCommand;
+import com.gubertmc.maze.old.commands.TestCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 import java.util.Objects;
 

@@ -1,4 +1,4 @@
-package com.gubertmc.maze.astar;
+package com.gubertmc.maze.old.astar;
 
 public class Node {
     private int row, col, z, f, g, h, type;

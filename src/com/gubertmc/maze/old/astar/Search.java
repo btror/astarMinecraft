@@ -1,11 +1,9 @@
-package com.gubertmc.maze.astar;
+package com.gubertmc.maze.old.astar;
 
 import com.gubertmc.MazeGeneratorPlugin;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;

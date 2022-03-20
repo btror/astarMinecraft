@@ -1,7 +1,7 @@
-package com.gubertmc.maze.astar.algorithm2d;
+package com.gubertmc.maze.old.astar.algorithm2d;
 
 import com.gubertmc.MazeGeneratorPlugin;
-import com.gubertmc.maze.astar.Search;
+import com.gubertmc.maze.old.astar.Search;
 import org.bukkit.Location;
 import org.bukkit.Material;
 

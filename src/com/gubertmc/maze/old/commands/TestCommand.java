@@ -1,4 +1,4 @@
-package com.gubertmc.maze.commands;
+package com.gubertmc.maze.old.commands;
 
 import com.gubertmc.MazeGeneratorPlugin;
 import org.bukkit.Location;

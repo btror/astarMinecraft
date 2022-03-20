@@ -1,4 +1,4 @@
-package com.gubertmc.maze.astar;
+package com.gubertmc.maze.old.astar;
 
 import java.util.Comparator;
 
