@@ -1,54 +1,26 @@
-package com.gubertmc.maze.astar;
+package com.gubertmc.plugin.algorithms;
 
-import com.gubertmc.MazeGeneratorPlugin;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.event.Listener;
-import org.bukkit.scheduler.BukkitRunnable;
+import java.util.ArrayList;
+import java.util.PriorityQueue;
 
-import java.util.*;
-
-public class Search implements Listener {
+public class Simulation {
 
     public int SIZE;
-    public Material WALL_MATERIAL;
-    public Material PATH_MATERIAL;
-    public Material PATH_SPREAD_MATERIAL;
-    public Material PATH_GROUND_MATERIAL;
     public Node[][][] grid;
     public PriorityQueue<Node> open_list = new PriorityQueue<>(10, new NodeComparator());
     public ArrayList<Node> closed_list = new ArrayList<>();
-    public Location[][][] tile_grid;
-    public int[][][] tile_grid_int;
+    public int[][][] tile_grid;
     public Node start_node;
     public Node current_node;
-    public Node end_node;
+    public final Node end_node;
     public boolean is3d;
-    public MazeGeneratorPlugin plugin;
-    public ArrayList<Location> thePath = new ArrayList<>();
-    public ArrayList<Location> exploredPlaces = new ArrayList<>();
 
-    public Search(MazeGeneratorPlugin plugin, Location[][][] tiles, int[] startCoordinate, int[] endCoordinate, int size, Material wallMaterial, Material pathMaterial, Material pathSpreadMaterial, Material groundMaterial, boolean is3d) {
-        grid = new Node[size][size][size];
-
-        int[][][] tempArray = new int[size][size][size];
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                for (int k = 0; k < size; k++) {
-                    tempArray[i][j][k] = 0;
-                }
-            }
-        }
-        tile_grid_int = tempArray;
-
-        this.plugin = plugin;
-        this.is3d = is3d;
+    public Simulation(int[][][] maze, int[] startCoordinate, int[] endCoordinate, boolean is3d) {
+        int size = maze[0].length;
         SIZE = size;
-        WALL_MATERIAL = wallMaterial;
-        PATH_MATERIAL = pathMaterial;
-        PATH_SPREAD_MATERIAL = pathSpreadMaterial;
-        PATH_GROUND_MATERIAL = groundMaterial;
-        tile_grid = tiles;
+        grid = new Node[size][size][size];
+        tile_grid = maze;
+        this.is3d = is3d;
 
         if (!is3d) {
             current_node = new Node(startCoordinate[1], startCoordinate[0], -1, 0);
@@ -58,11 +30,11 @@ public class Search implements Listener {
 
             for (int i = 0; i < SIZE; i++) {
                 for (int j = 0; j < SIZE; j++) {
-                    if (tiles[i][j][0].getBlock().getType() == Material.AIR) {
+                    if (tile_grid[i][j][0] == 0) {
                         Node node = new Node(i, j, -1, 0);
                         grid[i][j][0] = node;
                     }
-                    if (tiles[i][j][0].getBlock().getType() == WALL_MATERIAL) {
+                    if (tile_grid[i][j][0] == 1) {
                         Node node = new Node(i, j, -1, 1);
                         grid[i][j][0] = node;
                     }
@@ -77,11 +49,11 @@ public class Search implements Listener {
             for (int i = 0; i < SIZE; i++) {
                 for (int j = 0; j < SIZE; j++) {
                     for (int k = 0; k < SIZE; k++) {
-                        if (tiles[i][j][k].getBlock().getType() == PATH_GROUND_MATERIAL) {
+                        if (tile_grid[i][j][k] == 0) {
                             Node node = new Node(i, j, k, 0);
                             grid[i][j][k] = node;
                         }
-                        if (tiles[i][j][k].getBlock().getType() == WALL_MATERIAL) {
+                        if (tile_grid[i][j][k] == 1) {
                             Node node = new Node(i, j, k, 1);
                             grid[i][j][k] = node;
                         }
@@ -89,6 +61,7 @@ public class Search implements Listener {
                 }
             }
         }
+
         int g = calculateG(current_node);
         current_node.setG(g);
         int h = calculateH(current_node);
@@ -103,7 +76,6 @@ public class Search implements Listener {
         while (!open_list.isEmpty() && !current_node.equals(end_node)) {
             current_node = open_list.peek();
             open_list.remove(open_list.peek());
-
             if (current_node.equals(end_node)) {
                 closed_list.add(current_node);
                 ArrayList<Node> path = generatePath();
@@ -115,25 +87,26 @@ public class Search implements Listener {
                     if (!is3d) {
                         zNum = 0;
                     }
-                    if (tile_grid_int[row][col][zNum] == 1) {
-                        int x = tile_grid[row][col][zNum].getBlockX();
-                        int y;
-                        if (is3d) {
-                            y = tile_grid[row][col][zNum].getBlockY();
-                        } else {
-                            y = tile_grid[row][col][0].getBlockY() - 1;
-                        }
-                        int z = tile_grid[row][col][zNum].getBlockZ();
 
-                        Location floor = new Location(tile_grid[row][col][zNum].getWorld(), x, y, z);
-                        thePath.add(floor);
+                    if (tile_grid[row][col][zNum] == 2) {
+                        tile_grid[row][col][zNum] = 3;
                     }
                 }
                 break;
             } else {
                 try {
                     calculateNeighborValues();
-                } catch (NullPointerException np) {}
+                } catch (NullPointerException np) {
+                    System.out.println(np.getMessage());
+                }
+
+                if (!is3d) {
+                    tile_grid[start_node.getRow()][start_node.getCol()][0] = 4;
+                    tile_grid[end_node.getRow()][end_node.getCol()][0] = 5;
+                } else {
+                    tile_grid[start_node.getRow()][start_node.getCol()][start_node.getZ()] = 4;
+                    tile_grid[end_node.getRow()][end_node.getCol()][end_node.getZ()] = 5;
+                }
 
                 try {
                     assert open_list.peek() != null;
@@ -148,42 +121,6 @@ public class Search implements Listener {
             pathFound = false;
         }
         return pathFound;
-    }
-
-    public void showAnimation(long time) {
-        time += 50L;
-        int count = 1;
-        for (Location loc : exploredPlaces) {
-            runnableDelayed(loc, time, PATH_SPREAD_MATERIAL);
-            count++;
-            if (count % (int) (SIZE * 0.25) == 0) {
-                time += 1L;
-            }
-        }
-
-        time += 10L;
-        for (Location loc : thePath) {
-            if (thePath.get(thePath.size() - 1) == loc) {
-                // do something cool
-            } else {
-                runnableDelayed(loc, time, PATH_MATERIAL);
-                time += 1L;
-            }
-        }
-    }
-
-    public void runnableDelayed(Location loc, long time, Material material) {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (loc.getBlock().getType() != Material.RED_STAINED_GLASS && !is3d) {
-                    loc.getBlock().setType(material);
-                } else if (loc.getBlock().getType() != Material.BEACON && is3d) {
-                    loc.getBlock().setType(material);
-                }
-                cancel();
-            }
-        }.runTaskTimer(this.plugin, time, 20L);
     }
 
     public int calculateG(Node node) {
@@ -267,17 +204,6 @@ public class Search implements Listener {
         return x + y + z;
     }
 
-    public ArrayList<Node> generatePath() {
-        ArrayList<Node> path = new ArrayList<>();
-        Node temp = current_node;
-        path.add(temp);
-        while (temp.getParent() != null) {
-            temp = temp.getParent();
-            path.add(temp);
-        }
-        return path;
-    }
-
     public void calculateNeighborValues() {
         int row = current_node.getRow();
         int col = current_node.getCol();
@@ -296,17 +222,7 @@ public class Search implements Listener {
             grid[row - 1][col][zNum].setH(h);
             grid[row - 1][col][zNum].setF();
             open_list.add(grid[row - 1][col][zNum]);
-            tile_grid_int[row - 1][col][zNum] = 1;
-
-            Location loc = tile_grid[row - 1][col][zNum];
-            if (!exploredPlaces.contains(loc)) {
-                if (is3d) {
-                    loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ());
-                } else {
-                    loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ());
-                }
-                exploredPlaces.add(loc);
-            }
+            tile_grid[row - 1][col][zNum] = 2;
         }
 
         // left node
@@ -318,17 +234,7 @@ public class Search implements Listener {
             grid[row][col + 1][zNum].setH(h);
             grid[row][col + 1][zNum].setF();
             open_list.add(grid[row][col + 1][zNum]);
-            tile_grid_int[row][col + 1][zNum] = 1;
-
-            Location loc = tile_grid[row][col + 1][zNum];
-            if (!exploredPlaces.contains(loc)) {
-                if (is3d) {
-                    loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ());
-                } else {
-                    loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ());
-                }
-                exploredPlaces.add(loc);
-            }
+            tile_grid[row][col + 1][zNum] = 2;
         }
 
         // behind node
@@ -340,17 +246,7 @@ public class Search implements Listener {
             grid[row + 1][col][zNum].setH(h);
             grid[row + 1][col][zNum].setF();
             open_list.add(grid[row + 1][col][zNum]);
-            tile_grid_int[row + 1][col][zNum] = 1;
-
-            Location loc = tile_grid[row + 1][col][zNum];
-            if (!exploredPlaces.contains(loc)) {
-                if (is3d) {
-                    loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ());
-                } else {
-                    loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ());
-                }
-                exploredPlaces.add(loc);
-            }
+            tile_grid[row + 1][col][zNum] = 2;
         }
 
         // right node
@@ -362,17 +258,7 @@ public class Search implements Listener {
             grid[row][col - 1][zNum].setH(h);
             grid[row][col - 1][zNum].setF();
             open_list.add(grid[row][col - 1][zNum]);
-            tile_grid_int[row][col - 1][zNum] = 1;
-
-            Location loc = tile_grid[row][col - 1][zNum];
-            if (!exploredPlaces.contains(loc)) {
-                if (is3d) {
-                    loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ());
-                } else {
-                    loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ());
-                }
-                exploredPlaces.add(loc);
-            }
+            tile_grid[row][col - 1][zNum] = 2;
         }
 
         if (is3d) {
@@ -385,13 +271,7 @@ public class Search implements Listener {
                 grid[row][col][zNum - 1].setH(h);
                 grid[row][col][zNum - 1].setF();
                 open_list.add(grid[row][col][zNum - 1]);
-                tile_grid_int[row][col][zNum - 1] = 1;
-
-                Location loc = tile_grid[row][col][zNum - 1];
-                if (!exploredPlaces.contains(loc)) {
-                    loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ());
-                    exploredPlaces.add(loc);
-                }
+                tile_grid[row][col][zNum - 1] = 2;
             }
 
             // top node
@@ -403,14 +283,19 @@ public class Search implements Listener {
                 grid[row][col][zNum + 1].setH(h);
                 grid[row][col][zNum + 1].setF();
                 open_list.add(grid[row][col][zNum + 1]);
-                tile_grid_int[row][col][zNum + 1] = 1;
-
-                Location loc = tile_grid[row][col][zNum + 1];
-                if (!exploredPlaces.contains(loc)) {
-                    loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ());
-                    exploredPlaces.add(loc);
-                }
+                tile_grid[row][col][zNum + 1] = 2;
             }
         }
+    }
+
+    public ArrayList<Node> generatePath() {
+        ArrayList<Node> path = new ArrayList<>();
+        Node temp = current_node;
+        path.add(temp);
+        while (temp.getParent() != null) {
+            temp = temp.getParent();
+            path.add(temp);
+        }
+        return path;
     }
 }

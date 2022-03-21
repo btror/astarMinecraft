@@ -1,4 +1,4 @@
-package com.gubertmc.maze.astar;
+package com.gubertmc.plugin.algorithms;
 
 import java.util.Comparator;
 

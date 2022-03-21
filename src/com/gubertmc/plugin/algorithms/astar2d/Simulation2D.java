@@ -1,6 +1,6 @@
-package com.gubertmc.maze.astar.algorithm2d;
+package com.gubertmc.plugin.algorithms.astar2d;
 
-import com.gubertmc.maze.astar.Simulation;
+import com.gubertmc.plugin.algorithms.Simulation;
 
 public class Simulation2D extends Simulation {
 
