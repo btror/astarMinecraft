@@ -8,13 +8,13 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public abstract class Maze {
 
-    public int size;
-    public MazeGeneratorPlugin plugin;
-    public Block block;
-    public Location[][][] locations;
-    public int[] startCoordinate;
-    public int[] endCoordinate;
-    public double wallPercentage = 0.2;
+    private final int size;
+    private double wallPercentage = 0.2;
+    private final int[] startCoordinate;
+    private final int[] endCoordinate;
+    private final MazeGeneratorPlugin plugin;
+    private final Block block;
+    private final Location[][][] locations;
 
 
     public Maze(MazeGeneratorPlugin plugin, Block block, int size) {
@@ -47,7 +47,7 @@ public abstract class Maze {
     /**
      * Create the start and end points of the mazes.
      */
-    public abstract void generateStartAndEndPoints();
+    public abstract void generateStartAndEndPoints(Material startPointGlassMaterial, Material endPointGlassMaterial);
 
     /**
      * Generate the blocked parts of the mazes.
@@ -81,6 +81,34 @@ public abstract class Maze {
                 }
             }
         }.runTaskTimer(this.plugin, time, 20L);
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public MazeGeneratorPlugin getPlugin() {
+        return plugin;
+    }
+
+    public Block getMazeLocationBlock() {
+        return block;
+    }
+
+    public Location[][][] getLocations() {
+        return locations;
+    }
+
+    public int[] getStartCoordinate() {
+        return startCoordinate;
+    }
+
+    public int[] getEndCoordinate() {
+        return endCoordinate;
+    }
+
+    public double getWallPercentage() {
+        return wallPercentage;
     }
 
 }

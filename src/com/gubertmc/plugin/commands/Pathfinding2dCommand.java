@@ -31,9 +31,9 @@ public class Pathfinding2dCommand implements CommandExecutor, Listener {
      */
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String alias, String[] args) {
-        getServer().broadcastMessage("Spawning 2D maze...");
-
         Player player = (Player) commandSender;
+        player.sendMessage("2D mase spawned...");
+
         int size = Integer.parseInt(args[0]);
         Maze maze = new Maze2D(plugin, player.getLocation().getBlock(), size);
 

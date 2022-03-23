@@ -23,13 +23,11 @@ public class MazeGeneratorPlugin extends JavaPlugin {
         Objects.requireNonNull(getCommand("astar3d")).setExecutor(genMazeCommand3d);
         getServer().getPluginManager().registerEvents(genMazeCommand3d, this);
 
-        // Button
-        // getServer().getPluginManager().registerEvents(new ControlPlatform(this, 0), this);
-
         // Test command
         TestCommand testCommand = new TestCommand(this);
         Objects.requireNonNull(getCommand("test")).setExecutor(testCommand);
         getServer().getPluginManager().registerEvents(testCommand, this);
+
     }
 
     @Override

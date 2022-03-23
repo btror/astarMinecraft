@@ -26,36 +26,37 @@ public class Maze3D extends Maze {
      *
      * @return integer maze.
      */
+    @Override
     public int[][][] generateSimulation() {
-        int[][][] maze = new int[size][size][size];
+        int[][][] maze = new int[getSize()][getSize()][getSize()];
 
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                for (int k = 0; k < size; k++) {
+        for (int i = 0; i < getSize(); i++) {
+            for (int j = 0; j < getSize(); j++) {
+                for (int k = 0; k < getSize(); k++) {
                     maze[i][j][k] = 0;
                 }
             }
         }
 
-        int randomStartX = (int) (Math.random() * size);
-        int randomStartY = (int) (Math.random() * size);
-        int randomStartZ = (int) (Math.random() * size);
+        int randomStartX = (int) (Math.random() * getSize());
+        int randomStartY = (int) (Math.random() * getSize());
+        int randomStartZ = (int) (Math.random() * getSize());
 
-        int randomEndX = (int) (Math.random() * size);
-        int randomEndY = (int) (Math.random() * size);
-        int randomEndZ = (int) (Math.random() * size);
+        int randomEndX = (int) (Math.random() * getSize());
+        int randomEndY = (int) (Math.random() * getSize());
+        int randomEndZ = (int) (Math.random() * getSize());
 
         boolean badPositions = true;
         while (badPositions) {
-            randomStartX = (int) (Math.random() * size);
-            randomStartY = (int) (Math.random() * size);
-            randomStartZ = (int) (Math.random() * size);
-            randomEndX = (int) (Math.random() * size);
-            randomEndY = (int) (Math.random() * size);
-            randomEndZ = (int) (Math.random() * size);
+            randomStartX = (int) (Math.random() * getSize());
+            randomStartY = (int) (Math.random() * getSize());
+            randomStartZ = (int) (Math.random() * getSize());
+            randomEndX = (int) (Math.random() * getSize());
+            randomEndY = (int) (Math.random() * getSize());
+            randomEndZ = (int) (Math.random() * getSize());
 
             int distance = (int) Math.sqrt(Math.pow(randomEndX - randomStartX, 2) + Math.pow(randomEndY - randomStartY, 2) + Math.pow(randomEndZ - randomStartZ, 2));
-            if (size / 1.3 < distance) {
+            if (getSize() / 1.3 < distance) {
                 badPositions = false;
             }
         }
@@ -63,43 +64,43 @@ public class Maze3D extends Maze {
         maze[randomStartX][randomStartY][randomStartZ] = 4;
         maze[randomEndX][randomEndY][randomEndZ] = 5;
 
-        startCoordinate[0] = randomStartY;
-        startCoordinate[1] = randomStartX;
-        startCoordinate[2] = randomStartZ;
+        getStartCoordinate()[0] = randomStartY;
+        getStartCoordinate()[1] = randomStartX;
+        getStartCoordinate()[2] = randomStartZ;
 
-        endCoordinate[0] = randomEndY;
-        endCoordinate[1] = randomEndX;
-        endCoordinate[2] = randomEndZ;
+        getEndCoordinate()[0] = randomEndY;
+        getEndCoordinate()[1] = randomEndX;
+        getEndCoordinate()[2] = randomEndZ;
 
         int k = 0;
-        int randomX = (int) (Math.random() * size);
-        int randomY = (int) (Math.random() * size);
-        int randomZ = (int) (Math.random() * size);
-        for (int i = 0; i < (size * size * size) * wallPercentage; i++) {
+        int randomX = (int) (Math.random() * getSize());
+        int randomY = (int) (Math.random() * getSize());
+        int randomZ = (int) (Math.random() * getSize());
+        for (int i = 0; i < (getSize() * getSize() * getSize()) * getWallPercentage(); i++) {
             if (k % 2 == 0) {
-                randomX = (int) (Math.random() * size);
-                randomY = (int) (Math.random() * size);
-                randomZ = (int) (Math.random() * size);
+                randomX = (int) (Math.random() * getSize());
+                randomY = (int) (Math.random() * getSize());
+                randomZ = (int) (Math.random() * getSize());
             } else {
                 int random = (int) (Math.random() * 3);
                 if (random == 0) {
-                    if (randomX < size - 1 && randomX + 1 != randomStartX && randomX + 1 != randomStartY) {
+                    if (randomX < getSize() - 1 && randomX + 1 != randomStartX && randomX + 1 != randomStartY) {
                         randomX++;
                     }
                 } else if (random == 1) {
-                    if (randomY < size - 1 && randomY + 1 != randomStartX && randomY + 1 != randomStartY) {
+                    if (randomY < getSize() - 1 && randomY + 1 != randomStartX && randomY + 1 != randomStartY) {
                         randomY++;
                     }
                 } else {
-                    if (randomZ < size - 1 && randomZ + 1 != randomStartZ && randomZ + 1 != randomStartZ) {
+                    if (randomZ < getSize() - 1 && randomZ + 1 != randomStartZ && randomZ + 1 != randomStartZ) {
                         randomZ++;
                     }
                 }
             }
             while ((randomX == randomStartX && randomY == randomStartY && randomZ == randomStartZ) || (randomX == randomEndX && randomY == randomEndY && randomZ == randomEndZ)) {
-                randomX = (int) (Math.random() * size);
-                randomY = (int) (Math.random() * size);
-                randomZ = (int) (Math.random() * size);
+                randomX = (int) (Math.random() * getSize());
+                randomY = (int) (Math.random() * getSize());
+                randomZ = (int) (Math.random() * getSize());
             }
             maze[randomX][randomY][randomZ] = 1;
             k++;
@@ -116,28 +117,29 @@ public class Maze3D extends Maze {
      * @param spreadMaterial  algorithm spread material.
      * @param pathMaterial    algorithm path material.
      */
+    @Override
     public void generateNewMaze(Material coreMaterial, Material blockerMaterial, Material spreadMaterial, Material pathMaterial, Material startPointGlassMaterial, Material endPointGlassMaterial) {
         isValid = false;
         while (!isValid) {
             int[][][] simulationMaze = generateSimulation();
-            Simulation simulation = new Simulation3D(simulationMaze, startCoordinate, endCoordinate);
+            Simulation simulation = new Simulation3D(simulationMaze, getStartCoordinate(), getEndCoordinate());
             isValid = simulation.start();
 
             if (isValid) {
-                generateStartAndEndPoints();
+                generateStartAndEndPoints(startPointGlassMaterial, endPointGlassMaterial);
                 generateBlockedAreas(simulationMaze, blockerMaterial);
 
                 time += 5L;
                 new BukkitRunnable() {
                     @Override
                     public void run() {
-                        Search3D search3D = new Search3D(plugin, locations, startCoordinate, endCoordinate, size, blockerMaterial, pathMaterial, spreadMaterial, coreMaterial, startPointGlassMaterial, endPointGlassMaterial);
+                        Search3D search3D = new Search3D(getPlugin(), getLocations(), getStartCoordinate(), getEndCoordinate(), getSize(), blockerMaterial, pathMaterial, spreadMaterial, coreMaterial, startPointGlassMaterial, endPointGlassMaterial);
                         isValid = search3D.start();
                         getServer().broadcastMessage("3D maze generated...");
                         search3D.showAnimation(time);
                         cancel();
                     }
-                }.runTaskTimer(plugin, time, 20L);
+                }.runTaskTimer(getPlugin(), time, 20L);
 
                 time = 0;
             } else {
@@ -149,16 +151,17 @@ public class Maze3D extends Maze {
     /**
      * Create the mazes volume.
      */
+    @Override
     public void generateCore(Material core) {
         time += 5L;
 
         int count = 0;
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                for (int k = 0; k < size; k++) {
-                    Location floor = new Location(block.getWorld(), block.getX() + i, block.getY() + k, block.getZ() + j);
+        for (int i = 0; i < getSize(); i++) {
+            for (int j = 0; j < getSize(); j++) {
+                for (int k = 0; k < getSize(); k++) {
+                    Location floor = new Location(getMazeLocationBlock().getWorld(), getMazeLocationBlock().getX() + i, getMazeLocationBlock().getY() + k, getMazeLocationBlock().getZ() + j);
                     if (floor.getBlock().getType() == core) {
-                        locations[i][j][k] = floor;
+                        getLocations()[i][j][k] = floor;
                     } else {
                         runnableDelayed(floor, time, core, i, j, k);
                     }
@@ -179,28 +182,29 @@ public class Maze3D extends Maze {
     /**
      * Create the maze start and end points.
      */
-    public void generateStartAndEndPoints() {
+    @Override
+    public void generateStartAndEndPoints(Material startPointGlassMaterial, Material endPointGlassMaterial) {
         time += 5L;
 
-        int randomStartX = startCoordinate[1];
-        int randomStartY = startCoordinate[0];
-        int randomStartZ = startCoordinate[2];
+        int randomStartX = getStartCoordinate()[1];
+        int randomStartY = getStartCoordinate()[0];
+        int randomStartZ = getStartCoordinate()[2];
 
-        int randomEndX = endCoordinate[1];
-        int randomEndY = endCoordinate[0];
-        int randomEndZ = endCoordinate[2];
+        int randomEndX = getEndCoordinate()[1];
+        int randomEndY = getEndCoordinate()[0];
+        int randomEndZ = getEndCoordinate()[2];
 
-        Location startPoint = new Location(block.getWorld(), block.getX() + randomStartX, block.getY() + randomStartZ, block.getZ() + randomStartY);
+        Location startPoint = new Location(getMazeLocationBlock().getWorld(), getMazeLocationBlock().getX() + randomStartX, getMazeLocationBlock().getY() + randomStartZ, getMazeLocationBlock().getZ() + randomStartY);
         runnableDelayed(startPoint, time, Material.BEACON, -1, -1, -1);
-        startCoordinate[0] = randomStartY;
-        startCoordinate[1] = randomStartX;
-        startCoordinate[2] = randomStartZ;
+        getStartCoordinate()[0] = randomStartY;
+        getStartCoordinate()[1] = randomStartX;
+        getStartCoordinate()[2] = randomStartZ;
 
-        Location endPoint = new Location(block.getWorld(), block.getX() + randomEndX, block.getY() + randomEndZ, block.getZ() + randomEndY);
+        Location endPoint = new Location(getMazeLocationBlock().getWorld(), getMazeLocationBlock().getX() + randomEndX, getMazeLocationBlock().getY() + randomEndZ, getMazeLocationBlock().getZ() + randomEndY);
         runnableDelayed(endPoint, time, Material.BEACON, -1, -1, -1);
-        endCoordinate[0] = randomEndY;
-        endCoordinate[1] = randomEndX;
-        endCoordinate[2] = randomEndZ;
+        getEndCoordinate()[0] = randomEndY;
+        getEndCoordinate()[1] = randomEndX;
+        getEndCoordinate()[2] = randomEndZ;
     }
 
     /**
@@ -209,19 +213,20 @@ public class Maze3D extends Maze {
      * @param maze            maze.
      * @param blockerMaterial maze walls.
      */
+    @Override
     public void generateBlockedAreas(int[][][] maze, Material blockerMaterial) {
         time += 5L;
 
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                for (int k = 0; k < size; k++) {
+        for (int i = 0; i < getSize(); i++) {
+            for (int j = 0; j < getSize(); j++) {
+                for (int k = 0; k < getSize(); k++) {
                     if (maze[i][j][k] == 1) {
-                        Location mazeWall = new Location(block.getWorld(), block.getX() + i, block.getY() + k, block.getZ() + j);
+                        Location mazeWall = new Location(getMazeLocationBlock().getWorld(), getMazeLocationBlock().getX() + i, getMazeLocationBlock().getY() + k, getMazeLocationBlock().getZ() + j);
                         runnableDelayed(mazeWall, time, blockerMaterial, i, j, k);
                     }
                 }
             }
-            if (i % (int) (size * .15) == 0) {
+            if (i % (int) (getSize() * .15) == 0) {
                 time += 2L;
             }
         }
