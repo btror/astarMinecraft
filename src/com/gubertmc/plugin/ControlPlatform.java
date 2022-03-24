@@ -17,9 +17,9 @@ import java.util.Objects;
 
 public class ControlPlatform implements Listener {
 
-    private final Maze maze;
-    private final Block block;
-    private Block button;
+    private static Maze maze;
+    private static Block block;
+    private static Block button;
     private final Material coreMaterial;
     private final Material blockerMaterial;
     private final Material spreadMaterial;
@@ -29,8 +29,8 @@ public class ControlPlatform implements Listener {
 
 
     public ControlPlatform(MazeGeneratorPlugin plugin, Maze maze, Block block, int size) {
-        this.block = block;
-        this.maze = maze;
+        ControlPlatform.block = block;
+        ControlPlatform.maze = maze;
 
         coreMaterial = Material.RED_STAINED_GLASS;
         blockerMaterial = Material.LAPIS_BLOCK;
@@ -76,18 +76,42 @@ public class ControlPlatform implements Listener {
         }
     }
 
-    /**
-     * Clear the old maze out and create a new one.
-     *
-     * @param e event
-     */
-    @EventHandler
-    public void onButtonPressed(PlayerInteractEvent e) {
-        if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            if (Objects.requireNonNull(e.getClickedBlock()).getType() == Material.WARPED_BUTTON) {
-                maze.generateCore(coreMaterial);
-                maze.generateNewMaze(coreMaterial, blockerMaterial, spreadMaterial, pathMaterial, startPointGlassMaterial, endPointGlassMaterial);
-            }
-        }
+    public Material getCoreMaterial() {
+        return coreMaterial;
     }
+
+    public Material getBlockerMaterial() {
+        return blockerMaterial;
+    }
+
+    public Material getSpreadMaterial() {
+        return spreadMaterial;
+    }
+
+    public Material getPathMaterial() {
+        return pathMaterial;
+    }
+
+    public Material getStartPointGlassMaterial() {
+        return startPointGlassMaterial;
+    }
+
+    public Material getEndPointGlassMaterial() {
+        return endPointGlassMaterial;
+    }
+
+//    /**
+//     * Clear the old maze out and create a new one.
+//     *
+//     * @param e event
+//     */
+//    @EventHandler
+//    public void onButtonPressed(PlayerInteractEvent e) {
+//        if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+//            if (Objects.requireNonNull(e.getClickedBlock()).getType() == Material.WARPED_BUTTON) {
+//                maze.generateCore(coreMaterial);
+//                maze.generateNewMaze(coreMaterial, blockerMaterial, spreadMaterial, pathMaterial, startPointGlassMaterial, endPointGlassMaterial);
+//            }
+//        }
+//    }
 }

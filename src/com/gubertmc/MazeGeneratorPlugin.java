@@ -1,7 +1,6 @@
 package com.gubertmc;
 
-import com.gubertmc.plugin.commands.Pathfinding3dCommand;
-import com.gubertmc.plugin.commands.Pathfinding2dCommand;
+import com.gubertmc.plugin.commands.PathFindingCommand;
 import com.gubertmc.plugin.commands.TestCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -13,15 +12,10 @@ public class MazeGeneratorPlugin extends JavaPlugin {
     public void onEnable() {
         System.out.println("Initializing MazeGenerator Plugin...");
 
-        // Maze 2D command
-        Pathfinding2dCommand pathfinding2dCommand = new Pathfinding2dCommand(this);
-        Objects.requireNonNull(getCommand("astar2d")).setExecutor(pathfinding2dCommand);
-        getServer().getPluginManager().registerEvents(pathfinding2dCommand, this);
-
-        // Maze 3D command
-        Pathfinding3dCommand genMazeCommand3d = new Pathfinding3dCommand(this);
-        Objects.requireNonNull(getCommand("astar3d")).setExecutor(genMazeCommand3d);
-        getServer().getPluginManager().registerEvents(genMazeCommand3d, this);
+        // A* Pathfinding command
+        PathFindingCommand pathFindingCommand = new PathFindingCommand(this);
+        Objects.requireNonNull(getCommand("astar")).setExecutor(pathFindingCommand);
+        getServer().getPluginManager().registerEvents(pathFindingCommand, this);
 
         // Test command
         TestCommand testCommand = new TestCommand(this);

@@ -8,22 +8,23 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public abstract class Maze {
 
-    private final int size;
-    private double wallPercentage = 0.2;
-    private final int[] startCoordinate;
-    private final int[] endCoordinate;
-    private final MazeGeneratorPlugin plugin;
-    private final Block block;
-    private final Location[][][] locations;
+    private static int size;
+    private static double wallPercentage;
+    private static int[] startCoordinate;
+    private static int[] endCoordinate;
+    private static MazeGeneratorPlugin plugin;
+    private static Block block;
+    private static Location[][][] locations;
 
 
-    public Maze(MazeGeneratorPlugin plugin, Block block, int size) {
-        this.plugin = plugin;
-        this.block = block;
-        this.size = size;
-        this.locations = new Location[size][size][size];
-        this.startCoordinate = new int[3];
-        this.endCoordinate = new int[3];
+    public Maze(MazeGeneratorPlugin plugin, Block block, int size, double wallPercentage) {
+        Maze.plugin = plugin;
+        Maze.block = block;
+        Maze.size = size;
+        Maze.wallPercentage = wallPercentage;
+        locations = new Location[size][size][size];
+        startCoordinate = new int[3];
+        endCoordinate = new int[3];
     }
 
     /**
@@ -34,7 +35,14 @@ public abstract class Maze {
     /**
      * Create a new maze via simulation.
      */
-    public abstract void generateNewMaze(Material coreMaterial, Material blockerMaterial, Material spreadMaterial, Material pathMaterial, Material startPointGlassMaterial, Material endPointGlassMaterial);
+    public abstract void generateNewMaze(
+            Material coreMaterial,
+            Material blockerMaterial,
+            Material spreadMaterial,
+            Material pathMaterial,
+            Material startPointGlassMaterial,
+            Material endPointGlassMaterial
+    );
 
     /**
      * Create the core part of the mazes.
@@ -80,7 +88,7 @@ public abstract class Maze {
                     cancel();
                 }
             }
-        }.runTaskTimer(this.plugin, time, 20L);
+        }.runTaskTimer(plugin, time, 20L);
     }
 
     public int getSize() {

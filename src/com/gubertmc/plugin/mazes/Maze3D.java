@@ -14,11 +14,11 @@ import static org.bukkit.Bukkit.getServer;
 
 public class Maze3D extends Maze {
 
-    private long time;
-    private boolean isValid;
+    private static long time;
+    private static boolean isValid;
 
-    public Maze3D(MazeGeneratorPlugin plugin, Block block, int size) {
-        super(plugin, block, size);
+    public Maze3D(MazeGeneratorPlugin plugin, Block block, int size, double wallPercentage) {
+        super(plugin, block, size, wallPercentage);
     }
 
     /**
@@ -118,7 +118,14 @@ public class Maze3D extends Maze {
      * @param pathMaterial    algorithm path material.
      */
     @Override
-    public void generateNewMaze(Material coreMaterial, Material blockerMaterial, Material spreadMaterial, Material pathMaterial, Material startPointGlassMaterial, Material endPointGlassMaterial) {
+    public void generateNewMaze(
+            Material coreMaterial,
+            Material blockerMaterial,
+            Material spreadMaterial,
+            Material pathMaterial,
+            Material startPointGlassMaterial,
+            Material endPointGlassMaterial
+    ) {
         isValid = false;
         while (!isValid) {
             int[][][] simulationMaze = generateSimulation();
