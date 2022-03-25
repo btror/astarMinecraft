@@ -6,13 +6,8 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.ItemFrame;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.Objects;
 
 
 public class ControlPlatform implements Listener {
@@ -100,18 +95,4 @@ public class ControlPlatform implements Listener {
         return endPointGlassMaterial;
     }
 
-//    /**
-//     * Clear the old maze out and create a new one.
-//     *
-//     * @param e event
-//     */
-//    @EventHandler
-//    public void onButtonPressed(PlayerInteractEvent e) {
-//        if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-//            if (Objects.requireNonNull(e.getClickedBlock()).getType() == Material.WARPED_BUTTON) {
-//                maze.generateCore(coreMaterial);
-//                maze.generateNewMaze(coreMaterial, blockerMaterial, spreadMaterial, pathMaterial, startPointGlassMaterial, endPointGlassMaterial);
-//            }
-//        }
-//    }
 }

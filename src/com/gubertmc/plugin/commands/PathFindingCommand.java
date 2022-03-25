@@ -25,6 +25,8 @@ public record PathFindingCommand(MazeGeneratorPlugin plugin) implements CommandE
 
     /**
      * Handle the command call.
+     * <p>
+     * /astar Dimensions Size Percentage
      *
      * @param commandSender command sender.
      * @param command       command.
@@ -35,41 +37,63 @@ public record PathFindingCommand(MazeGeneratorPlugin plugin) implements CommandE
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String alias, String[] args) {
         Player player = (Player) commandSender;
+        try {
+            if (args.length > 0 && args.length < 4) {
+                double percentage;
+                if (args.length < 3) {
+                    percentage = .2;
+                } else {
+                    percentage = Double.parseDouble(args[2]);
+                    if (percentage < 0 || percentage > 1) {
+                        percentage /= 100;
+                    }
+                    if (percentage > .80) {
+                        player.sendMessage(ChatColor.AQUA + "The percentage of maze blockers must be less than 81%.");
+                        player.sendMessage(ChatColor.AQUA + "Resetting percentage to 80%...");
+                    }
+                }
+                if (args[0].equalsIgnoreCase("2")) {
+                    maze = new Maze2D(
+                            plugin,
+                            player.getLocation().getBlock(),
+                            Integer.parseInt(args[1]),
+                            percentage
+                    );
+                } else if (args[0].equalsIgnoreCase("3")) {
+                    maze = new Maze3D(
+                            plugin,
+                            player.getLocation().getBlock(),
+                            Integer.parseInt(args[1]),
+                            percentage
+                    );
+                } else {
+                    player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "/astar <Dimensions> <Size> <BlockedPercentage>");
+                    player.sendMessage(ChatColor.YELLOW + "" + "Dimensions -> 2 or 3");
+                    player.sendMessage(ChatColor.YELLOW + "" + "Size -> a positive integer");
+                    player.sendMessage(ChatColor.YELLOW + "" + "BlockedPercentage -> 0 - 1");
+                    return false;
+                }
 
-        player.sendMessage(String.valueOf(args.length));
-        if (args.length > 0 && args.length < 4) {
-            if (args[0].equalsIgnoreCase("2")) {
-                maze = new Maze2D(
+                player.sendMessage("Spawning new maze...");
+                controlPlatform = new ControlPlatform(
                         plugin,
+                        maze,
                         player.getLocation().getBlock(),
-                        Integer.parseInt(args[1]),
-                        Double.parseDouble(args[2])
+                        Integer.parseInt(args[0])
                 );
-            } else if (args[0].equalsIgnoreCase("3")) {
-                maze = new Maze3D(
-                        plugin,
-                        player.getLocation().getBlock(),
-                        Integer.parseInt(args[1]),
-                        Double.parseDouble(args[2])
-                );
+                controlPlatform.spawn();
+                return true;
             } else {
                 player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "/astar <Dimensions> <Size> <BlockedPercentage>");
                 player.sendMessage(ChatColor.YELLOW + "" + "Dimensions -> 2 or 3");
                 player.sendMessage(ChatColor.YELLOW + "" + "Size -> a positive integer");
                 player.sendMessage(ChatColor.YELLOW + "" + "BlockedPercentage -> 0 - 1");
-                return false;
             }
-
-            player.sendMessage("Spawning new maze...");
-            controlPlatform = new ControlPlatform(
-                    plugin,
-                    maze,
-                    player.getLocation().getBlock(),
-                    Integer.parseInt(args[0])
-            );
-            controlPlatform.spawn();
-
-            return true;
+        } catch (Exception exception) {
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "/astar <Dimensions> <Size> <BlockedPercentage>");
+            player.sendMessage(ChatColor.YELLOW + "" + "Dimensions -> 2 or 3");
+            player.sendMessage(ChatColor.YELLOW + "" + "Size -> a positive integer");
+            player.sendMessage(ChatColor.YELLOW + "" + "BlockedPercentage -> 0 - 1");
         }
 
         return false;

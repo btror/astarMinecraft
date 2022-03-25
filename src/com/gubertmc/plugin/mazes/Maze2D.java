@@ -5,6 +5,7 @@ import com.gubertmc.plugin.Maze;
 import com.gubertmc.plugin.algorithms.Simulation;
 import com.gubertmc.plugin.algorithms.astar2d.Search2D;
 import com.gubertmc.plugin.algorithms.astar2d.Simulation2D;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -116,6 +117,7 @@ public class Maze2D extends Maze {
             Material endPointGlassMaterial
     ) {
         isValid = false;
+        int count = 0;
         while (!isValid) {
             int[][][] simulationMaze = generateSimulation();
             Simulation simulation = new Simulation2D(simulationMaze, getStartCoordinate(), getEndCoordinate());
@@ -132,7 +134,7 @@ public class Maze2D extends Maze {
                     public void run() {
                         Search2D search2D = new Search2D(getPlugin(), getLocations(), getStartCoordinate(), getEndCoordinate(), getSize(), blockerMaterial, pathMaterial, spreadMaterial, coreMaterial, startPointGlassMaterial, endPointGlassMaterial);
                         isValid = search2D.start();
-                        getServer().broadcastMessage("2D maze generated...");
+                        getServer().broadcastMessage(ChatColor.GREEN + "" + getSize() + "x" + getSize() + " maze generated...");
                         search2D.showAnimation(time);
                         cancel();
                     }
@@ -140,7 +142,11 @@ public class Maze2D extends Maze {
 
                 time = 0;
             } else {
-                getServer().broadcastMessage("Invalid maze - creating new simulation...");
+                count++;
+                System.out.println("Invalid maze - starting new simulation...");
+            }
+            if (count == 50) {
+                getServer().broadcastMessage(ChatColor.RED + "A maze could not be successfully generated within 50 simulations. You may experience server lag. Creating a larger maze with a lower percentage of walls/blockers will greatly help and put less stress on the server.");
             }
         }
     }

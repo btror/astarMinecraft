@@ -5,6 +5,7 @@ import com.gubertmc.plugin.Maze;
 import com.gubertmc.plugin.algorithms.Simulation;
 import com.gubertmc.plugin.algorithms.astar3d.Search3D;
 import com.gubertmc.plugin.algorithms.astar3d.Simulation3D;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -127,6 +128,7 @@ public class Maze3D extends Maze {
             Material endPointGlassMaterial
     ) {
         isValid = false;
+        int count = 0;
         while (!isValid) {
             int[][][] simulationMaze = generateSimulation();
             Simulation simulation = new Simulation3D(simulationMaze, getStartCoordinate(), getEndCoordinate());
@@ -142,7 +144,7 @@ public class Maze3D extends Maze {
                     public void run() {
                         Search3D search3D = new Search3D(getPlugin(), getLocations(), getStartCoordinate(), getEndCoordinate(), getSize(), blockerMaterial, pathMaterial, spreadMaterial, coreMaterial, startPointGlassMaterial, endPointGlassMaterial);
                         isValid = search3D.start();
-                        getServer().broadcastMessage("3D maze generated...");
+                        getServer().broadcastMessage(ChatColor.GREEN + "" + getSize() + "x" + getSize() + "x" + getSize() + " maze generated...");
                         search3D.showAnimation(time);
                         cancel();
                     }
@@ -150,7 +152,11 @@ public class Maze3D extends Maze {
 
                 time = 0;
             } else {
-                getServer().broadcastMessage("Invalid maze - creating new simulation...");
+                count++;
+                System.out.println("Invalid maze - starting new simulation...");
+            }
+            if (count == 50) {
+                getServer().broadcastMessage(ChatColor.RED + "A maze could not be successfully generated within 50 simulations. You may experience server lag. Creating a larger maze with a lower percentage of walls/blockers will greatly help and put less stress on the server.");
             }
         }
     }
