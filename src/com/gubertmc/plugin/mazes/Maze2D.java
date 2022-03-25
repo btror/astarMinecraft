@@ -124,6 +124,9 @@ public class Maze2D extends Maze {
             isValid = simulation.start();
 
             if (isValid) {
+                time = 0L;
+                generateCore(coreMaterial);
+                generateBorderWalls(coreMaterial);
                 clearOldBeacons();
                 generateStartAndEndPoints(startPointGlassMaterial, endPointGlassMaterial);
                 generateBlockedAreas(simulationMaze, blockerMaterial);
@@ -156,7 +159,7 @@ public class Maze2D extends Maze {
      */
     @Override
     public void generateCore(Material core) {
-        time = 5L;
+        time = 1L;
 
         int count = 0;
         for (int i = 0; i < getSize(); i++) {
@@ -172,7 +175,7 @@ public class Maze2D extends Maze {
                     runnableDelayed(debris, time, Material.AIR, -1, -1, -1);
                 }
 
-                if (count % 80 == 0) {
+                if (count % 110 == 0) {
                     time += 5L;
                 }
                 count++;
@@ -182,7 +185,7 @@ public class Maze2D extends Maze {
             }
         }
 
-        time += 5L;
+        time += 1L;
     }
 
     /**
@@ -237,7 +240,7 @@ public class Maze2D extends Maze {
      */
     @Override
     public void generateBlockedAreas(int[][][] maze, Material blockerMaterial) {
-        time += 5L;
+        time += 1L;
 
         for (int i = 0; i < getSize(); i++) {
             for (int j = 0; j < getSize(); j++) {
@@ -256,14 +259,68 @@ public class Maze2D extends Maze {
             }
         }
 
-        time += 5L;
+        time += 1L;
+    }
+
+    /**
+     * Generates border around the maze.
+     *
+     * @param coreMaterial ground material.
+     */
+    @Override
+    public void generateBorderWalls(Material coreMaterial) {
+        time += 1L;
+
+        for (int i = -1; i < getSize() + 1; i++) {
+            for (int j = -1; j < getSize() + 1; j++) {
+                if (i == -1) {
+                    for (int k = 0; k < 3; k++) {
+                        Location border = new Location(getMazeLocationBlock().getWorld(), getMazeLocationBlock().getX() + i, getMazeLocationBlock().getY() + k, getMazeLocationBlock().getZ() + j);
+                        if (border.getBlock().getType() != coreMaterial) {
+                            runnableDelayed(border, time, coreMaterial, -1, -1, -1);
+                        }
+                    }
+                }
+                if (i == getSize()) {
+                    for (int k = 0; k < 3; k++) {
+                        Location border = new Location(getMazeLocationBlock().getWorld(), getMazeLocationBlock().getX() + i, getMazeLocationBlock().getY() + k, getMazeLocationBlock().getZ() + j);
+                        if (border.getBlock().getType() != coreMaterial) {
+                            runnableDelayed(border, time, coreMaterial, -1, -1, -1);
+                        }
+                    }
+                }
+                if (j == -1) {
+                    for (int k = 0; k < 3; k++) {
+                        Location border = new Location(getMazeLocationBlock().getWorld(), getMazeLocationBlock().getX() + i, getMazeLocationBlock().getY() + k, getMazeLocationBlock().getZ() + j);
+                        if (border.getBlock().getType() != coreMaterial) {
+                            runnableDelayed(border, time, coreMaterial, -1, -1, -1);
+                        }
+                    }
+                }
+                if (j == getSize()) {
+                    for (int k = 0; k < 3; k++) {
+                        Location border = new Location(getMazeLocationBlock().getWorld(), getMazeLocationBlock().getX() + i, getMazeLocationBlock().getY() + k, getMazeLocationBlock().getZ() + j);
+                        if (border.getBlock().getType() != coreMaterial) {
+                            runnableDelayed(border, time, coreMaterial, -1, -1, -1);
+                        }
+                    }
+                }
+            }
+            if (i > 0) {
+                if (i % (int) (getSize() * .15) == 0) {
+                    time += 2L;
+                }
+            }
+        }
+
+        time += 1L;
     }
 
     /**
      * Remove old start and end points.
      */
     public void clearOldBeacons() {
-        time += 5L;
+        time += 2L;
 
         for (int i = -1; i < getSize() + 1; i++) {
             for (int j = -1; j < getSize() + 1; j++) {
@@ -276,6 +333,6 @@ public class Maze2D extends Maze {
             }
         }
 
-        time += 5L;
+        time += 2L;
     }
 }

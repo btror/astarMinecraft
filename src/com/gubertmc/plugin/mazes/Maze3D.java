@@ -135,6 +135,9 @@ public class Maze3D extends Maze {
             isValid = simulation.start();
 
             if (isValid) {
+                time = 0L;
+                generateCore(coreMaterial);
+                generateBorderWalls(coreMaterial);
                 generateStartAndEndPoints(startPointGlassMaterial, endPointGlassMaterial);
                 generateBlockedAreas(simulationMaze, blockerMaterial);
 
@@ -166,7 +169,7 @@ public class Maze3D extends Maze {
      */
     @Override
     public void generateCore(Material core) {
-        time += 5L;
+        time += 1L;
 
         int count = 0;
         for (int i = 0; i < getSize(); i++) {
@@ -178,18 +181,18 @@ public class Maze3D extends Maze {
                     } else {
                         runnableDelayed(floor, time, core, i, j, k);
                     }
-                    if (count % 90 == 0) {
+                    if (count % 110 == 0) {
                         time += 1L;
                     }
                     count++;
                 }
             }
             if (i % 12 == 0) {
-                time += 15L;
+                time += 5L;
             }
         }
 
-        time += 5L;
+        time += 1L;
     }
 
     /**
@@ -197,7 +200,7 @@ public class Maze3D extends Maze {
      */
     @Override
     public void generateStartAndEndPoints(Material startPointGlassMaterial, Material endPointGlassMaterial) {
-        time += 5L;
+        time += 15L;
 
         int randomStartX = getStartCoordinate()[1];
         int randomStartY = getStartCoordinate()[0];
@@ -228,7 +231,7 @@ public class Maze3D extends Maze {
      */
     @Override
     public void generateBlockedAreas(int[][][] maze, Material blockerMaterial) {
-        time += 5L;
+        time += 1L;
 
         for (int i = 0; i < getSize(); i++) {
             for (int j = 0; j < getSize(); j++) {
@@ -244,6 +247,65 @@ public class Maze3D extends Maze {
             }
         }
 
-        time += 5L;
+        time += 1L;
+    }
+
+    /**
+     * Generates border around the maze.
+     *
+     * @param coreMaterial ground material.
+     */
+    @Override
+    public void generateBorderWalls(Material coreMaterial) {
+        time += 1L;
+
+        for (int i = -1; i < getSize() + 1; i++) {
+            for (int j = -1; j < getSize() + 1; j++) {
+                for (int k = -1; k < getSize() + 1; k++) {
+                    if (i == -1) {
+                        Location border = new Location(getMazeLocationBlock().getWorld(), getMazeLocationBlock().getX() + i, getMazeLocationBlock().getY() + k, getMazeLocationBlock().getZ() + j);
+                        if (border.getBlock().getType() != coreMaterial) {
+                            runnableDelayed(border, time, coreMaterial, -1, -1, -1);
+                        }
+
+                    }
+                    if (i == getSize()) {
+                        Location border = new Location(getMazeLocationBlock().getWorld(), getMazeLocationBlock().getX() + i, getMazeLocationBlock().getY() + k, getMazeLocationBlock().getZ() + j);
+                        if (border.getBlock().getType() != coreMaterial) {
+                            runnableDelayed(border, time, coreMaterial, -1, -1, -1);
+                        }
+
+                    }
+                    if (j == -1) {
+                        Location border = new Location(getMazeLocationBlock().getWorld(), getMazeLocationBlock().getX() + i, getMazeLocationBlock().getY() + k, getMazeLocationBlock().getZ() + j);
+                        if (border.getBlock().getType() != coreMaterial) {
+                            runnableDelayed(border, time, coreMaterial, -1, -1, -1);
+                        }
+
+                    }
+                    if (j == getSize()) {
+                        Location border = new Location(getMazeLocationBlock().getWorld(), getMazeLocationBlock().getX() + i, getMazeLocationBlock().getY() + k, getMazeLocationBlock().getZ() + j);
+                        if (border.getBlock().getType() != coreMaterial) {
+                            runnableDelayed(border, time, coreMaterial, -1, -1, -1);
+                        }
+                    }
+                    if (k == -1) {
+                        Location border = new Location(getMazeLocationBlock().getWorld(), getMazeLocationBlock().getX() + i, getMazeLocationBlock().getY() + k, getMazeLocationBlock().getZ() + j);
+                        if (border.getBlock().getType() != coreMaterial) {
+                            runnableDelayed(border, time, coreMaterial, -1, -1, -1);
+                        }
+
+                    }
+                    if (k == getSize()) {
+                        Location border = new Location(getMazeLocationBlock().getWorld(), getMazeLocationBlock().getX() + i, getMazeLocationBlock().getY() + k, getMazeLocationBlock().getZ() + j);
+                        if (border.getBlock().getType() != coreMaterial) {
+                            runnableDelayed(border, time, coreMaterial, -1, -1, -1);
+                        }
+                    }
+                }
+            }
+        }
+
+        time += 1L;
     }
 }

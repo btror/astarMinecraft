@@ -22,9 +22,9 @@ public abstract class Maze {
         Maze.block = block;
         Maze.size = size;
         Maze.wallPercentage = wallPercentage;
-        locations = new Location[size][size][size];
-        startCoordinate = new int[3];
-        endCoordinate = new int[3];
+        Maze.locations = new Location[size][size][size];
+        Maze.startCoordinate = new int[3];
+        Maze.endCoordinate = new int[3];
     }
 
     /**
@@ -64,6 +64,11 @@ public abstract class Maze {
      * 3D - the blocked areas in the mazes.
      */
     public abstract void generateBlockedAreas(int[][][] maze, Material blockerMaterial);
+
+    /**
+     * Create the border walls around the maze.
+     */
+    public abstract void generateBorderWalls(Material coreMaterial);
 
     /**
      * Make the animations.

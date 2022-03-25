@@ -6,6 +6,7 @@ import com.gubertmc.plugin.Maze;
 import com.gubertmc.plugin.mazes.Maze2D;
 import com.gubertmc.plugin.mazes.Maze3D;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -40,6 +41,8 @@ public record PathFindingCommand(MazeGeneratorPlugin plugin) implements CommandE
         try {
             if (args.length > 0 && args.length < 4) {
                 double percentage;
+                Location location = player.getLocation();
+                location = new Location(location.getWorld(), location.getX() + 1, location.getY(), location.getZ() + 1);
                 if (args.length < 3) {
                     percentage = .2;
                 } else {
@@ -55,14 +58,14 @@ public record PathFindingCommand(MazeGeneratorPlugin plugin) implements CommandE
                 if (args[0].equalsIgnoreCase("2")) {
                     maze = new Maze2D(
                             plugin,
-                            player.getLocation().getBlock(),
+                            location.getBlock(),
                             Integer.parseInt(args[1]),
                             percentage
                     );
                 } else if (args[0].equalsIgnoreCase("3")) {
                     maze = new Maze3D(
                             plugin,
-                            player.getLocation().getBlock(),
+                            location.getBlock(),
                             Integer.parseInt(args[1]),
                             percentage
                     );
@@ -108,7 +111,6 @@ public record PathFindingCommand(MazeGeneratorPlugin plugin) implements CommandE
     public void onButtonPressed(PlayerInteractEvent e) {
         if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
             if (Objects.requireNonNull(e.getClickedBlock()).getType() == Material.WARPED_BUTTON) {
-                maze.generateCore(controlPlatform.getCoreMaterial());
                 maze.generateNewMaze(
                         controlPlatform.getCoreMaterial(),
                         controlPlatform.getBlockerMaterial(),
