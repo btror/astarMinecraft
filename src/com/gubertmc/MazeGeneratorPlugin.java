@@ -1,7 +1,6 @@
 package com.gubertmc;
 
-import com.gubertmc.plugin.commands.BreadthFirstSearchCommand;
-import com.gubertmc.plugin.commands.PathFindingCommand;
+import com.gubertmc.plugin.commands.MazeGeneratorCommand;
 import com.gubertmc.plugin.commands.TestCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -14,14 +13,9 @@ public class MazeGeneratorPlugin extends JavaPlugin {
         System.out.println("Initializing MazeGenerator Plugin...");
 
         // A* Pathfinding command
-        PathFindingCommand pathFindingCommand = new PathFindingCommand(this);
-        Objects.requireNonNull(getCommand("astar")).setExecutor(pathFindingCommand);
-        getServer().getPluginManager().registerEvents(pathFindingCommand, this);
-
-        // BFS command
-        BreadthFirstSearchCommand breadthFirstSearchCommand = new BreadthFirstSearchCommand(this);
-        Objects.requireNonNull(getCommand("bfs")).setExecutor(breadthFirstSearchCommand);
-        getServer().getPluginManager().registerEvents(breadthFirstSearchCommand, this);
+        MazeGeneratorCommand mazeGeneratorCommand = new MazeGeneratorCommand(this);
+        Objects.requireNonNull(getCommand("maze")).setExecutor(mazeGeneratorCommand);
+        getServer().getPluginManager().registerEvents(mazeGeneratorCommand, this);
 
         // Test command
         TestCommand testCommand = new TestCommand(this);

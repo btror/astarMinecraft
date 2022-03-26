@@ -3,8 +3,7 @@ package com.gubertmc.plugin.mazes;
 import com.gubertmc.MazeGeneratorPlugin;
 import com.gubertmc.plugin.Maze;
 import com.gubertmc.plugin.algorithms.bfs.Search;
-import com.gubertmc.plugin.algorithms.astar.Simulation;
-import com.gubertmc.plugin.algorithms.astar.astar2d.Simulation2D;
+import com.gubertmc.plugin.algorithms.bfs.Simulation;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -120,7 +119,7 @@ public class BreadthFirstSearchMaze2D extends Maze {
         int count = 0;
         while (!isValid) {
             int[][][] simulationMaze = generateSimulation();
-            Simulation simulation = new Simulation2D(simulationMaze, getStartCoordinate(), getEndCoordinate());
+            Simulation simulation = new Simulation(simulationMaze, getStartCoordinate(), getEndCoordinate());
             isValid = simulation.start();
 
             if (isValid) {
@@ -136,9 +135,9 @@ public class BreadthFirstSearchMaze2D extends Maze {
                     @Override
                     public void run() {
                         Search search = new Search(getPlugin(), getLocations(), getStartCoordinate(), getEndCoordinate(), getSize(), blockerMaterial, pathMaterial, spreadMaterial, coreMaterial, startPointGlassMaterial, endPointGlassMaterial);
-                        isValid = search.start(time);
+                        isValid = search.start();
                         getServer().broadcastMessage(ChatColor.GREEN + "" + getSize() + "x" + getSize() + " maze generated...");
-                        // search.showAnimation(time);
+                        search.showAnimation(time);
                         cancel();
                     }
                 }.runTaskTimer(getPlugin(), time, 20L);

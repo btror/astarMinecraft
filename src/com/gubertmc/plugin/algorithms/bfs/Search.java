@@ -5,12 +5,14 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
 public class Search {
 
     public Location[][][] tile_grid;
+    public ArrayList<Location> exploredPlaces = new ArrayList<>();
     public int[][][] tile_grid_int;
     public int[] startCoordinate;
     public int[] endCoordinate;
@@ -59,7 +61,7 @@ public class Search {
 
     }
 
-    public boolean start(long time) {
+    public boolean start() {
         boolean[][][] visited = new boolean[SIZE][SIZE][SIZE];
         int[][][] textGrid = new int[SIZE][SIZE][SIZE];
 
@@ -76,19 +78,16 @@ public class Search {
             }
         }
 
+        textGrid[endCoordinate[1]][endCoordinate[0]][endCoordinate[2]] = 5;
+
         int height = textGrid.length;
         int length = textGrid[0].length;
 
         Queue<String> queue = new LinkedList<>();
         queue.add(startCoordinate[1] + "," + startCoordinate[0]);
 
-        int count = 0;
         while (!queue.isEmpty()) {
-            double x = tile_grid[endCoordinate[1]][endCoordinate[0]][endCoordinate[2]].getBlock().getX();
-            double y = tile_grid[endCoordinate[1]][endCoordinate[0]][endCoordinate[2]].getBlock().getY() - 1;
-            double z = tile_grid[endCoordinate[1]][endCoordinate[0]][endCoordinate[2]].getBlock().getZ();
-            Location location = new Location(tile_grid[0][0][0].getWorld(), x, y, z);
-            if (location.getBlock().getType() == PATH_SPREAD_MATERIAL) { // was 1 0 2
+            if (textGrid[endCoordinate[1]][endCoordinate[0]][endCoordinate[2]] != 5) {
                 break;
             }
 
@@ -100,36 +99,38 @@ public class Search {
                 continue;
             }
             visited[row][col][0] = true;
+            textGrid[row][col][0] = 2;
 
-            runnableDelayed(tile_grid[row][col][0], time, PATH_SPREAD_MATERIAL);
+            exploredPlaces.add(tile_grid[row][col][0]);
 
             queue.add(row + "," + (col - 1)); //go left
             queue.add(row + "," + (col + 1)); //go right
             queue.add((row - 1) + "," + col); //go up
             queue.add((row + 1) + "," + col); //go down
 
-            if (count % 10 == 0) {
-                time += 1L;
-            }
-            count++;
         }
         return true;
+    }
+
+    public void showAnimation(long time) {
+        time += 5L;
+        int count = 1;
+        exploredPlaces.remove(exploredPlaces.size() - 1);
+        for (Location loc : exploredPlaces) {
+            Location location = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ());
+            runnableDelayed(location, time, PATH_SPREAD_MATERIAL);
+            count++;
+            if (count % (int) (SIZE * 0.25) == 0) {
+                time += 1L;
+            }
+        }
     }
 
     public void runnableDelayed(Location loc, long time, Material material) {
         new BukkitRunnable() {
             @Override
             public void run() {
-                double x = loc.getBlock().getX();
-                double y = loc.getBlock().getY() - 1;
-                double z = loc.getBlock().getZ();
-                Location location = new Location(tile_grid[0][0][0].getWorld(), x, y, z);
-
-                if (location.getBlock().getType() != END_POINT_GLASS) {
-                    location.getBlock().setType(material);
-                } else if (location.getBlock().getType() != Material.BEACON) {
-                    location.getBlock().setType(material);
-                }
+                loc.getBlock().setType(material);
                 cancel();
             }
         }.runTaskTimer(this.plugin, time, 20L);

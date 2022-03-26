@@ -3,6 +3,7 @@ package com.gubertmc.plugin.commands;
 import com.gubertmc.MazeGeneratorPlugin;
 import com.gubertmc.plugin.ControlPlatform;
 import com.gubertmc.plugin.Maze;
+import com.gubertmc.plugin.mazes.BreadthFirstSearchMaze2D;
 import com.gubertmc.plugin.mazes.PathfindingMaze2D;
 import com.gubertmc.plugin.mazes.PathfindingMaze3D;
 import org.bukkit.ChatColor;
@@ -19,7 +20,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 import java.util.Objects;
 
-public record PathFindingCommand(MazeGeneratorPlugin plugin) implements CommandExecutor, Listener {
+public record MazeGeneratorCommand(MazeGeneratorPlugin plugin) implements CommandExecutor, Listener {
 
     private static Maze maze;
     private static ControlPlatform controlPlatform;
@@ -38,6 +39,7 @@ public record PathFindingCommand(MazeGeneratorPlugin plugin) implements CommandE
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String alias, String[] args) {
         Player player = (Player) commandSender;
+        // /maze <algo> <size> <percentage>
         try {
             if (args.length > 0 && args.length < 4) {
                 double percentage;
@@ -55,15 +57,22 @@ public record PathFindingCommand(MazeGeneratorPlugin plugin) implements CommandE
                         player.sendMessage(ChatColor.AQUA + "Resetting percentage to 80%...");
                     }
                 }
-                if (args[0].equalsIgnoreCase("2")) {
+                if (args[0].equalsIgnoreCase("astar2d")) {
                     maze = new PathfindingMaze2D(
                             plugin,
                             location.getBlock(),
                             Integer.parseInt(args[1]),
                             percentage
                     );
-                } else if (args[0].equalsIgnoreCase("3")) {
+                } else if (args[0].equalsIgnoreCase("astar3d")) {
                     maze = new PathfindingMaze3D(
+                            plugin,
+                            location.getBlock(),
+                            Integer.parseInt(args[1]),
+                            percentage
+                    );
+                } else if (args[0].equalsIgnoreCase("bfs2d")) {
+                    maze = new BreadthFirstSearchMaze2D(
                             plugin,
                             location.getBlock(),
                             Integer.parseInt(args[1]),
@@ -82,7 +91,7 @@ public record PathFindingCommand(MazeGeneratorPlugin plugin) implements CommandE
                         plugin,
                         maze,
                         player.getLocation().getBlock(),
-                        Integer.parseInt(args[0])
+                        Integer.parseInt(args[1])
                 );
                 controlPlatform.spawn();
                 return true;
