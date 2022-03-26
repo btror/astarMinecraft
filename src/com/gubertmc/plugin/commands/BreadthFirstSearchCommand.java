@@ -3,8 +3,7 @@ package com.gubertmc.plugin.commands;
 import com.gubertmc.MazeGeneratorPlugin;
 import com.gubertmc.plugin.ControlPlatform;
 import com.gubertmc.plugin.Maze;
-import com.gubertmc.plugin.mazes.PathfindingMaze2D;
-import com.gubertmc.plugin.mazes.PathfindingMaze3D;
+import com.gubertmc.plugin.mazes.BreadthFirstSearchMaze2D;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -19,7 +18,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 import java.util.Objects;
 
-public record PathFindingCommand(MazeGeneratorPlugin plugin) implements CommandExecutor, Listener {
+public record BreadthFirstSearchCommand(MazeGeneratorPlugin plugin) implements CommandExecutor, Listener {
 
     private static Maze maze;
     private static ControlPlatform controlPlatform;
@@ -39,14 +38,14 @@ public record PathFindingCommand(MazeGeneratorPlugin plugin) implements CommandE
     public boolean onCommand(CommandSender commandSender, Command command, String alias, String[] args) {
         Player player = (Player) commandSender;
         try {
-            if (args.length > 0 && args.length < 4) {
+            if (args.length > 0 && args.length < 3) {
                 double percentage;
                 Location location = player.getLocation();
                 location = new Location(location.getWorld(), location.getX() + 1, location.getY(), location.getZ() + 1);
-                if (args.length < 3) {
+                if (args.length < 2) {
                     percentage = .2;
                 } else {
-                    percentage = Double.parseDouble(args[2]);
+                    percentage = Double.parseDouble(args[1]);
                     if (percentage < 0 || percentage > 1) {
                         percentage /= 100;
                     }
@@ -55,27 +54,13 @@ public record PathFindingCommand(MazeGeneratorPlugin plugin) implements CommandE
                         player.sendMessage(ChatColor.AQUA + "Resetting percentage to 80%...");
                     }
                 }
-                if (args[0].equalsIgnoreCase("2")) {
-                    maze = new PathfindingMaze2D(
-                            plugin,
-                            location.getBlock(),
-                            Integer.parseInt(args[1]),
-                            percentage
-                    );
-                } else if (args[0].equalsIgnoreCase("3")) {
-                    maze = new PathfindingMaze3D(
-                            plugin,
-                            location.getBlock(),
-                            Integer.parseInt(args[1]),
-                            percentage
-                    );
-                } else {
-                    player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "/astar <Dimensions> <Size> <BlockedPercentage>");
-                    player.sendMessage(ChatColor.YELLOW + "" + "Dimensions -> 2 or 3");
-                    player.sendMessage(ChatColor.YELLOW + "" + "Size -> a positive integer");
-                    player.sendMessage(ChatColor.YELLOW + "" + "BlockedPercentage -> 0 - 1");
-                    return false;
-                }
+
+                maze = new BreadthFirstSearchMaze2D(
+                        plugin,
+                        location.getBlock(),
+                        Integer.parseInt(args[0]),
+                        percentage
+                );
 
                 player.sendMessage("Spawning new maze...");
                 controlPlatform = new ControlPlatform(

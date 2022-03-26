@@ -1,4 +1,4 @@
-package com.gubertmc.plugin.algorithms;
+package com.gubertmc.plugin.algorithms.astar;
 
 import java.util.ArrayList;
 import java.util.PriorityQueue;

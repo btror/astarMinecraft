@@ -1,5 +1,6 @@
 package com.gubertmc;
 
+import com.gubertmc.plugin.commands.BreadthFirstSearchCommand;
 import com.gubertmc.plugin.commands.PathFindingCommand;
 import com.gubertmc.plugin.commands.TestCommand;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -16,6 +17,11 @@ public class MazeGeneratorPlugin extends JavaPlugin {
         PathFindingCommand pathFindingCommand = new PathFindingCommand(this);
         Objects.requireNonNull(getCommand("astar")).setExecutor(pathFindingCommand);
         getServer().getPluginManager().registerEvents(pathFindingCommand, this);
+
+        // BFS command
+        BreadthFirstSearchCommand breadthFirstSearchCommand = new BreadthFirstSearchCommand(this);
+        Objects.requireNonNull(getCommand("bfs")).setExecutor(breadthFirstSearchCommand);
+        getServer().getPluginManager().registerEvents(breadthFirstSearchCommand, this);
 
         // Test command
         TestCommand testCommand = new TestCommand(this);

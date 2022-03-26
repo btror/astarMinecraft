@@ -1,4 +1,4 @@
-package com.gubertmc.plugin.algorithms;
+package com.gubertmc.plugin.algorithms.astar;
 
 import com.gubertmc.MazeGeneratorPlugin;
 import org.bukkit.Location;
@@ -30,7 +30,20 @@ public class Search implements Listener {
     public ArrayList<Location> thePath = new ArrayList<>();
     public ArrayList<Location> exploredPlaces = new ArrayList<>();
 
-    public Search(MazeGeneratorPlugin plugin, Location[][][] tiles, int[] startCoordinate, int[] endCoordinate, int size, Material wallMaterial, Material pathMaterial, Material pathSpreadMaterial, Material groundMaterial, Material startGlassMaterial, Material endGlassMaterial, boolean is3d) {
+    public Search(
+            MazeGeneratorPlugin plugin,
+            Location[][][] tiles,
+            int[] startCoordinate,
+            int[] endCoordinate,
+            int size,
+            Material wallMaterial,
+            Material pathMaterial,
+            Material pathSpreadMaterial,
+            Material groundMaterial,
+            Material startGlassMaterial,
+            Material endGlassMaterial,
+            boolean is3d
+    ) {
         grid = new Node[size][size][size];
 
         int[][][] tempArray = new int[size][size][size];

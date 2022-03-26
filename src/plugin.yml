@@ -4,8 +4,11 @@ api-version: 1.13
 version: 1
 commands:
   astar:
-    description: creates a maze
+    description: creates a maze solvable by A*
     usage: /astar
+  bfs:
+    description: creates a maze solvable by BFS
+    usage: /bfs
   test:
     description: test command
     usage: /test
