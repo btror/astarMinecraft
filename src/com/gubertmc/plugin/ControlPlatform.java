@@ -2,10 +2,12 @@ package com.gubertmc.plugin;
 
 import com.gubertmc.MazeGeneratorPlugin;
 import com.gubertmc.plugin.main.Maze;
+import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.Sign;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
@@ -51,22 +53,52 @@ public class ControlPlatform implements Listener {
                 Location wall = new Location(block.getWorld(), block.getX() + i, block.getY() + k, block.getZ() - 2);
                 wall.getBlock().setType(Material.STRIPPED_OAK_WOOD);
 
-                if (k == 1 && i != 2) {
+                if (k == 2 && i != 2) {
                     ItemFrame frame = block.getWorld().spawn(wall.add(0, 0, -1), ItemFrame.class);
                     if (i == 0) {
-                        frame.setItem(new ItemStack(Material.GREEN_STAINED_GLASS));
+                        frame.setItem(new ItemStack(spreadMaterial));
                     } else if (i == 1) {
-                        frame.setItem(new ItemStack(Material.LAPIS_BLOCK));
+                        frame.setItem(new ItemStack(blockerMaterial));
                     } else if (i == 3) {
-                        frame.setItem(new ItemStack(Material.LIGHT_BLUE_STAINED_GLASS));
+                        frame.setItem(new ItemStack(coreMaterial));
                     } else {
-                        frame.setItem(new ItemStack(Material.WHITE_STAINED_GLASS));
+                        frame.setItem(new ItemStack(pathMaterial));
                     }
                 }
                 if (k == 1 && i == 3) {
-                    Location loc = new Location(block.getWorld(), block.getX() + i, block.getY() + 1 + k, block.getZ() - 3);
-                    loc.getBlock().getRelative(BlockFace.WEST).setType(Material.WARPED_BUTTON);
-                    button = loc.getBlock();
+                    Location location = new Location(block.getWorld(), block.getX() + i, block.getY() + 1 + k, block.getZ() - 3);
+                    location.getBlock().getRelative(BlockFace.WEST).setType(Material.WARPED_BUTTON);
+                    button = location.getBlock();
+                }
+                if (k == 1) {
+                    Location location = new Location(block.getWorld(), block.getX() + i + 1, block.getY() + k, block.getZ() - 3);
+                    location.getBlock().getRelative(BlockFace.WEST).setType(Material.WARPED_WALL_SIGN);
+                    Sign sign = (Sign) location.getBlock().getRelative(BlockFace.WEST).getState();
+
+                    switch (i) {
+                        case 0 -> {
+                            sign.setLine(1, "Spread");
+                            sign.setColor(DyeColor.WHITE);
+                        }
+                        case 1 -> {
+                            sign.setLine(1, "Walls/Blockers");
+                            sign.setColor(DyeColor.WHITE);
+                        }
+                        case 2 -> {
+                            sign.setLine(1, "Start");
+                            sign.setColor(DyeColor.ORANGE);
+                        }
+                        case 3 -> {
+                            sign.setLine(1, "Border/Outline");
+                            sign.setColor(DyeColor.WHITE);
+                        }
+                        case 4 -> {
+                            sign.setLine(1, "Pathfinding Path");
+                            sign.setColor(DyeColor.WHITE);
+                        }
+                    }
+                    sign.setGlowingText(true);
+                    sign.update();
                 }
             }
         }

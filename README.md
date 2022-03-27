@@ -20,35 +20,38 @@
 <br>
 
 ### Commands
-<code>/astar2d &lt;width&gt; &lt;difficulty&gt;</code>
+<code>/maze &lt;algorithm&gt; &lt;size&gt; &lt;percentage&gt;</code>
 
-<code>/astar3d &lt;width&gt; &lt;difficulty&gt;</code>
-- width is required and must be an integer 
-- difficulty is optional (set  to medium by default)
-  - easy | simple
-  - medium | moderate
-  - hard | difficult
+- Algorithm is required.
+  - Options:
+    - astar2d
+    - astar3d
+    - bfs2d
+    - dfs2d
+- Size is required.
+  - Must be an integer.
+- Percentage is optional.
+  - Can be a decimal or integer.
+  - Formats: 
+    - A number between 0 and 1.
+    - A number between 0 and 100.
+  - Both formats map to the same percentage. For example, 0.5 and 50 both equal 50%, 0.23 and 23 both equal 23%, etc...
   
-### Example 2D usage
-<code>/astar2d 45</code>
+### Example usage
+<code>/maze astar2d 30 0.5</code>
 or
-<code>/astar2d 45 medium</code> (same thing)
+<code>/maze astar2d 30 50</code> (same thing)
 
-<code>/astar2d 70 easy</code>
+<code>/maze astar3d 10 20</code>
 
-<code>/astar2d 20 hard</code>
+<code>/maze bfs2d 50 0.25</code>
 
-### Example 3D usage
-<code>/astar3d 21</code>
-or
-<code>/astar3d 21 medium</code> (same thing)
+<code>/maze dfs2d 30 45</code>
 
-<code>/astar3d 72 easy</code>
-
-<code>/astar3d 65 hard</code>
-
-### Similar repositories
-- <a href="https://github.com/btror/AStar/edit/master/README.md">AStar</a> by <a href="https://github.com/btror/AStar">btror</a>
+### Similar repositories by <a href="https://github.com/btror/AStar">btror</a>
+- <a href="https://github.com/btror/AStar">AStar</a>
+- <a href="https://github.com/btror/A-Star">A-Star</a>
+- <a href="https://github.com/btror/TraversalAlgorithmVisualization">TraversalAlgorithmVisualization</a>
 
 
 ### Tech stack
