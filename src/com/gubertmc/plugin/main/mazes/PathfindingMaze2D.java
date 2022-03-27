@@ -1,10 +1,11 @@
-package com.gubertmc.plugin.mazes;
+package com.gubertmc.plugin.main.mazes;
 
 import com.gubertmc.MazeGeneratorPlugin;
-import com.gubertmc.plugin.Maze;
-import com.gubertmc.plugin.algorithms.astar.Simulation;
-import com.gubertmc.plugin.algorithms.astar.astar2d.Search2D;
-import com.gubertmc.plugin.algorithms.astar.astar2d.Simulation2D;
+import com.gubertmc.plugin.main.Maze;
+import com.gubertmc.plugin.main.algorithms.Animation;
+import com.gubertmc.plugin.main.algorithms.Simulation;
+import com.gubertmc.plugin.main.algorithms.astar.astar2d.PathfindingAnimation2D;
+import com.gubertmc.plugin.main.algorithms.astar.astar2d.PathfindingSimulation2D;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -120,7 +121,7 @@ public class PathfindingMaze2D extends Maze {
         int count = 0;
         while (!isValid) {
             int[][][] simulationMaze = generateSimulation();
-            Simulation simulation = new Simulation2D(simulationMaze, getStartCoordinate(), getEndCoordinate());
+            Simulation simulation = new PathfindingSimulation2D(simulationMaze, getStartCoordinate(), getEndCoordinate());
             isValid = simulation.start();
 
             if (isValid) {
@@ -135,10 +136,10 @@ public class PathfindingMaze2D extends Maze {
                 new BukkitRunnable() {
                     @Override
                     public void run() {
-                        Search2D search2D = new Search2D(getPlugin(), getLocations(), getStartCoordinate(), getEndCoordinate(), getSize(), blockerMaterial, pathMaterial, spreadMaterial, coreMaterial, startPointGlassMaterial, endPointGlassMaterial);
-                        isValid = search2D.start();
+                        Animation animation = new PathfindingAnimation2D(getPlugin(), getLocations(), getStartCoordinate(), getEndCoordinate(), getSize(), blockerMaterial, pathMaterial, spreadMaterial, coreMaterial, startPointGlassMaterial, endPointGlassMaterial, false);
+                        isValid = animation.start();
                         getServer().broadcastMessage(ChatColor.GREEN + "" + getSize() + "x" + getSize() + " maze generated...");
-                        search2D.showAnimation(time);
+                        animation.showAnimation(time);
                         cancel();
                     }
                 }.runTaskTimer(getPlugin(), time, 20L);

@@ -1,6 +1,7 @@
 package com.gubertmc.plugin;
 
 import com.gubertmc.MazeGeneratorPlugin;
+import com.gubertmc.plugin.main.Maze;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -12,7 +13,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class ControlPlatform implements Listener {
 
-    private static Maze maze;
+    private static com.gubertmc.plugin.main.Maze maze;
     private static Block block;
     private static Block button;
     private final Material coreMaterial;

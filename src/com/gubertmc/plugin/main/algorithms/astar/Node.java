@@ -1,4 +1,4 @@
-package com.gubertmc.plugin.algorithms.astar;
+package com.gubertmc.plugin.main.algorithms.astar;
 
 public class Node {
     private int row, col, z, f, g, h, type;

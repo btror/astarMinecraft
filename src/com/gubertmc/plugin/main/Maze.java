@@ -1,4 +1,4 @@
-package com.gubertmc.plugin;
+package com.gubertmc.plugin.main;
 
 import com.gubertmc.MazeGeneratorPlugin;
 import org.bukkit.Location;

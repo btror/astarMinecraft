@@ -1,33 +1,21 @@
-package com.gubertmc.plugin.algorithms.bfs;
+package com.gubertmc.plugin.main.algorithms.bfs.bfs2d;
+
+import com.gubertmc.plugin.main.algorithms.Simulation;
 
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class Simulation {
+public class BreadthFirstSearchSimulation2D extends Simulation {
 
-    public int SIZE;
-    public int[][][] tile_grid;
-    public int[] startCoordinate;
-    public int[] endCoordinate;
+    public boolean[][][] visited;
 
-    public Simulation(int[][][] maze, int[] startCoordinate, int[] endCoordinate) {
-        SIZE = maze[0].length;
-        this.startCoordinate = startCoordinate;
-        this.endCoordinate = endCoordinate;
-
-        tile_grid = maze;
+    public BreadthFirstSearchSimulation2D(int[][][] maze, int[] startCoordinate, int[] endCoordinate) {
+        super(maze, startCoordinate, endCoordinate, false);
+        setup();
     }
 
-    // 0 - open space
-    // 1 - wall
-    // 2 - algorithm/spread
-    // 3 -
-    // 4 - start coordinate
-    // 5 - end coordinate
-
-    public boolean start() {
-        boolean[][][] visited = new boolean[SIZE][SIZE][SIZE];
-
+    public void setup() {
+        visited = new boolean[SIZE][SIZE][SIZE];
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
                 if (tile_grid[i][j][0] == 1) { // if space is a wall
@@ -35,7 +23,9 @@ public class Simulation {
                 }
             }
         }
+    }
 
+    public boolean start() {
         Queue<String> queue = new LinkedList<>();
         queue.add(startCoordinate[1] + "," + startCoordinate[0]);
 
@@ -45,7 +35,6 @@ public class Simulation {
                 pathFound = true;
                 break;
             }
-
             String x = queue.remove();
             int row = Integer.parseInt(x.split(",")[0]);
             int col = Integer.parseInt(x.split(",")[1]);
@@ -53,9 +42,7 @@ public class Simulation {
             if (row < 0 || col < 0 || row >= SIZE || col >= SIZE || visited[row][col][0]) {
                 continue;
             }
-
             visited[row][col][0] = true;
-
             tile_grid[row][col][0] = 2;
 
             queue.add(row + "," + (col - 1)); //go left
@@ -63,7 +50,6 @@ public class Simulation {
             queue.add((row - 1) + "," + col); //go up
             queue.add((row + 1) + "," + col); //go down
         }
-
         return pathFound;
     }
 }

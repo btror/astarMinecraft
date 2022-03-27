@@ -1,36 +1,17 @@
-package com.gubertmc.plugin.algorithms.astar;
+package com.gubertmc.plugin.main.algorithms.astar.astar3d;
 
 import com.gubertmc.MazeGeneratorPlugin;
+import com.gubertmc.plugin.main.algorithms.Animation;
+import com.gubertmc.plugin.main.algorithms.astar.Node;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.*;
+import java.util.ArrayList;
 
-public class Search implements Listener {
+public class PathfindingAnimation3D extends Animation {
 
-    public int SIZE;
-    public Material WALL_MATERIAL;
-    public Material PATH_MATERIAL;
-    public Material PATH_SPREAD_MATERIAL;
-    public Material PATH_GROUND_MATERIAL;
-    public Material START_POINT_GLASS;
-    public Material END_POINT_GLASS;
-    public Node[][][] grid;
-    public PriorityQueue<Node> open_list = new PriorityQueue<>(10, new NodeComparator());
-    public ArrayList<Node> closed_list = new ArrayList<>();
-    public Location[][][] tile_grid;
-    public int[][][] tile_grid_int;
-    public Node start_node;
-    public Node current_node;
-    public Node end_node;
-    public boolean is3d;
-    public MazeGeneratorPlugin plugin;
-    public ArrayList<Location> thePath = new ArrayList<>();
-    public ArrayList<Location> exploredPlaces = new ArrayList<>();
-
-    public Search(
+    public PathfindingAnimation3D(
             MazeGeneratorPlugin plugin,
             Location[][][] tiles,
             int[] startCoordinate,
@@ -41,9 +22,9 @@ public class Search implements Listener {
             Material pathSpreadMaterial,
             Material groundMaterial,
             Material startGlassMaterial,
-            Material endGlassMaterial,
-            boolean is3d
+            Material endGlassMaterial
     ) {
+        super(plugin, tiles, startCoordinate, endCoordinate, size, wallMaterial, pathMaterial, pathSpreadMaterial, groundMaterial, startGlassMaterial, endGlassMaterial, true);
         grid = new Node[size][size][size];
 
         int[][][] tempArray = new int[size][size][size];
@@ -56,30 +37,19 @@ public class Search implements Listener {
         }
         tile_grid_int = tempArray;
 
-        this.plugin = plugin;
-        this.is3d = is3d;
-        SIZE = size;
-        WALL_MATERIAL = wallMaterial;
-        PATH_MATERIAL = pathMaterial;
-        PATH_SPREAD_MATERIAL = pathSpreadMaterial;
-        PATH_GROUND_MATERIAL = groundMaterial;
-        START_POINT_GLASS = startGlassMaterial;
-        END_POINT_GLASS = endGlassMaterial;
-        tile_grid = tiles;
-
         if (!is3d) {
             current_node = new Node(startCoordinate[1], startCoordinate[0], -1, 0);
             end_node = new Node(endCoordinate[1], endCoordinate[0], -1, 0);
             grid[startCoordinate[1]][startCoordinate[0]][0] = current_node;
             grid[endCoordinate[1]][endCoordinate[0]][0] = end_node;
 
-            for (int i = 0; i < SIZE; i++) {
-                for (int j = 0; j < SIZE; j++) {
-                    if (tiles[i][j][0].getBlock().getType() == Material.AIR) {
+            for (int i = 0; i < size; i++) {
+                for (int j = 0; j < size; j++) {
+                    if (tile_grid[i][j][0].getBlock().getType() == Material.AIR) {
                         Node node = new Node(i, j, -1, 0);
                         grid[i][j][0] = node;
                     }
-                    if (tiles[i][j][0].getBlock().getType() == WALL_MATERIAL) {
+                    if (tile_grid[i][j][0].getBlock().getType() == WALL_MATERIAL) {
                         Node node = new Node(i, j, -1, 1);
                         grid[i][j][0] = node;
                     }
@@ -91,14 +61,14 @@ public class Search implements Listener {
             grid[startCoordinate[1]][startCoordinate[0]][startCoordinate[2]] = current_node;
             grid[endCoordinate[1]][endCoordinate[0]][endCoordinate[2]] = end_node;
 
-            for (int i = 0; i < SIZE; i++) {
-                for (int j = 0; j < SIZE; j++) {
-                    for (int k = 0; k < SIZE; k++) {
-                        if (tiles[i][j][k].getBlock().getType() == PATH_GROUND_MATERIAL) {
+            for (int i = 0; i < size; i++) {
+                for (int j = 0; j < size; j++) {
+                    for (int k = 0; k < size; k++) {
+                        if (tile_grid[i][j][k].getBlock().getType() == PATH_GROUND_MATERIAL) {
                             Node node = new Node(i, j, k, 0);
                             grid[i][j][k] = node;
                         }
-                        if (tiles[i][j][k].getBlock().getType() == WALL_MATERIAL) {
+                        if (tile_grid[i][j][k].getBlock().getType() == WALL_MATERIAL) {
                             Node node = new Node(i, j, k, 1);
                             grid[i][j][k] = node;
                         }
@@ -115,6 +85,7 @@ public class Search implements Listener {
         open_list.add(current_node);
     }
 
+    @Override
     public boolean start() {
         boolean pathFound = true;
         while (!open_list.isEmpty() && !current_node.equals(end_node)) {
@@ -150,7 +121,8 @@ public class Search implements Listener {
             } else {
                 try {
                     calculateNeighborValues();
-                } catch (NullPointerException np) {}
+                } catch (NullPointerException np) {
+                }
 
                 try {
                     assert open_list.peek() != null;
@@ -167,13 +139,14 @@ public class Search implements Listener {
         return pathFound;
     }
 
+    @Override
     public void showAnimation(long time) {
         time += 50L;
         int count = 1;
         for (Location loc : exploredPlaces) {
             runnableDelayed(loc, time, PATH_SPREAD_MATERIAL);
             count++;
-            if (count % (int) (SIZE * 0.25) == 0) {
+            if (count % (int) (size * 0.25) == 0) {
                 time += 1L;
             }
         }
@@ -189,6 +162,7 @@ public class Search implements Listener {
         }
     }
 
+    @Override
     public void runnableDelayed(Location loc, long time, Material material) {
         new BukkitRunnable() {
             @Override
@@ -327,7 +301,7 @@ public class Search implements Listener {
         }
 
         // left node
-        if (col + 1 < SIZE && grid[row][col + 1][zNum].getType() == 0 && !closed_list.contains(grid[row][col + 1][zNum])) {
+        if (col + 1 < size && grid[row][col + 1][zNum].getType() == 0 && !closed_list.contains(grid[row][col + 1][zNum])) {
             grid[row][col + 1][zNum].setParent(current_node);
             int g = calculateG(grid[row][col + 1][zNum]);
             grid[row][col + 1][zNum].setG(g);
@@ -349,7 +323,7 @@ public class Search implements Listener {
         }
 
         // behind node
-        if (row + 1 < SIZE && grid[row + 1][col][zNum].getType() == 0 && !closed_list.contains(grid[row + 1][col][zNum])) {
+        if (row + 1 < size && grid[row + 1][col][zNum].getType() == 0 && !closed_list.contains(grid[row + 1][col][zNum])) {
             grid[row + 1][col][zNum].setParent(current_node);
             int g = calculateG(grid[row + 1][col][zNum]);
             grid[row + 1][col][zNum].setG(g);
@@ -412,7 +386,7 @@ public class Search implements Listener {
             }
 
             // top node
-            if (zNum + 1 < SIZE && grid[row][col][zNum + 1].getType() == 0 && !closed_list.contains(grid[row][col][zNum + 1])) {
+            if (zNum + 1 < size && grid[row][col][zNum + 1].getType() == 0 && !closed_list.contains(grid[row][col][zNum + 1])) {
                 grid[row][col][zNum + 1].setParent(current_node);
                 int g = calculateG(grid[row][col][zNum + 1]);
                 grid[row][col][zNum + 1].setG(g);

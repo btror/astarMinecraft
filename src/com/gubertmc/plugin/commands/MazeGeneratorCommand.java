@@ -2,10 +2,10 @@ package com.gubertmc.plugin.commands;
 
 import com.gubertmc.MazeGeneratorPlugin;
 import com.gubertmc.plugin.ControlPlatform;
-import com.gubertmc.plugin.Maze;
-import com.gubertmc.plugin.mazes.BreadthFirstSearchMaze2D;
-import com.gubertmc.plugin.mazes.PathfindingMaze2D;
-import com.gubertmc.plugin.mazes.PathfindingMaze3D;
+import com.gubertmc.plugin.main.Maze;
+import com.gubertmc.plugin.main.mazes.BreadthFirstSearchMaze2D;
+import com.gubertmc.plugin.main.mazes.PathfindingMaze2D;
+import com.gubertmc.plugin.main.mazes.PathfindingMaze3D;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -71,7 +71,7 @@ public record MazeGeneratorCommand(MazeGeneratorPlugin plugin) implements Comman
                             Integer.parseInt(args[1]),
                             percentage
                     );
-                } else if (args[0].equalsIgnoreCase("bfs2d")) {
+                } else if (args[0].equalsIgnoreCase("bfs")) {
                     maze = new BreadthFirstSearchMaze2D(
                             plugin,
                             location.getBlock(),

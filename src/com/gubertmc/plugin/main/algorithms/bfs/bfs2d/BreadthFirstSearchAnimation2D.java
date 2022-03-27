@@ -1,31 +1,20 @@
-package com.gubertmc.plugin.algorithms.bfs;
+package com.gubertmc.plugin.main.algorithms.bfs.bfs2d;
 
 import com.gubertmc.MazeGeneratorPlugin;
+import com.gubertmc.plugin.main.algorithms.Animation;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class Search {
+public class BreadthFirstSearchAnimation2D extends Animation {
 
-    public Location[][][] tile_grid;
-    public ArrayList<Location> exploredPlaces = new ArrayList<>();
-    public int[][][] tile_grid_int;
-    public int[] startCoordinate;
-    public int[] endCoordinate;
-    public Material WALL_MATERIAL;
-    public Material PATH_MATERIAL;
-    public Material PATH_SPREAD_MATERIAL;
-    public Material PATH_GROUND_MATERIAL;
-    public Material START_POINT_GLASS;
-    public Material END_POINT_GLASS;
-    public MazeGeneratorPlugin plugin;
-    public int SIZE;
+    public boolean[][][] visited;
+    public int[][][] textGrid;
 
-    public Search(
+    public BreadthFirstSearchAnimation2D(
             MazeGeneratorPlugin plugin,
             Location[][][] tiles,
             int[] startCoordinate,
@@ -36,38 +25,16 @@ public class Search {
             Material pathSpreadMaterial,
             Material groundMaterial,
             Material startGlassMaterial,
-            Material endGlassMaterial
+            Material endGlassMaterial,
+            boolean is3d
     ) {
-        int[][][] tempArray = new int[size][size][size];
+        super(plugin, tiles, startCoordinate, endCoordinate, size, wallMaterial, pathMaterial, pathSpreadMaterial, groundMaterial, startGlassMaterial, endGlassMaterial, false);
+        visited = new boolean[size][size][size];
+        textGrid = new int[size][size][size];
+
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 for (int k = 0; k < size; k++) {
-                    tempArray[i][j][k] = 0;
-                }
-            }
-        }
-        tile_grid_int = tempArray;
-        tile_grid = tiles;
-        this.plugin = plugin;
-        SIZE = size;
-        WALL_MATERIAL = wallMaterial;
-        PATH_MATERIAL = pathMaterial;
-        PATH_SPREAD_MATERIAL = pathSpreadMaterial;
-        PATH_GROUND_MATERIAL = groundMaterial;
-        START_POINT_GLASS = startGlassMaterial;
-        END_POINT_GLASS = endGlassMaterial;
-        this.startCoordinate = startCoordinate;
-        this.endCoordinate = endCoordinate;
-
-    }
-
-    public boolean start() {
-        boolean[][][] visited = new boolean[SIZE][SIZE][SIZE];
-        int[][][] textGrid = new int[SIZE][SIZE][SIZE];
-
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                for (int k = 0; k < SIZE; k++) {
                     if (tile_grid[i][j][0].getBlock().getType() == WALL_MATERIAL) {
                         textGrid[i][j][0] = 1;
                         visited[i][j][0] = true;
@@ -77,9 +44,11 @@ public class Search {
                 }
             }
         }
-
         textGrid[endCoordinate[1]][endCoordinate[0]][endCoordinate[2]] = 5;
+    }
 
+    @Override
+    public boolean start() {
         int height = textGrid.length;
         int length = textGrid[0].length;
 
@@ -112,6 +81,7 @@ public class Search {
         return true;
     }
 
+    @Override
     public void showAnimation(long time) {
         time += 5L;
         int count = 1;
@@ -120,12 +90,13 @@ public class Search {
             Location location = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ());
             runnableDelayed(location, time, PATH_SPREAD_MATERIAL);
             count++;
-            if (count % (int) (SIZE * 0.25) == 0) {
+            if (count % (int) (size * 0.25) == 0) {
                 time += 1L;
             }
         }
     }
 
+    @Override
     public void runnableDelayed(Location loc, long time, Material material) {
         new BukkitRunnable() {
             @Override
