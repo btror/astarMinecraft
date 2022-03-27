@@ -10,14 +10,19 @@ import com.gubertmc.plugin.main.mazes.PathfindingMaze3D;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Objects;
 
@@ -128,14 +133,28 @@ public record MazeGeneratorCommand(MazeGeneratorPlugin plugin) implements Comman
     public void onButtonPressed(PlayerInteractEvent e) {
         if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
             if (Objects.requireNonNull(e.getClickedBlock()).getType() == Material.WARPED_BUTTON) {
-                maze.generateNewMaze(
-                        controlPlatform.getCoreMaterial(),
-                        controlPlatform.getBlockerMaterial(),
-                        controlPlatform.getSpreadMaterial(),
-                        controlPlatform.getPathMaterial(),
-                        controlPlatform.getStartPointGlassMaterial(),
-                        controlPlatform.getEndPointGlassMaterial()
-                );
+                boolean acceptableFrames = true;
+                ItemFrame[] frames = controlPlatform.getFrames();
+                // ItemStack item = frames[0].getItem();
+                for (ItemFrame item : frames) {
+                    if (!item.getItem().getType().isBlock()) {
+                        acceptableFrames = false;
+                    }
+                }
+                if (acceptableFrames) {
+                    controlPlatform.setFrames(frames);
+
+                    maze.generateNewMaze(
+                            controlPlatform.getCoreMaterial(),
+                            controlPlatform.getBlockerMaterial(),
+                            controlPlatform.getSpreadMaterial(),
+                            controlPlatform.getPathMaterial(),
+                            controlPlatform.getStartPointGlassMaterial(),
+                            controlPlatform.getEndPointGlassMaterial()
+                    );
+                } else {
+                    e.getPlayer().sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "Maze items must be blocks...");
+                }
             }
         }
     }

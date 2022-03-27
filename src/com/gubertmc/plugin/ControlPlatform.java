@@ -18,18 +18,20 @@ public class ControlPlatform implements Listener {
     private static com.gubertmc.plugin.main.Maze maze;
     private static Block block;
     private static Block button;
-    private final Material coreMaterial;
-    private final Material blockerMaterial;
-    private final Material spreadMaterial;
-    private final Material pathMaterial;
-    private final Material startPointGlassMaterial;
-    private final Material endPointGlassMaterial;
+    private Material coreMaterial;
+    private Material blockerMaterial;
+    private Material spreadMaterial;
+    private Material pathMaterial;
+    private Material startPointGlassMaterial;
+    private Material endPointGlassMaterial;
+    private ItemFrame[] frames;
 
 
     public ControlPlatform(MazeGeneratorPlugin plugin, Maze maze, Block block, int size) {
         ControlPlatform.block = block;
         ControlPlatform.maze = maze;
 
+        frames = new ItemFrame[4];
         coreMaterial = Material.RED_STAINED_GLASS;
         blockerMaterial = Material.LAPIS_BLOCK;
         spreadMaterial = Material.LIME_STAINED_GLASS;
@@ -57,12 +59,16 @@ public class ControlPlatform implements Listener {
                     ItemFrame frame = block.getWorld().spawn(wall.add(0, 0, -1), ItemFrame.class);
                     if (i == 0) {
                         frame.setItem(new ItemStack(spreadMaterial));
+                        frames[0] = frame;
                     } else if (i == 1) {
                         frame.setItem(new ItemStack(blockerMaterial));
+                        frames[1] = frame;
                     } else if (i == 3) {
                         frame.setItem(new ItemStack(coreMaterial));
+                        frames[2] = frame;
                     } else {
                         frame.setItem(new ItemStack(pathMaterial));
+                        frames[3] = frame;
                     }
                 }
                 if (k == 1 && i == 3) {
@@ -126,6 +132,18 @@ public class ControlPlatform implements Listener {
 
     public Material getEndPointGlassMaterial() {
         return endPointGlassMaterial;
+    }
+
+    public ItemFrame[] getFrames() {
+        return frames;
+    }
+
+    public void setFrames(ItemFrame[] frames) {
+        this.frames = frames;
+        spreadMaterial = frames[0].getItem().getType();
+        blockerMaterial = frames[1].getItem().getType();
+        coreMaterial = frames[2].getItem().getType();
+        pathMaterial = frames[3].getItem().getType();
     }
 
 }
