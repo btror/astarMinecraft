@@ -1,4 +1,4 @@
-package com.gubertmc.plugin.main.algorithms.bfs.bfs2d;
+package com.gubertmc.plugin.main.algorithms.dfs.dfs2d;
 
 import com.gubertmc.MazeGeneratorPlugin;
 import com.gubertmc.plugin.main.algorithms.Animation;
@@ -6,15 +6,14 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.Stack;
 
-public class BreadthFirstSearchAnimation2D extends Animation {
+public class DepthFirstSearchAnimation2D extends Animation {
 
     public boolean[][][] visited;
     public int[][][] textGrid;
 
-    public BreadthFirstSearchAnimation2D(
+    public DepthFirstSearchAnimation2D(
             MazeGeneratorPlugin plugin,
             Location[][][] tiles,
             int[] startCoordinate,
@@ -52,17 +51,17 @@ public class BreadthFirstSearchAnimation2D extends Animation {
         int height = textGrid.length;
         int length = textGrid[0].length;
 
-        Queue<String> queue = new LinkedList<>();
-        queue.add(startCoordinate[1] + "," + startCoordinate[0]);
+        Stack<String> stack = new Stack<>();
+        stack.push(startCoordinate[1] + "," + startCoordinate[0]);
 
-        while (!queue.isEmpty()) {
+        while (!stack.empty()) {
             if (textGrid[endCoordinate[1]][endCoordinate[0]][endCoordinate[2]] != 5) {
                 break;
             }
 
-            String xs = queue.remove();
-            int row = Integer.parseInt(xs.split(",")[0]);
-            int col = Integer.parseInt(xs.split(",")[1]);
+            String x = stack.pop();
+            int row = Integer.parseInt(x.split(",")[0]);
+            int col = Integer.parseInt(x.split(",")[1]);
 
             if (row < 0 || col < 0 || row >= height || col >= length || visited[row][col][0]) {
                 continue;
@@ -72,10 +71,10 @@ public class BreadthFirstSearchAnimation2D extends Animation {
 
             exploredPlaces.add(tile_grid[row][col][0]);
 
-            queue.add(row + "," + (col - 1)); //go left
-            queue.add(row + "," + (col + 1)); //go right
-            queue.add((row - 1) + "," + col); //go up
-            queue.add((row + 1) + "," + col); //go down
+            stack.push(row + "," + (col - 1)); //go left
+            stack.push(row + "," + (col + 1)); //go right
+            stack.push((row - 1) + "," + col); //go up
+            stack.push((row + 1) + "," + col); //go down
         }
         return true;
     }

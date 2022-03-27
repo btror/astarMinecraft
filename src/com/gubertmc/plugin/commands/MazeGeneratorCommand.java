@@ -4,6 +4,7 @@ import com.gubertmc.MazeGeneratorPlugin;
 import com.gubertmc.plugin.ControlPlatform;
 import com.gubertmc.plugin.main.Maze;
 import com.gubertmc.plugin.main.mazes.BreadthFirstSearchMaze2D;
+import com.gubertmc.plugin.main.mazes.DepthFirstSearchMaze2D;
 import com.gubertmc.plugin.main.mazes.PathfindingMaze2D;
 import com.gubertmc.plugin.main.mazes.PathfindingMaze3D;
 import org.bukkit.ChatColor;
@@ -71,8 +72,15 @@ public record MazeGeneratorCommand(MazeGeneratorPlugin plugin) implements Comman
                             Integer.parseInt(args[1]),
                             percentage
                     );
-                } else if (args[0].equalsIgnoreCase("bfs")) {
+                } else if (args[0].equalsIgnoreCase("bfs2d")) {
                     maze = new BreadthFirstSearchMaze2D(
+                            plugin,
+                            location.getBlock(),
+                            Integer.parseInt(args[1]),
+                            percentage
+                    );
+                } else if (args[0].equalsIgnoreCase("dfs2d")) {
+                    maze = new DepthFirstSearchMaze2D(
                             plugin,
                             location.getBlock(),
                             Integer.parseInt(args[1]),
