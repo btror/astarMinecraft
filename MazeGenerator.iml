@@ -16,24 +16,10 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="jar://$MODULE_DIR$/../spigot-1.18.1.jar!/" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
-    <orderEntry type="module-library">
-      <library>
-        <CLASSES>
-          <root url="file://$MODULE_DIR$/../bundler" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
+    <orderEntry type="library" name="MazeGenerator" level="project" />
     <orderEntry type="library" name="libraries" level="project" />
+    <orderEntry type="library" name="plugins" level="project" />
+    <orderEntry type="library" name="SnakeGame" level="project" />
+    <orderEntry type="library" name="libraries1" level="project" />
   </component>
 </module>

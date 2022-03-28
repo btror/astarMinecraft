@@ -3,12 +3,9 @@ name: genmaze
 api-version: 1.13
 version: 1
 commands:
-  astar2d:
-    description: creates a maze
-    usage: /astar2d
-  astar3d:
-    description: creates a 3d maze
-    usage: /astar3d
+  maze:
+    description: generates a maze
+    usage: /maze
   test:
-    description: test commands
+    description: test command
     usage: /test
