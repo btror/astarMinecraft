@@ -1,23 +1,8 @@
 # Minecraft pathfinding plugin
 
-### A program that generates random mazes and solves them with AI.
+#### A program that generates random mazes and solves them with AI (and other algorithms).
 
-### This is an implementation of the A* pathfinding algorithm.
-
-<br>
-2-Dimensional maze example
-<br>
-<img src="Resources/example2d.gif" width="550" height="330">
-
-3-Dimensional maze example 1
-<br>
-<img src="Resources/example3d-1.gif" width="550" height="330">
-<br>
-
-3-Dimensional maze example 2
-<br>
-<img src="Resources/example3d-2.gif" width="550" height="330">
-<br>
+#### This is an implementation of the A* pathfinding algorithm (and other algorithms).
 
 ### Commands
 <code>/maze &lt;algorithm&gt; &lt;size&gt; &lt;percentage&gt;</code>
@@ -42,11 +27,42 @@
 or
 <code>/maze astar2d 30 50</code> (same thing)
 
-<code>/maze astar3d 10 20</code>
+<code>/maze astar3d 10 0.2</code>
+or
+<code>/maze astar3d 10 20</code> (same thing)
 
 <code>/maze bfs2d 50 0.25</code>
+or
+<code>/maze bfs2d 50 25</code> (same thing)
 
-<code>/maze dfs2d 30 45</code>
+<code>/maze dfs2d 30 0.45</code>
+or
+<code>/maze dfs2d 30 45</code> (same thing)
+
+<br>
+Maze initialization
+<br>
+<img src="Resources/part1.gif" width="550" height="330">
+
+A* 2D algorithm
+<br>
+<img src="Resources/part2.gif" width="550" height="330">
+<br>
+
+Changing block types
+<br>
+<img src="Resources/part3.gif" width="550" height="330">
+<br>
+
+BFS 2D algorithm
+<br>
+<img src="Resources/part4.gif" width="550" height="330">
+<br>
+
+DFS 2D algorithm
+<br>
+<img src="Resources/part5.gif" width="550" height="330">
+<br>
 
 ### Similar repositories by <a href="https://github.com/btror/AStar">btror</a>
 - <a href="https://github.com/btror/AStar">AStar</a>
