@@ -135,7 +135,6 @@ public record MazeGeneratorCommand(MazeGeneratorPlugin plugin) implements Comman
             if (Objects.requireNonNull(e.getClickedBlock()).getType() == Material.WARPED_BUTTON) {
                 boolean acceptableFrames = true;
                 ItemFrame[] frames = controlPlatform.getFrames();
-                // ItemStack item = frames[0].getItem();
                 for (ItemFrame item : frames) {
                     if (!item.getItem().getType().isBlock()) {
                         acceptableFrames = false;

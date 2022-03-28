@@ -85,6 +85,7 @@ public class BreadthFirstSearchAnimation2D extends Animation {
         time += 5L;
         int count = 1;
         exploredPlaces.remove(exploredPlaces.size() - 1);
+        exploredPlaces.remove(0);
         for (Location loc : exploredPlaces) {
             Location location = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ());
             runnableDelayed(location, time, PATH_SPREAD_MATERIAL);
