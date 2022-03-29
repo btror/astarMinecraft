@@ -58,8 +58,6 @@ Creating a Maze and ControlPlatform object...
 <img src="Resources/part1.gif" width="550" height="330">
 </details>
 
-<hr style="visibility: hidden; margin-bottom: -15px">
-
 <details>
 <summary><b>Starting animation example</b></summary>
 <br>
@@ -69,8 +67,6 @@ Watching the algorithm solve the maze...
 <img src="Resources/part2.gif" width="550" height="330">
 </details>
 
-<hr style="visibility: hidden; margin-bottom: -15px">
-
 <details>
 <summary><b>Changing block types example</b></summary>
 <br>
@@ -79,8 +75,6 @@ Editing the block types used to create the maze and animations...
 <br>
 <img src="Resources/part3.gif" width="550" height="330">
 </details>
-<hr style="visibility: hidden; margin-bottom: -15px">
-
 
 <details>
 <summary><b>Breadth-first search example</b></summary>
@@ -93,8 +87,6 @@ Creating a maze object utilizing BFS...
 <br>
 <img src="Resources/part4.gif" width="550" height="330">
 </details>
-
-<hr style="visibility: hidden; margin-bottom: -15px">
 
 <details>
 <summary><b>Depth-first search example</b></summary>
