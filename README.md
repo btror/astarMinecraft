@@ -46,7 +46,6 @@ or
 <img src="Resources/part2.gif" width="550" height="330">
 
 ### More demos and walkthroughs
-
 <details>
 <summary><b>Initializing maze example</b></summary>
 <br>
@@ -59,7 +58,7 @@ Creating a Maze and ControlPlatform object...
 <img src="Resources/part1.gif" width="550" height="330">
 </details>
 
-<br>
+<hr style="visibility: hidden; margin-bottom: -15px">
 
 <details>
 <summary><b>Starting animation example</b></summary>
@@ -70,7 +69,7 @@ Watching the algorithm solve the maze...
 <img src="Resources/part2.gif" width="550" height="330">
 </details>
 
-<br>
+<hr style="visibility: hidden; margin-bottom: -15px">
 
 <details>
 <summary><b>Changing block types example</b></summary>
@@ -80,8 +79,8 @@ Editing the block types used to create the maze and animations...
 <br>
 <img src="Resources/part3.gif" width="550" height="330">
 </details>
+<hr style="visibility: hidden; margin-bottom: -15px">
 
-<br>
 
 <details>
 <summary><b>Breadth-first search example</b></summary>
@@ -95,7 +94,7 @@ Creating a maze object utilizing BFS...
 <img src="Resources/part4.gif" width="550" height="330">
 </details>
 
-<br>
+<hr style="visibility: hidden; margin-bottom: -15px">
 
 <details>
 <summary><b>Depth-first search example</b></summary>
@@ -109,15 +108,13 @@ Creating a maze object utilizing DFS...
 <img src="Resources/part5.gif" width="550" height="330">
 </details>
 
+### Tech stack
+- Minecraft 1.18.1
+- spigot 1.18.1
 
+<hr>
 
 ### Similar repositories by <a href="https://github.com/btror/AStar">btror</a>
-
 - <a href="https://github.com/btror/AStar">AStar</a>
 - <a href="https://github.com/btror/A-Star">A-Star</a>
 - <a href="https://github.com/btror/TraversalAlgorithmVisualization">TraversalAlgorithmVisualization</a>
-
-### Tech stack
-
-- Minecraft 1.18.1
-- spigot 1.18.1
