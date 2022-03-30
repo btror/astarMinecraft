@@ -5,24 +5,27 @@
 #### This is an implementation of the A* pathfinding algorithm (and other algorithms).
 
 ### Commands
+
 <code>/maze &lt;algorithm&gt; &lt;size&gt; &lt;percentage&gt;</code>
 
 - Algorithm is required.
-  - Options:
-    - astar2d
-    - astar3d
-    - bfs2d
-    - dfs2d
+    - Options:
+        - astar2d
+        - astar3d
+        - bfs2d
+        - dfs2d
 - Size is required.
-  - Must be an integer.
+    - Must be an integer.
 - Percentage is optional.
-  - Can be a decimal or integer.
-  - Formats: 
-    - A number between 0 and 1.
-    - A number between 0 and 100.
-  - Both formats map to the same percentage. For example, 0.5 and 50 both equal 50%, 0.23 and 23 both equal 23%, etc...
-  
-### Example usage
+    - Can be a decimal or integer.
+    - Formats:
+        - A number between 0 and 1.
+        - A number between 0 and 100.
+    - Both formats map to the same percentage. For example, 0.5 and 50 both equal 50%, 0.23 and 23 both equal 23%,
+      etc...
+
+### Usage
+
 <code>/maze astar2d 30 0.5</code>
 or
 <code>/maze astar2d 30 50</code> (same thing)
@@ -39,37 +42,71 @@ or
 or
 <code>/maze dfs2d 30 45</code> (same thing)
 
+### Demo
+<img src="Resources/part2.gif" width="550" height="330">
+
+### More demos and walkthroughs
+<details>
+<summary><b>Initializing maze example</b></summary>
 <br>
-Maze initialization
+Creating a Maze and ControlPlatform object...
+<br>
+<br>
+<code>/maze astar2d 30 50</code>
+<br>
 <br>
 <img src="Resources/part1.gif" width="550" height="330">
+</details>
 
-A* 2D algorithm
+<details>
+<summary><b>Starting animation example</b></summary>
+<br>
+Watching the algorithm solve the maze...
+<br>
 <br>
 <img src="Resources/part2.gif" width="550" height="330">
-<br>
+</details>
 
-Changing block types
+<details>
+<summary><b>Changing block types example</b></summary>
+<br>
+Editing the block types used to create the maze and animations...
+<br>
 <br>
 <img src="Resources/part3.gif" width="550" height="330">
-<br>
+</details>
 
-BFS 2D algorithm
+<details>
+<summary><b>Breadth-first search example</b></summary>
+<br>
+Creating a maze object utilizing BFS...
+<br>
+<br>
+<code>/maze bfs2d 30 40</code>
+<br>
 <br>
 <img src="Resources/part4.gif" width="550" height="330">
-<br>
+</details>
 
-DFS 2D algorithm
+<details>
+<summary><b>Depth-first search example</b></summary>
+<br>
+Creating a maze object utilizing DFS...
+<br>
+<br>
+<code>/maze dfs2d 40 20</code>
+<br>
 <br>
 <img src="Resources/part5.gif" width="550" height="330">
-<br>
+</details>
+
+### Tech stack
+- Minecraft 1.18.1
+- spigot 1.18.1
+
+<hr>
 
 ### Similar repositories by <a href="https://github.com/btror/AStar">btror</a>
 - <a href="https://github.com/btror/AStar">AStar</a>
 - <a href="https://github.com/btror/A-Star">A-Star</a>
 - <a href="https://github.com/btror/TraversalAlgorithmVisualization">TraversalAlgorithmVisualization</a>
-
-
-### Tech stack
-- Minecraft 1.18.1
-- spigot 1.18.1
