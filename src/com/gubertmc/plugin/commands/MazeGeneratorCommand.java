@@ -3,26 +3,19 @@ package com.gubertmc.plugin.commands;
 import com.gubertmc.MazeGeneratorPlugin;
 import com.gubertmc.plugin.ControlPlatform;
 import com.gubertmc.plugin.main.Maze;
-import com.gubertmc.plugin.main.mazes.BreadthFirstSearchMaze2D;
-import com.gubertmc.plugin.main.mazes.DepthFirstSearchMaze2D;
-import com.gubertmc.plugin.main.mazes.PathfindingMaze2D;
-import com.gubertmc.plugin.main.mazes.PathfindingMaze3D;
+import com.gubertmc.plugin.main.mazes.*;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.Objects;
 
@@ -84,8 +77,22 @@ public record MazeGeneratorCommand(MazeGeneratorPlugin plugin) implements Comman
                             Integer.parseInt(args[1]),
                             percentage
                     );
+                } else if (args[0].equalsIgnoreCase("bfs3d")) {
+                    maze = new BreadthFirstSearchMaze3D(
+                            plugin,
+                            location.getBlock(),
+                            Integer.parseInt(args[1]),
+                            percentage
+                    );
                 } else if (args[0].equalsIgnoreCase("dfs2d")) {
                     maze = new DepthFirstSearchMaze2D(
+                            plugin,
+                            location.getBlock(),
+                            Integer.parseInt(args[1]),
+                            percentage
+                    );
+                } else if (args[0].equalsIgnoreCase("dfs3d")) {
+                    maze = new DepthFirstSearchMaze3D(
                             plugin,
                             location.getBlock(),
                             Integer.parseInt(args[1]),

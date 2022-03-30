@@ -4,8 +4,8 @@ import com.gubertmc.MazeGeneratorPlugin;
 import com.gubertmc.plugin.main.Maze;
 import com.gubertmc.plugin.main.algorithms.Animation;
 import com.gubertmc.plugin.main.algorithms.Simulation;
-import com.gubertmc.plugin.main.algorithms.astar.astar3d.PathfindingAnimation3D;
-import com.gubertmc.plugin.main.algorithms.astar.astar3d.PathfindingSimulation3D;
+import com.gubertmc.plugin.main.algorithms.bfs.bfs3d.BreadthFirstSearchAnimation3D;
+import com.gubertmc.plugin.main.algorithms.bfs.bfs3d.BreadthFirstSearchSimulation3D;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -14,12 +14,12 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import static org.bukkit.Bukkit.getServer;
 
-public class PathfindingMaze3D extends Maze {
+public class BreadthFirstSearchMaze3D extends Maze {
 
     private static long time;
     private static boolean isValid;
 
-    public PathfindingMaze3D(MazeGeneratorPlugin plugin, Block block, int size, double wallPercentage) {
+    public BreadthFirstSearchMaze3D(MazeGeneratorPlugin plugin, Block block, int size, double wallPercentage) {
         super(plugin, block, size, wallPercentage);
     }
 
@@ -132,7 +132,7 @@ public class PathfindingMaze3D extends Maze {
         int count = 0;
         while (!isValid) {
             int[][][] simulationMaze = generateSimulation();
-            Simulation simulation = new PathfindingSimulation3D(simulationMaze, getStartCoordinate(), getEndCoordinate());
+            Simulation simulation = new BreadthFirstSearchSimulation3D(simulationMaze, getStartCoordinate(), getEndCoordinate());
             isValid = simulation.start();
 
             if (isValid) {
@@ -146,7 +146,7 @@ public class PathfindingMaze3D extends Maze {
                 new BukkitRunnable() {
                     @Override
                     public void run() {
-                        Animation animation = new PathfindingAnimation3D(getPlugin(), getLocations(), getStartCoordinate(), getEndCoordinate(), getSize(), blockerMaterial, pathMaterial, spreadMaterial, coreMaterial, startPointGlassMaterial, endPointGlassMaterial);
+                        Animation animation = new BreadthFirstSearchAnimation3D(getPlugin(), getLocations(), getStartCoordinate(), getEndCoordinate(), getSize(), blockerMaterial, pathMaterial, spreadMaterial, coreMaterial, startPointGlassMaterial, endPointGlassMaterial);
                         isValid = animation.start();
                         getServer().broadcastMessage(ChatColor.GREEN + "" + getSize() + "x" + getSize() + "x" + getSize() + " maze generated...");
                         animation.showAnimation(time);

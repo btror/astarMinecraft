@@ -4,8 +4,8 @@
 
 #### This is an implementation of the A* pathfinding algorithm (and other algorithms).
 
-### Commands
 
+### Commands
 <code>/maze &lt;algorithm&gt; &lt;size&gt; &lt;percentage&gt;</code>
 
 - Algorithm is required.
@@ -13,7 +13,9 @@
         - astar2d
         - astar3d
         - bfs2d
+        - bfs3d
         - dfs2d
+        - dfs3d
 - Size is required.
     - Must be an integer.
 - Percentage is optional.
@@ -24,8 +26,8 @@
     - Both formats map to the same percentage. For example, 0.5 and 50 both equal 50%, 0.23 and 23 both equal 23%,
       etc...
 
-### Usage
 
+### Example Usage
 <code>/maze astar2d 30 0.5</code>
 or
 <code>/maze astar2d 30 50</code> (same thing)
@@ -42,8 +44,10 @@ or
 or
 <code>/maze dfs2d 30 45</code> (same thing)
 
+
 ### Demo
 <img src="Resources/part2.gif" width="550" height="330">
+
 
 ### More demos and walkthroughs
 <details>
@@ -100,11 +104,11 @@ Creating a maze object utilizing DFS...
 <img src="Resources/part5.gif" width="550" height="330">
 </details>
 
+
 ### Tech stack
 - Minecraft 1.18.1
 - spigot 1.18.1
 
-<hr>
 
 ### Similar repositories by <a href="https://github.com/btror/AStar">btror</a>
 - <a href="https://github.com/btror/AStar">AStar</a>
