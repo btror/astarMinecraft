@@ -5,7 +5,6 @@
 #### This is an implementation of the A* pathfinding algorithm (and other algorithms).
 
 ### Commands
-
 <code>/maze &lt;algorithm&gt; &lt;size&gt; &lt;percentage&gt;</code>
 
 - Algorithm is required.
@@ -25,7 +24,6 @@
       etc...
 
 ### Usage
-
 <code>/maze astar2d 30 0.5</code>
 or
 <code>/maze astar2d 30 50</code> (same thing)
@@ -104,7 +102,6 @@ Creating a maze object utilizing DFS...
 - Minecraft 1.18.1
 - spigot 1.18.1
 
-<hr>
 
 ### Similar repositories by <a href="https://github.com/btror/AStar">btror</a>
 - <a href="https://github.com/btror/AStar">AStar</a>
