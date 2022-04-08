@@ -16,8 +16,8 @@ import static org.bukkit.Bukkit.getServer;
 
 public class PathfindingMaze2D extends Maze {
 
-    private static long time;
-    private static boolean isValid;
+    private long time;
+    private boolean isValid;
 
     public PathfindingMaze2D(MazeGeneratorPlugin plugin, Block block, int size, double wallPercentage) {
         super(plugin, block, size, wallPercentage);
@@ -122,6 +122,7 @@ public class PathfindingMaze2D extends Maze {
         while (!isValid) {
             int[][][] simulationMaze = generateSimulation();
             Simulation simulation = new PathfindingSimulation2D(simulationMaze, getStartCoordinate(), getEndCoordinate());
+            simulation.setup();
             isValid = simulation.start();
 
             if (isValid) {
@@ -136,7 +137,8 @@ public class PathfindingMaze2D extends Maze {
                 new BukkitRunnable() {
                     @Override
                     public void run() {
-                        Animation animation = new PathfindingAnimation2D(getPlugin(), getLocations(), getStartCoordinate(), getEndCoordinate(), getSize(), blockerMaterial, pathMaterial, spreadMaterial, coreMaterial, startPointGlassMaterial, endPointGlassMaterial, false);
+                        Animation animation = new PathfindingAnimation2D(getPlugin(), getLocations(), getStartCoordinate(), getEndCoordinate(), getSize(), blockerMaterial, pathMaterial, spreadMaterial, coreMaterial, startPointGlassMaterial, endPointGlassMaterial);
+                        animation.setup();
                         isValid = animation.start();
                         getServer().broadcastMessage(ChatColor.GREEN + "" + getSize() + "x" + getSize() + " maze generated...");
                         animation.showAnimation(time);
