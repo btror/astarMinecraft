@@ -63,6 +63,13 @@ public record MazeGeneratorCommand(MazeGeneratorPlugin plugin) implements Comman
                             Integer.parseInt(args[1]),
                             percentage
                     );
+                } else if (args[0].equalsIgnoreCase("astar3d")) {
+                    maze = new PathfindingMaze3D(
+                            plugin,
+                            location.getBlock(),
+                            Integer.parseInt(args[1]),
+                            percentage
+                    );
                 } else {
                     player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "/astar <Dimensions> <Size> <BlockedPercentage>");
                     player.sendMessage(ChatColor.YELLOW + "" + "Dimensions -> 2 or 3");
