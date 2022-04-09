@@ -1,15 +1,21 @@
 package com.gubertmc.plugin.main.algorithms.astar;
 
 public class Node {
-    private int row, col, z, f, g, h, type;
+    private final int row;
+    private final int col;
+    private final int z;
+    private int f;
+    private int g;
+    private int h;
+    private final int type;
     private Node parent;
 
     public Node(int r, int c, int z, int t) {
-        row = r;
-        col = c;
+        this.row = r;
+        this.col = c;
         this.z = z;
-        type = t;
-        parent = null;
+        this.type = t;
+        this.parent = null;
     }
 
     public void setF() {

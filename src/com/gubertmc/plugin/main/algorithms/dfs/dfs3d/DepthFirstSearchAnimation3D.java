@@ -5,12 +5,14 @@ import com.gubertmc.plugin.main.algorithms.Animation;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.ArrayList;
 import java.util.Stack;
 
 public class DepthFirstSearchAnimation3D extends Animation {
 
-    public boolean[][][] visited;
-    public int[][][] textGrid;
+    private boolean[][][] visited;
+    private int[][][] textGrid;
 
     public DepthFirstSearchAnimation3D(
             MazeGeneratorPlugin plugin,
@@ -25,14 +27,31 @@ public class DepthFirstSearchAnimation3D extends Animation {
             Material startGlassMaterial,
             Material endGlassMaterial
     ) {
-        super(plugin, tiles, startCoordinate, endCoordinate, size, wallMaterial, pathMaterial, pathSpreadMaterial, groundMaterial, startGlassMaterial, endGlassMaterial, true);
-        visited = new boolean[size][size][size];
-        textGrid = new int[size][size][size];
+        super(
+                plugin,
+                tiles,
+                startCoordinate,
+                endCoordinate,
+                size,
+                wallMaterial,
+                pathMaterial,
+                pathSpreadMaterial,
+                groundMaterial,
+                startGlassMaterial,
+                endGlassMaterial,
+                true
+        );
+    }
 
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                for (int k = 0; k < size; k++) {
-                    if (tile_grid[i][j][k].getBlock().getType() == WALL_MATERIAL) {
+    @Override
+    public void setup() {
+        visited = new boolean[getSize()][getSize()][getSize()];
+        textGrid = new int[getSize()][getSize()][getSize()];
+
+        for (int i = 0; i < getSize(); i++) {
+            for (int j = 0; j < getSize(); j++) {
+                for (int k = 0; k < getSize(); k++) {
+                    if (getTileGrid()[i][j][k].getBlock().getType() == getWallMaterial()) {
                         textGrid[i][j][k] = 1;
                         visited[i][j][k] = true;
                     } else {
@@ -41,7 +60,7 @@ public class DepthFirstSearchAnimation3D extends Animation {
                 }
             }
         }
-        textGrid[endCoordinate[1]][endCoordinate[0]][endCoordinate[2]] = 5;
+        textGrid[getEndCoordinate()[1]][getEndCoordinate()[0]][getEndCoordinate()[2]] = 5;
     }
 
     @Override
@@ -51,10 +70,10 @@ public class DepthFirstSearchAnimation3D extends Animation {
         int zLength = textGrid[0][0].length;
 
         Stack<String> stack = new Stack<>();
-        stack.push(startCoordinate[1] + "," + startCoordinate[0] + "," + startCoordinate[2]);
+        stack.push(getStartCoordinate()[1] + "," + getStartCoordinate()[0] + "," + getStartCoordinate()[2]);
 
         while (!stack.empty()) {
-            if (textGrid[endCoordinate[1]][endCoordinate[0]][endCoordinate[2]] != 5) {
+            if (textGrid[getEndCoordinate()[1]][getEndCoordinate()[0]][getEndCoordinate()[2]] != 5) {
                 break;
             }
 
@@ -63,16 +82,16 @@ public class DepthFirstSearchAnimation3D extends Animation {
             int col = Integer.parseInt(x.split(",")[1]);
             int z = Integer.parseInt(x.split(",")[2]);
 
-            // row < 0 || row >= height
-            // col < 0 || col >= length
-            // z < 0 || z >= zLength
-            if (row < 0 || col < 0 || row >= height || col >= length || z < 0 || z >= zLength || visited[row][col][z]) {
+            if (row < 0 || col < 0 || row >= height || col >= length
+                    || z < 0 || z >= zLength || visited[row][col][z]) {
                 continue;
             }
             visited[row][col][z] = true;
             textGrid[row][col][z] = 2;
 
-            exploredPlaces.add(tile_grid[row][col][z]);
+            ArrayList<Location> exploredPlaces = getExploredPlaces();
+            exploredPlaces.add(getTileGrid()[row][col][z]);
+            setExploredPlaces(exploredPlaces);
 
             stack.push(row + "," + (col - 1) + "," + z);
             stack.push(row + "," + (col + 1) + "," + z);
@@ -88,13 +107,17 @@ public class DepthFirstSearchAnimation3D extends Animation {
     public void showAnimation(long time) {
         time += 5L;
         int count = 1;
+        ArrayList<Location> exploredPlaces = getExploredPlaces();
         exploredPlaces.remove(exploredPlaces.size() - 1);
         exploredPlaces.remove(0);
+        setExploredPlaces(exploredPlaces);
         for (Location loc : exploredPlaces) {
-            Location location = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ());
-            runnableDelayed(location, time, PATH_SPREAD_MATERIAL);
+            Location location = new Location(
+                    loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ()
+            );
+            runnableDelayed(location, time, getPathSpreadMaterial());
             count++;
-            if (count % (int) (size * 0.25) == 0) {
+            if (count % (int) (getSize() * 0.25) == 0) {
                 time += 1L;
             }
         }
@@ -108,7 +131,6 @@ public class DepthFirstSearchAnimation3D extends Animation {
                 loc.getBlock().setType(material);
                 cancel();
             }
-        }.runTaskTimer(this.plugin, time, 20L);
+        }.runTaskTimer(getPlugin(), time, 20L);
     }
-
 }

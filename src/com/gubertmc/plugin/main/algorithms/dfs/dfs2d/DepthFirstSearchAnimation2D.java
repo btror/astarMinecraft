@@ -6,12 +6,13 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.ArrayList;
 import java.util.Stack;
 
 public class DepthFirstSearchAnimation2D extends Animation {
 
-    public boolean[][][] visited;
-    public int[][][] textGrid;
+    private boolean[][][] visited;
+    private int[][][] textGrid;
 
     public DepthFirstSearchAnimation2D(
             MazeGeneratorPlugin plugin,
@@ -24,17 +25,32 @@ public class DepthFirstSearchAnimation2D extends Animation {
             Material pathSpreadMaterial,
             Material groundMaterial,
             Material startGlassMaterial,
-            Material endGlassMaterial,
-            boolean is3d
+            Material endGlassMaterial
     ) {
-        super(plugin, tiles, startCoordinate, endCoordinate, size, wallMaterial, pathMaterial, pathSpreadMaterial, groundMaterial, startGlassMaterial, endGlassMaterial, false);
-        visited = new boolean[size][size][size];
-        textGrid = new int[size][size][size];
+        super(
+                plugin,
+                tiles,
+                startCoordinate,
+                endCoordinate,
+                size, wallMaterial,
+                pathMaterial,
+                pathSpreadMaterial,
+                groundMaterial,
+                startGlassMaterial,
+                endGlassMaterial,
+                false
+        );
+    }
 
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                for (int k = 0; k < size; k++) {
-                    if (tile_grid[i][j][0].getBlock().getType() == WALL_MATERIAL) {
+    @Override
+    public void setup() {
+        visited = new boolean[getSize()][getSize()][getSize()];
+        textGrid = new int[getSize()][getSize()][getSize()];
+
+        for (int i = 0; i < getSize(); i++) {
+            for (int j = 0; j < getSize(); j++) {
+                for (int k = 0; k < getSize(); k++) {
+                    if (getTileGrid()[i][j][0].getBlock().getType() == getWallMaterial()) {
                         textGrid[i][j][0] = 1;
                         visited[i][j][0] = true;
                     } else {
@@ -43,7 +59,7 @@ public class DepthFirstSearchAnimation2D extends Animation {
                 }
             }
         }
-        textGrid[endCoordinate[1]][endCoordinate[0]][endCoordinate[2]] = 5;
+        textGrid[getEndCoordinate()[1]][getEndCoordinate()[0]][getEndCoordinate()[2]] = 5;
     }
 
     @Override
@@ -52,10 +68,10 @@ public class DepthFirstSearchAnimation2D extends Animation {
         int length = textGrid[0].length;
 
         Stack<String> stack = new Stack<>();
-        stack.push(startCoordinate[1] + "," + startCoordinate[0]);
+        stack.push(getStartCoordinate()[1] + "," + getStartCoordinate()[0]);
 
         while (!stack.empty()) {
-            if (textGrid[endCoordinate[1]][endCoordinate[0]][endCoordinate[2]] != 5) {
+            if (textGrid[getEndCoordinate()[1]][getEndCoordinate()[0]][getEndCoordinate()[2]] != 5) {
                 break;
             }
 
@@ -69,7 +85,9 @@ public class DepthFirstSearchAnimation2D extends Animation {
             visited[row][col][0] = true;
             textGrid[row][col][0] = 2;
 
-            exploredPlaces.add(tile_grid[row][col][0]);
+            ArrayList<Location> exploredPlaces = getExploredPlaces();
+            exploredPlaces.add(getTileGrid()[row][col][0]);
+            setExploredPlaces(exploredPlaces);
 
             stack.push(row + "," + (col - 1)); //go left
             stack.push(row + "," + (col + 1)); //go right
@@ -83,13 +101,17 @@ public class DepthFirstSearchAnimation2D extends Animation {
     public void showAnimation(long time) {
         time += 5L;
         int count = 1;
+        ArrayList<Location> exploredPlaces = getExploredPlaces();
         exploredPlaces.remove(exploredPlaces.size() - 1);
         exploredPlaces.remove(0);
+        setExploredPlaces(exploredPlaces);
         for (Location loc : exploredPlaces) {
-            Location location = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ());
-            runnableDelayed(location, time, PATH_SPREAD_MATERIAL);
+            Location location = new Location(
+                    loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ()
+            );
+            runnableDelayed(location, time, getPathSpreadMaterial());
             count++;
-            if (count % (int) (size * 0.25) == 0) {
+            if (count % (int) (getSize() * 0.25) == 0) {
                 time += 1L;
             }
         }
@@ -103,6 +125,6 @@ public class DepthFirstSearchAnimation2D extends Animation {
                 loc.getBlock().setType(material);
                 cancel();
             }
-        }.runTaskTimer(this.plugin, time, 20L);
+        }.runTaskTimer(getPlugin(), time, 20L);
     }
 }

@@ -4,90 +4,100 @@ import com.gubertmc.plugin.main.algorithms.Simulation;
 import com.gubertmc.plugin.main.algorithms.astar.Node;
 
 import java.util.ArrayList;
+import java.util.PriorityQueue;
 
 public class PathfindingSimulation2D extends Simulation {
 
     public PathfindingSimulation2D(int[][][] maze, int[] startCoordinate, int[] endCoordinate) {
         super(maze, startCoordinate, endCoordinate, false);
-        setup();
     }
 
+    @Override
     public void setup() {
-        current_node = new Node(startCoordinate[1], startCoordinate[0], -1, 0);
-        end_node = new Node(endCoordinate[1], endCoordinate[0], -1, 0);
-        grid[startCoordinate[1]][startCoordinate[0]][0] = current_node;
-        grid[endCoordinate[1]][endCoordinate[0]][0] = end_node;
+        setCurrentNode(new Node(getStartCoordinate()[1], getStartCoordinate()[0], -1, 0));
+        setEndNode(new Node(getEndCoordinate()[1], getEndCoordinate()[0], -1, 0));
+        Node[][][] grid = getGrid();
+        grid[getStartCoordinate()[1]][getStartCoordinate()[0]][0] = getCurrentNode();
+        grid[getEndCoordinate()[1]][getEndCoordinate()[0]][0] = getEndNode();
+        setGrid(grid);
 
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                if (tile_grid[i][j][0] == 0) {
+        for (int i = 0; i < getSize(); i++) {
+            for (int j = 0; j < getSize(); j++) {
+                if (getTileGrid()[i][j][0] == 0) {
                     Node node = new Node(i, j, -1, 0);
                     grid[i][j][0] = node;
+                    setGrid(grid);
                 }
-                if (tile_grid[i][j][0] == 1) {
+                if (getTileGrid()[i][j][0] == 1) {
                     Node node = new Node(i, j, -1, 1);
                     grid[i][j][0] = node;
+                    setGrid(grid);
                 }
             }
         }
 
-        int g = calculateG(current_node);
-        current_node.setG(g);
-        int h = calculateH(current_node);
-        current_node.setH(h);
-        current_node.setF();
-        start_node = current_node;
-        open_list.add(current_node);
+        Node currentNode = getCurrentNode();
+        int g = calculateG(currentNode);
+        currentNode.setG(g);
+        int h = calculateH(currentNode);
+        currentNode.setH(h);
+        currentNode.setF();
+        setCurrentNode(currentNode);
+        setStartNode(currentNode);
+        PriorityQueue<Node> openList = getOpenList();
+        openList.add(currentNode);
+        setOpenList(openList);
     }
 
     @Override
     public boolean start() {
         boolean pathFound = true;
-        while (!open_list.isEmpty() && !current_node.equals(end_node)) {
-            current_node = open_list.peek();
-            open_list.remove(open_list.peek());
-            if (current_node.equals(end_node)) {
-                closed_list.add(current_node);
+        while (!getOpenList().isEmpty() && !getCurrentNode().equals(getEndNode())) {
+            setCurrentNode(getOpenList().peek());
+            PriorityQueue<Node> openList = getOpenList();
+            openList.remove(getOpenList().peek());
+            setOpenList(openList);
+
+            if (getCurrentNode().equals(getEndNode())) {
+                ArrayList<Node> closedList = getClosedList();
+                closedList.add(getCurrentNode());
+
                 ArrayList<Node> path = generatePath();
 
                 for (int i = path.size() - 1; i > -1; i--) {
                     int row = path.get(i).getRow();
                     int col = path.get(i).getCol();
-                    int zNum = path.get(i).getZ();
-                    if (!is3d) {
-                        zNum = 0;
-                    }
+                    int zNum = 0;
 
-                    if (tile_grid[row][col][zNum] == 2) {
-                        tile_grid[row][col][zNum] = 3;
+                    if (getTileGrid()[row][col][zNum] == 2) {
+                        int[][][] tileGrid = getTileGrid();
+                        tileGrid[row][col][zNum] = 3;
+                        setTileGrid(tileGrid);
                     }
                 }
                 break;
             } else {
                 try {
                     calculateNeighborValues();
-                } catch (NullPointerException np) {
-                    System.out.println(np.getMessage());
+                } catch (NullPointerException e) {
+                    System.out.println(e.getMessage());
                 }
-
-                if (!is3d) {
-                    tile_grid[start_node.getRow()][start_node.getCol()][0] = 4;
-                    tile_grid[end_node.getRow()][end_node.getCol()][0] = 5;
-                } else {
-                    tile_grid[start_node.getRow()][start_node.getCol()][start_node.getZ()] = 4;
-                    tile_grid[end_node.getRow()][end_node.getCol()][end_node.getZ()] = 5;
-                }
-
+                int[][][] tileGrid = getTileGrid();
+                tileGrid[getStartNode().getRow()][getStartNode().getCol()][0] = 4;
+                tileGrid[getEndNode().getRow()][getEndNode().getCol()][0] = 5;
+                setTileGrid(tileGrid);
                 try {
-                    assert open_list.peek() != null;
+                    assert getOpenList().peek() != null;
                 } catch (NullPointerException e) {
                     pathFound = false;
                 }
-                closed_list.add(current_node);
+                ArrayList<Node> closedList = getClosedList();
+                closedList.add(getCurrentNode());
+                setClosedList(closedList);
             }
         }
 
-        if (open_list.size() == 0) {
+        if (getOpenList().size() == 0) {
             pathFound = false;
         }
         return pathFound;
@@ -96,24 +106,24 @@ public class PathfindingSimulation2D extends Simulation {
     public int calculateG(Node node) {
         int row = node.getRow();
         int col = node.getCol();
-        if (row == current_node.getRow() && col == current_node.getCol()) {
+        if (row == getCurrentNode().getRow() && col == getCurrentNode().getCol()) {
             return 0;
         }
 
         Node parent = node.getParent();
         if (parent == null) {
             int xDistance;
-            if (col > current_node.getCol()) {
-                xDistance = col - current_node.getCol();
+            if (col > getCurrentNode().getCol()) {
+                xDistance = col - getCurrentNode().getCol();
             } else {
-                xDistance = current_node.getCol() - col;
+                xDistance = getCurrentNode().getCol() - col;
             }
 
             int yDistance;
-            if (row > current_node.getRow()) {
-                yDistance = row - current_node.getRow();
+            if (row > getCurrentNode().getRow()) {
+                yDistance = row - getCurrentNode().getRow();
             } else {
-                yDistance = current_node.getRow() - row;
+                yDistance = getCurrentNode().getRow() - row;
             }
 
             return (xDistance * 10) + (yDistance * 10);
@@ -127,21 +137,21 @@ public class PathfindingSimulation2D extends Simulation {
         int x = 0;
         int y = 0;
 
-        while (col < end_node.getCol() || col > end_node.getCol()) {
+        while (col < getEndNode().getCol() || col > getEndNode().getCol()) {
             x += 10;
-            if (col < end_node.getCol()) {
+            if (col < getEndNode().getCol()) {
                 col++;
             }
-            if (col > end_node.getCol()) {
+            if (col > getEndNode().getCol()) {
                 col--;
             }
         }
-        while (row < end_node.getRow() || row > end_node.getRow()) {
+        while (row < getEndNode().getRow() || row > getEndNode().getRow()) {
             y += 10;
-            if (row < end_node.getRow()) {
+            if (row < getEndNode().getRow()) {
                 row++;
             }
-            if (row > end_node.getRow()) {
+            if (row > getEndNode().getRow()) {
                 row--;
             }
         }
@@ -150,62 +160,90 @@ public class PathfindingSimulation2D extends Simulation {
     }
 
     public void calculateNeighborValues() {
-        int row = current_node.getRow();
-        int col = current_node.getCol();
+        int row = getCurrentNode().getRow();
+        int col = getCurrentNode().getCol();
         int zNum = 0;
 
         // front node
-        if (row - 1 > -1 && grid[row - 1][col][zNum].getType() == 0 && !closed_list.contains(grid[row - 1][col][zNum])) {
-            grid[row - 1][col][zNum].setParent(current_node);
+        if (row - 1 > -1 && getGrid()[row - 1][col][zNum].getType() == 0
+                && !getClosedList().contains(getGrid()[row - 1][col][zNum])) {
+            Node[][][] grid = getGrid();
+            grid[row - 1][col][zNum].setParent(getCurrentNode());
             int g = calculateG(grid[row - 1][col][zNum]);
             grid[row - 1][col][zNum].setG(g);
             int h = calculateH(grid[row - 1][col][zNum]);
             grid[row - 1][col][zNum].setH(h);
             grid[row - 1][col][zNum].setF();
-            open_list.add(grid[row - 1][col][zNum]);
-            tile_grid[row - 1][col][zNum] = 2;
+            setGrid(grid);
+            PriorityQueue<Node> openList = getOpenList();
+            openList.add(grid[row - 1][col][zNum]);
+            setOpenList(openList);
+            int[][][] tileGrid = getTileGrid();
+            tileGrid[row - 1][col][zNum] = 2;
+            setTileGrid(tileGrid);
         }
 
         // left node
-        if (col + 1 < SIZE && grid[row][col + 1][zNum].getType() == 0 && !closed_list.contains(grid[row][col + 1][zNum])) {
-            grid[row][col + 1][zNum].setParent(current_node);
+        if (col + 1 < getSize() && getGrid()[row][col + 1][zNum].getType() == 0
+                && !getClosedList().contains(getGrid()[row][col + 1][zNum])) {
+            Node[][][] grid = getGrid();
+            grid[row][col + 1][zNum].setParent(getCurrentNode());
             int g = calculateG(grid[row][col + 1][zNum]);
             grid[row][col + 1][zNum].setG(g);
             int h = calculateH(grid[row][col + 1][zNum]);
             grid[row][col + 1][zNum].setH(h);
             grid[row][col + 1][zNum].setF();
-            open_list.add(grid[row][col + 1][zNum]);
-            tile_grid[row][col + 1][zNum] = 2;
+            setGrid(grid);
+            PriorityQueue<Node> openList = getOpenList();
+            openList.add(grid[row][col + 1][zNum]);
+            setOpenList(openList);
+            int[][][] tileGrid = getTileGrid();
+            tileGrid[row][col + 1][zNum] = 2;
+            setTileGrid(tileGrid);
         }
 
         // behind node
-        if (row + 1 < SIZE && grid[row + 1][col][zNum].getType() == 0 && !closed_list.contains(grid[row + 1][col][zNum])) {
-            grid[row + 1][col][zNum].setParent(current_node);
+        if (row + 1 < getSize() && getGrid()[row + 1][col][zNum].getType() == 0
+                && !getClosedList().contains(getGrid()[row + 1][col][zNum])) {
+            Node[][][] grid = getGrid();
+            grid[row + 1][col][zNum].setParent(getCurrentNode());
             int g = calculateG(grid[row + 1][col][zNum]);
             grid[row + 1][col][zNum].setG(g);
             int h = calculateH(grid[row + 1][col][zNum]);
             grid[row + 1][col][zNum].setH(h);
             grid[row + 1][col][zNum].setF();
-            open_list.add(grid[row + 1][col][zNum]);
-            tile_grid[row + 1][col][zNum] = 2;
+            setGrid(grid);
+            PriorityQueue<Node> openList = getOpenList();
+            openList.add(grid[row + 1][col][zNum]);
+            setOpenList(openList);
+            int[][][] tileGrid = getTileGrid();
+            tileGrid[row + 1][col][zNum] = 2;
+            setTileGrid(tileGrid);
         }
 
         // right node
-        if (col - 1 > -1 && grid[row][col - 1][zNum].getType() == 0 && !closed_list.contains(grid[row][col - 1][zNum])) {
-            grid[row][col - 1][zNum].setParent(current_node);
+        if (col - 1 > -1 && getGrid()[row][col - 1][zNum].getType() == 0
+                && !getClosedList().contains(getGrid()[row][col - 1][zNum])) {
+            Node[][][] grid = getGrid();
+            grid[row][col - 1][zNum].setParent(getCurrentNode());
             int g = calculateG(grid[row][col - 1][zNum]);
             grid[row][col - 1][zNum].setG(g);
             int h = calculateH(grid[row][col - 1][zNum]);
             grid[row][col - 1][zNum].setH(h);
             grid[row][col - 1][zNum].setF();
-            open_list.add(grid[row][col - 1][zNum]);
-            tile_grid[row][col - 1][zNum] = 2;
+            setGrid(grid);
+            PriorityQueue<Node> openList = getOpenList();
+            openList.add(grid[row][col - 1][zNum]);
+            setOpenList(openList);
+            int[][][] tileGrid = getTileGrid();
+            tileGrid[row][col - 1][zNum] = 2;
+            setTileGrid(tileGrid);
         }
     }
 
     public ArrayList<Node> generatePath() {
         ArrayList<Node> path = new ArrayList<>();
-        Node temp = current_node;
+        Node temp = getCurrentNode();
         path.add(temp);
         while (temp.getParent() != null) {
             temp = temp.getParent();

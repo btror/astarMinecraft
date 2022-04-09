@@ -7,19 +7,19 @@ import java.util.Queue;
 
 public class BreadthFirstSearchSimulation3D extends Simulation {
 
-    public boolean[][][] visited;
+    private boolean[][][] visited;
 
     public BreadthFirstSearchSimulation3D(int[][][] maze, int[] startCoordinate, int[] endCoordinate) {
         super(maze, startCoordinate, endCoordinate, false);
-        setup();
     }
 
+    @Override
     public void setup() {
-        visited = new boolean[SIZE][SIZE][SIZE];
-        for (int i = 0; i < SIZE; i++) {
-            for (int j = 0; j < SIZE; j++) {
-                for (int k = 0; k < SIZE; k++) {
-                    if (tile_grid[i][j][k] == 1) { // if space is a wall
+        visited = new boolean[getSize()][getSize()][getSize()];
+        for (int i = 0; i < getSize(); i++) {
+            for (int j = 0; j < getSize(); j++) {
+                for (int k = 0; k < getSize(); k++) {
+                    if (getTileGrid()[i][j][k] == 1) {
                         visited[i][j][k] = true;
                     }
                 }
@@ -27,13 +27,14 @@ public class BreadthFirstSearchSimulation3D extends Simulation {
         }
     }
 
+    @Override
     public boolean start() {
         Queue<String> queue = new LinkedList<>();
-        queue.add(startCoordinate[1] + "," + startCoordinate[0] + "," + startCoordinate[2]);
+        queue.add(getStartCoordinate()[1] + "," + getStartCoordinate()[0] + "," + getStartCoordinate()[2]);
 
         boolean pathFound = false;
         while (!queue.isEmpty()) {
-            if (tile_grid[endCoordinate[1]][endCoordinate[0]][2] == 2) {
+            if (getTileGrid()[getEndCoordinate()[1]][getEndCoordinate()[0]][2] == 2) {
                 pathFound = true;
                 break;
             }
@@ -42,11 +43,15 @@ public class BreadthFirstSearchSimulation3D extends Simulation {
             int col = Integer.parseInt(x.split(",")[1]);
             int z = Integer.parseInt(x.split(",")[2]);
 
-            if (row < 0 || col < 0 || row >= SIZE || col >= SIZE || z < 0 || z >= SIZE || visited[row][col][z]) {
+            if (row < 0 || col < 0 || row >= getSize() || col >= getSize()
+                    || z < 0 || z >= getSize() || visited[row][col][z]) {
                 continue;
             }
             visited[row][col][z] = true;
-            tile_grid[row][col][z] = 2;
+
+            int[][][] tileGrid = getTileGrid();
+            tileGrid[row][col][z] = 2;
+            setTileGrid(tileGrid);
 
             queue.add(row + "," + (col - 1) + "," + z);
             queue.add(row + "," + (col + 1) + "," + z);

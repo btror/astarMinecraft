@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
+import java.util.PriorityQueue;
 
 public class PathfindingAnimation3D extends Animation {
 
@@ -24,116 +25,126 @@ public class PathfindingAnimation3D extends Animation {
             Material startGlassMaterial,
             Material endGlassMaterial
     ) {
-        super(plugin, tiles, startCoordinate, endCoordinate, size, wallMaterial, pathMaterial, pathSpreadMaterial, groundMaterial, startGlassMaterial, endGlassMaterial, true);
-        grid = new Node[size][size][size];
+        super(
+                plugin,
+                tiles,
+                startCoordinate,
+                endCoordinate,
+                size,
+                wallMaterial,
+                pathMaterial,
+                pathSpreadMaterial,
+                groundMaterial,
+                startGlassMaterial,
+                endGlassMaterial,
+                true
+        );
+    }
 
-        int[][][] tempArray = new int[size][size][size];
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                for (int k = 0; k < size; k++) {
+    @Override
+    public void setup() {
+        setGrid(new Node[getSize()][getSize()][getSize()]);
+
+        int[][][] tempArray = new int[getSize()][getSize()][getSize()];
+        for (int i = 0; i < getSize(); i++) {
+            for (int j = 0; j < getSize(); j++) {
+                for (int k = 0; k < getSize(); k++) {
                     tempArray[i][j][k] = 0;
                 }
             }
         }
-        tile_grid_int = tempArray;
+        setTileGridInt(tempArray);
 
-        if (!is3d) {
-            current_node = new Node(startCoordinate[1], startCoordinate[0], -1, 0);
-            end_node = new Node(endCoordinate[1], endCoordinate[0], -1, 0);
-            grid[startCoordinate[1]][startCoordinate[0]][0] = current_node;
-            grid[endCoordinate[1]][endCoordinate[0]][0] = end_node;
+        setCurrentNode(new Node(getStartCoordinate()[1], getStartCoordinate()[0], getStartCoordinate()[2], 0));
+        setEndNode(new Node(getEndCoordinate()[1], getEndCoordinate()[0], getEndCoordinate()[2], 0));
+        Node[][][] grid = getGrid();
+        grid[getStartCoordinate()[1]][getStartCoordinate()[0]][getStartCoordinate()[2]] = getCurrentNode();
+        setGrid(grid);
+        grid[getEndCoordinate()[1]][getEndCoordinate()[0]][getEndCoordinate()[2]] = getEndNode();
+        setGrid(grid);
 
-            for (int i = 0; i < size; i++) {
-                for (int j = 0; j < size; j++) {
-                    if (tile_grid[i][j][0].getBlock().getType() == Material.AIR) {
-                        Node node = new Node(i, j, -1, 0);
-                        grid[i][j][0] = node;
+        for (int i = 0; i < getSize(); i++) {
+            for (int j = 0; j < getSize(); j++) {
+                for (int k = 0; k < getSize(); k++) {
+                    if (getTileGrid()[i][j][k].getBlock().getType() == getPathGroundMaterial()) {
+                        Node node = new Node(i, j, k, 0);
+                        grid[i][j][k] = node;
+                        setGrid(grid);
                     }
-                    if (tile_grid[i][j][0].getBlock().getType() == WALL_MATERIAL) {
-                        Node node = new Node(i, j, -1, 1);
-                        grid[i][j][0] = node;
-                    }
-                }
-            }
-        } else {
-            current_node = new Node(startCoordinate[1], startCoordinate[0], startCoordinate[2], 0);
-            end_node = new Node(endCoordinate[1], endCoordinate[0], endCoordinate[2], 0);
-            grid[startCoordinate[1]][startCoordinate[0]][startCoordinate[2]] = current_node;
-            grid[endCoordinate[1]][endCoordinate[0]][endCoordinate[2]] = end_node;
-
-            for (int i = 0; i < size; i++) {
-                for (int j = 0; j < size; j++) {
-                    for (int k = 0; k < size; k++) {
-                        if (tile_grid[i][j][k].getBlock().getType() == PATH_GROUND_MATERIAL) {
-                            Node node = new Node(i, j, k, 0);
-                            grid[i][j][k] = node;
-                        }
-                        if (tile_grid[i][j][k].getBlock().getType() == WALL_MATERIAL) {
-                            Node node = new Node(i, j, k, 1);
-                            grid[i][j][k] = node;
-                        }
+                    if (getTileGrid()[i][j][k].getBlock().getType() == getWallMaterial()) {
+                        Node node = new Node(i, j, k, 1);
+                        grid[i][j][k] = node;
+                        setGrid(grid);
                     }
                 }
             }
         }
-        int g = calculateG(current_node);
-        current_node.setG(g);
-        int h = calculateH(current_node);
-        current_node.setH(h);
-        current_node.setF();
-        start_node = current_node;
-        open_list.add(current_node);
+
+        Node currentNode = getCurrentNode();
+        int g = calculateG(currentNode);
+        currentNode.setG(g);
+        int h = calculateH(currentNode);
+        currentNode.setH(h);
+        currentNode.setF();
+        setCurrentNode(currentNode);
+        setStartNode(currentNode);
+        PriorityQueue<Node> openList = getOpenList();
+        openList.add(currentNode);
+        setOpenList(openList);
     }
 
     @Override
     public boolean start() {
         boolean pathFound = true;
-        while (!open_list.isEmpty() && !current_node.equals(end_node)) {
-            current_node = open_list.peek();
-            open_list.remove(open_list.peek());
+        while (!getOpenList().isEmpty() && !getCurrentNode().equals(getEndNode())) {
+            setCurrentNode(getOpenList().peek());
+            PriorityQueue<Node> openList = getOpenList();
+            openList.remove(getOpenList().peek());
+            setOpenList(openList);
 
-            if (current_node.equals(end_node)) {
-                closed_list.add(current_node);
+            if (getCurrentNode().equals(getEndNode())) {
+                ArrayList<Node> closedList = getClosedList();
+                closedList.add(getCurrentNode());
+                setClosedList(closedList);
+
                 ArrayList<Node> path = generatePath();
 
                 for (int i = path.size() - 1; i > -1; i--) {
                     int row = path.get(i).getRow();
                     int col = path.get(i).getCol();
                     int zNum = path.get(i).getZ();
-                    if (!is3d) {
-                        zNum = 0;
-                    }
-                    if (tile_grid_int[row][col][zNum] == 1) {
-                        int x = tile_grid[row][col][zNum].getBlockX();
-                        int y;
-                        if (is3d) {
-                            y = tile_grid[row][col][zNum].getBlockY();
-                        } else {
-                            y = tile_grid[row][col][0].getBlockY() - 1;
-                        }
-                        int z = tile_grid[row][col][zNum].getBlockZ();
 
-                        Location floor = new Location(tile_grid[row][col][zNum].getWorld(), x, y, z);
+                    if (getTileGridInt()[row][col][zNum] == 1) {
+                        int x = getTileGrid()[row][col][zNum].getBlockX();
+                        int y = getTileGrid()[row][col][zNum].getBlockY();
+                        int z = getTileGrid()[row][col][zNum].getBlockZ();
+
+                        Location floor = new Location(getTileGrid()[row][col][zNum].getWorld(), x, y, z);
+                        ArrayList<Location> thePath = getThePath();
                         thePath.add(floor);
+                        setThePath(thePath);
                     }
                 }
                 break;
             } else {
                 try {
                     calculateNeighborValues();
-                } catch (NullPointerException np) {
+                } catch (NullPointerException e) {
+                    System.out.println(e);
                 }
 
                 try {
-                    assert open_list.peek() != null;
+                    assert getOpenList().peek() != null;
                 } catch (NullPointerException e) {
                     pathFound = false;
                 }
-                closed_list.add(current_node);
+                ArrayList<Node> closedList = getClosedList();
+                closedList.add(getCurrentNode());
+                setClosedList(closedList);
             }
         }
 
-        if (open_list.size() == 0) {
+        if (getOpenList().size() == 0) {
             pathFound = false;
         }
         return pathFound;
@@ -143,20 +154,20 @@ public class PathfindingAnimation3D extends Animation {
     public void showAnimation(long time) {
         time += 50L;
         int count = 1;
-        for (Location loc : exploredPlaces) {
-            runnableDelayed(loc, time, PATH_SPREAD_MATERIAL);
+        for (Location loc : getExploredPlaces()) {
+            runnableDelayed(loc, time, getPathSpreadMaterial());
             count++;
-            if (count % (int) (size * 0.25) == 0) {
+            if (count % (int) (getSize() * 0.25) == 0) {
                 time += 1L;
             }
         }
 
         time += 10L;
-        for (Location loc : thePath) {
-            if (thePath.get(thePath.size() - 1) == loc) {
+        for (Location loc : getThePath()) {
+            if (getThePath().get(getThePath().size() - 1) == loc) {
                 // do something cool
             } else {
-                runnableDelayed(loc, time, PATH_MATERIAL);
+                runnableDelayed(loc, time, getPathMaterial());
                 time += 1L;
             }
         }
@@ -167,45 +178,43 @@ public class PathfindingAnimation3D extends Animation {
         new BukkitRunnable() {
             @Override
             public void run() {
-                if (loc.getBlock().getType() != END_POINT_GLASS && !is3d) {
-                    loc.getBlock().setType(material);
-                } else if (loc.getBlock().getType() != Material.BEACON && is3d) {
+                if (loc.getBlock().getType() != Material.BEACON) {
                     loc.getBlock().setType(material);
                 }
                 cancel();
             }
-        }.runTaskTimer(this.plugin, time, 20L);
+        }.runTaskTimer(getPlugin(), time, 20L);
     }
 
     public int calculateG(Node node) {
         int row = node.getRow();
         int col = node.getCol();
         int zNum = node.getZ();
-        if (row == current_node.getRow() && col == current_node.getCol() && zNum == current_node.getZ()) {
+        if (row == getCurrentNode().getRow() && col == getCurrentNode().getCol() && zNum == getCurrentNode().getZ()) {
             return 0;
         }
 
         Node parent = node.getParent();
         if (parent == null) {
             int xDistance;
-            if (col > current_node.getCol()) {
-                xDistance = col - current_node.getCol();
+            if (col > getCurrentNode().getCol()) {
+                xDistance = col - getCurrentNode().getCol();
             } else {
-                xDistance = current_node.getCol() - col;
+                xDistance = getCurrentNode().getCol() - col;
             }
 
             int yDistance;
-            if (row > current_node.getRow()) {
-                yDistance = row - current_node.getRow();
+            if (row > getCurrentNode().getRow()) {
+                yDistance = row - getCurrentNode().getRow();
             } else {
-                yDistance = current_node.getRow() - row;
+                yDistance = getCurrentNode().getRow() - row;
             }
 
             int zDistance;
-            if (zNum > current_node.getZ()) {
-                zDistance = zNum - current_node.getZ();
+            if (zNum > getCurrentNode().getZ()) {
+                zDistance = zNum - getCurrentNode().getZ();
             } else {
-                zDistance = current_node.getZ() - zNum;
+                zDistance = getCurrentNode().getZ() - zNum;
             }
 
             if (zNum == -1) {
@@ -225,33 +234,31 @@ public class PathfindingAnimation3D extends Animation {
         int y = 0;
         int z = 0;
 
-        while (col < end_node.getCol() || col > end_node.getCol()) {
+        while (col < getEndNode().getCol() || col > getEndNode().getCol()) {
             x += 10;
-            if (col < end_node.getCol()) {
+            if (col < getEndNode().getCol()) {
                 col++;
             }
-            if (col > end_node.getCol()) {
+            if (col > getEndNode().getCol()) {
                 col--;
             }
         }
-        while (row < end_node.getRow() || row > end_node.getRow()) {
+        while (row < getEndNode().getRow() || row > getEndNode().getRow()) {
             y += 10;
-            if (row < end_node.getRow()) {
+            if (row < getEndNode().getRow()) {
                 row++;
             }
-            if (row > end_node.getRow()) {
+            if (row > getEndNode().getRow()) {
                 row--;
             }
         }
-        if (zNum != -1) {
-            while (zNum < end_node.getZ() || zNum > end_node.getZ()) {
-                z += 10;
-                if (zNum < end_node.getZ()) {
-                    zNum++;
-                }
-                if (zNum > end_node.getZ()) {
-                    zNum--;
-                }
+        while (zNum < getEndNode().getZ() || zNum > getEndNode().getZ()) {
+            z += 10;
+            if (zNum < getEndNode().getZ()) {
+                zNum++;
+            }
+            if (zNum > getEndNode().getZ()) {
+                zNum--;
             }
         }
 
@@ -260,7 +267,7 @@ public class PathfindingAnimation3D extends Animation {
 
     public ArrayList<Node> generatePath() {
         ArrayList<Node> path = new ArrayList<>();
-        Node temp = current_node;
+        Node temp = getCurrentNode();
         path.add(temp);
         while (temp.getParent() != null) {
             temp = temp.getParent();
@@ -270,137 +277,179 @@ public class PathfindingAnimation3D extends Animation {
     }
 
     public void calculateNeighborValues() {
-        int row = current_node.getRow();
-        int col = current_node.getCol();
-        int zNum = current_node.getZ();
-
-        if (!is3d) {
-            zNum = 0;
-        }
+        int row = getCurrentNode().getRow();
+        int col = getCurrentNode().getCol();
+        int zNum = getCurrentNode().getZ();
 
         // front node
-        if (row - 1 > -1 && grid[row - 1][col][zNum].getType() == 0 && !closed_list.contains(grid[row - 1][col][zNum])) {
-            grid[row - 1][col][zNum].setParent(current_node);
+        if (row - 1 > -1 && getGrid()[row - 1][col][zNum].getType() == 0
+                && !getClosedList().contains(getGrid()[row - 1][col][zNum])) {
+            Node[][][] grid = getGrid();
+            grid[row - 1][col][zNum].setParent(getCurrentNode());
             int g = calculateG(grid[row - 1][col][zNum]);
             grid[row - 1][col][zNum].setG(g);
             int h = calculateH(grid[row - 1][col][zNum]);
             grid[row - 1][col][zNum].setH(h);
             grid[row - 1][col][zNum].setF();
-            open_list.add(grid[row - 1][col][zNum]);
-            tile_grid_int[row - 1][col][zNum] = 1;
+            setGrid(grid);
+            PriorityQueue<Node> openList = getOpenList();
+            openList.add(grid[row - 1][col][zNum]);
+            setOpenList(openList);
+            int[][][] tileGridInt = getTileGridInt();
+            tileGridInt[row - 1][col][zNum] = 1;
+            setTileGridInt(tileGridInt);
 
-            Location loc = tile_grid[row - 1][col][zNum];
-            if (!exploredPlaces.contains(loc)) {
-                if (is3d) {
-                    loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ());
-                } else {
-                    loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ());
-                }
+            Location loc = getTileGrid()[row - 1][col][zNum];
+            if (!getExploredPlaces().contains(loc)) {
+                loc = new Location(
+                        loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ()
+                );
+                ArrayList<Location> exploredPlaces = getExploredPlaces();
                 exploredPlaces.add(loc);
+                setExploredPlaces(exploredPlaces);
             }
         }
 
         // left node
-        if (col + 1 < size && grid[row][col + 1][zNum].getType() == 0 && !closed_list.contains(grid[row][col + 1][zNum])) {
-            grid[row][col + 1][zNum].setParent(current_node);
+        if (col + 1 < getSize() && getGrid()[row][col + 1][zNum].getType() == 0
+                && !getClosedList().contains(getGrid()[row][col + 1][zNum])) {
+            Node[][][] grid = getGrid();
+            grid[row][col + 1][zNum].setParent(getCurrentNode());
             int g = calculateG(grid[row][col + 1][zNum]);
             grid[row][col + 1][zNum].setG(g);
             int h = calculateH(grid[row][col + 1][zNum]);
             grid[row][col + 1][zNum].setH(h);
             grid[row][col + 1][zNum].setF();
-            open_list.add(grid[row][col + 1][zNum]);
-            tile_grid_int[row][col + 1][zNum] = 1;
+            setGrid(grid);
+            PriorityQueue<Node> openList = getOpenList();
+            openList.add(grid[row][col + 1][zNum]);
+            setOpenList(openList);
+            int[][][] tileGridInt = getTileGridInt();
+            tileGridInt[row][col + 1][zNum] = 1;
+            setTileGridInt(tileGridInt);
 
-            Location loc = tile_grid[row][col + 1][zNum];
-            if (!exploredPlaces.contains(loc)) {
-                if (is3d) {
-                    loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ());
-                } else {
-                    loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ());
-                }
+            Location loc = getTileGrid()[row][col + 1][zNum];
+            if (!getExploredPlaces().contains(loc)) {
+                loc = new Location(
+                        loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ()
+                );
+                ArrayList<Location> exploredPlaces = getExploredPlaces();
                 exploredPlaces.add(loc);
+                setExploredPlaces(exploredPlaces);
             }
         }
 
         // behind node
-        if (row + 1 < size && grid[row + 1][col][zNum].getType() == 0 && !closed_list.contains(grid[row + 1][col][zNum])) {
-            grid[row + 1][col][zNum].setParent(current_node);
+        if (row + 1 < getSize() && getGrid()[row + 1][col][zNum].getType() == 0
+                && !getClosedList().contains(getGrid()[row + 1][col][zNum])) {
+            Node[][][] grid = getGrid();
+            grid[row + 1][col][zNum].setParent(getCurrentNode());
             int g = calculateG(grid[row + 1][col][zNum]);
             grid[row + 1][col][zNum].setG(g);
             int h = calculateH(grid[row + 1][col][zNum]);
             grid[row + 1][col][zNum].setH(h);
             grid[row + 1][col][zNum].setF();
-            open_list.add(grid[row + 1][col][zNum]);
-            tile_grid_int[row + 1][col][zNum] = 1;
+            setGrid(grid);
+            PriorityQueue<Node> openList = getOpenList();
+            openList.add(grid[row + 1][col][zNum]);
+            setOpenList(openList);
+            int[][][] tileGridInt = getTileGridInt();
+            tileGridInt[row + 1][col][zNum] = 1;
+            setTileGridInt(tileGridInt);
 
-            Location loc = tile_grid[row + 1][col][zNum];
-            if (!exploredPlaces.contains(loc)) {
-                if (is3d) {
-                    loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ());
-                } else {
-                    loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ());
-                }
+            Location loc = getTileGrid()[row + 1][col][zNum];
+            if (!getExploredPlaces().contains(loc)) {
+                loc = new Location(
+                        loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ()
+                );
+                ArrayList<Location> exploredPlaces = getExploredPlaces();
                 exploredPlaces.add(loc);
+                setExploredPlaces(exploredPlaces);
             }
         }
 
         // right node
-        if (col - 1 > -1 && grid[row][col - 1][zNum].getType() == 0 && !closed_list.contains(grid[row][col - 1][zNum])) {
-            grid[row][col - 1][zNum].setParent(current_node);
+        if (col - 1 > -1 && getGrid()[row][col - 1][zNum].getType() == 0
+                && !getClosedList().contains(getGrid()[row][col - 1][zNum])) {
+            Node[][][] grid = getGrid();
+            grid[row][col - 1][zNum].setParent(getCurrentNode());
             int g = calculateG(grid[row][col - 1][zNum]);
             grid[row][col - 1][zNum].setG(g);
             int h = calculateH(grid[row][col - 1][zNum]);
             grid[row][col - 1][zNum].setH(h);
             grid[row][col - 1][zNum].setF();
-            open_list.add(grid[row][col - 1][zNum]);
-            tile_grid_int[row][col - 1][zNum] = 1;
+            setGrid(grid);
+            PriorityQueue<Node> openList = getOpenList();
+            openList.add(grid[row][col - 1][zNum]);
+            setOpenList(openList);
+            int[][][] tileGridInt = getTileGridInt();
+            tileGridInt[row][col - 1][zNum] = 1;
+            setTileGridInt(tileGridInt);
 
-            Location loc = tile_grid[row][col - 1][zNum];
-            if (!exploredPlaces.contains(loc)) {
-                if (is3d) {
-                    loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ());
-                } else {
-                    loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ());
-                }
+            Location loc = getTileGrid()[row][col - 1][zNum];
+            if (!getExploredPlaces().contains(loc)) {
+                loc = new Location(
+                        loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ()
+                );
+                ArrayList<Location> exploredPlaces = getExploredPlaces();
                 exploredPlaces.add(loc);
+                setExploredPlaces(exploredPlaces);
             }
         }
 
-        if (is3d) {
-            // bottom node
-            if (zNum - 1 > -1 && grid[row][col][zNum - 1].getType() == 0 && !closed_list.contains(grid[row][col][zNum - 1])) {
-                grid[row][col][zNum - 1].setParent(current_node);
-                int g = calculateG(grid[row][col][zNum - 1]);
-                grid[row][col][zNum - 1].setG(g);
-                int h = calculateH(grid[row][col][zNum - 1]);
-                grid[row][col][zNum - 1].setH(h);
-                grid[row][col][zNum - 1].setF();
-                open_list.add(grid[row][col][zNum - 1]);
-                tile_grid_int[row][col][zNum - 1] = 1;
+        // bottom node
+        if (zNum - 1 > -1 && getGrid()[row][col][zNum - 1].getType() == 0
+                && !getClosedList().contains(getGrid()[row][col][zNum - 1])) {
+            Node[][][] grid = getGrid();
+            grid[row][col][zNum - 1].setParent(getCurrentNode());
+            int g = calculateG(grid[row][col][zNum - 1]);
+            grid[row][col][zNum - 1].setG(g);
+            int h = calculateH(grid[row][col][zNum - 1]);
+            grid[row][col][zNum - 1].setH(h);
+            grid[row][col][zNum - 1].setF();
+            setGrid(grid);
+            PriorityQueue<Node> openList = getOpenList();
+            openList.add(grid[row][col][zNum - 1]);
+            int[][][] tileGridInt = getTileGridInt();
+            tileGridInt[row][col][zNum - 1] = 1;
+            setTileGridInt(tileGridInt);
 
-                Location loc = tile_grid[row][col][zNum - 1];
-                if (!exploredPlaces.contains(loc)) {
-                    loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ());
-                    exploredPlaces.add(loc);
-                }
+            Location loc = getTileGrid()[row][col][zNum - 1];
+            if (!getExploredPlaces().contains(loc)) {
+                loc = new Location(
+                        loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ()
+                );
+                ArrayList<Location> exploredPlaces = getExploredPlaces();
+                exploredPlaces.add(loc);
+                setExploredPlaces(exploredPlaces);
             }
+        }
 
-            // top node
-            if (zNum + 1 < size && grid[row][col][zNum + 1].getType() == 0 && !closed_list.contains(grid[row][col][zNum + 1])) {
-                grid[row][col][zNum + 1].setParent(current_node);
-                int g = calculateG(grid[row][col][zNum + 1]);
-                grid[row][col][zNum + 1].setG(g);
-                int h = calculateH(grid[row][col][zNum + 1]);
-                grid[row][col][zNum + 1].setH(h);
-                grid[row][col][zNum + 1].setF();
-                open_list.add(grid[row][col][zNum + 1]);
-                tile_grid_int[row][col][zNum + 1] = 1;
+        // top node
+        if (zNum + 1 < getSize() && getGrid()[row][col][zNum + 1].getType() == 0
+                && !getClosedList().contains(getGrid()[row][col][zNum + 1])) {
+            Node[][][] grid = getGrid();
+            grid[row][col][zNum + 1].setParent(getCurrentNode());
+            int g = calculateG(grid[row][col][zNum + 1]);
+            grid[row][col][zNum + 1].setG(g);
+            int h = calculateH(grid[row][col][zNum + 1]);
+            grid[row][col][zNum + 1].setH(h);
+            grid[row][col][zNum + 1].setF();
+            setGrid(grid);
+            PriorityQueue<Node> openList = getOpenList();
+            openList.add(grid[row][col][zNum + 1]);
+            int[][][] tileGridInt = getTileGridInt();
+            tileGridInt[row][col][zNum + 1] = 1;
+            setTileGridInt(tileGridInt);
 
-                Location loc = tile_grid[row][col][zNum + 1];
-                if (!exploredPlaces.contains(loc)) {
-                    loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ());
-                    exploredPlaces.add(loc);
-                }
+            Location loc = getTileGrid()[row][col][zNum + 1];
+            if (!getExploredPlaces().contains(loc)) {
+                loc = new Location(
+                        loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ()
+                );
+                ArrayList<Location> exploredPlaces = getExploredPlaces();
+                exploredPlaces.add(loc);
+                setExploredPlaces(exploredPlaces);
             }
         }
     }
