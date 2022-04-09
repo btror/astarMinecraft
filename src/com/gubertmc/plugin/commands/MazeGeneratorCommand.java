@@ -70,6 +70,13 @@ public record MazeGeneratorCommand(MazeGeneratorPlugin plugin) implements Comman
                             Integer.parseInt(args[1]),
                             percentage
                     );
+                } else if (args[0].equalsIgnoreCase("bfs2d")) {
+                    maze = new BreadthFirstSearchMaze2D(
+                            plugin,
+                            location.getBlock(),
+                            Integer.parseInt(args[1]),
+                            percentage
+                    );
                 } else {
                     player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "/astar <Dimensions> <Size> <BlockedPercentage>");
                     player.sendMessage(ChatColor.YELLOW + "" + "Dimensions -> 2 or 3");
