@@ -26,10 +26,22 @@ public class BreadthFirstSearchAnimation2D extends Animation {
             Material pathSpreadMaterial,
             Material groundMaterial,
             Material startGlassMaterial,
-            Material endGlassMaterial,
-            boolean is3d
+            Material endGlassMaterial
     ) {
-        super(plugin, tiles, startCoordinate, endCoordinate, size, wallMaterial, pathMaterial, pathSpreadMaterial, groundMaterial, startGlassMaterial, endGlassMaterial, false);
+        super(
+                plugin,
+                tiles,
+                startCoordinate,
+                endCoordinate,
+                size,
+                wallMaterial,
+                pathMaterial,
+                pathSpreadMaterial,
+                groundMaterial,
+                startGlassMaterial,
+                endGlassMaterial,
+                false
+        );
     }
 
     @Override
@@ -96,7 +108,9 @@ public class BreadthFirstSearchAnimation2D extends Animation {
         exploredPlaces.remove(0);
         setExploredPlaces(exploredPlaces);
         for (Location loc : exploredPlaces) {
-            Location location = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ());
+            Location location = new Location(
+                    loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ()
+            );
             runnableDelayed(location, time, getPathSpreadMaterial());
             count++;
             if (count % (int) (getSize() * 0.25) == 0) {

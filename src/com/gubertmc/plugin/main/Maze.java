@@ -13,16 +13,16 @@ public abstract class Maze {
     private final int[] startCoordinate;
     private final int[] endCoordinate;
     private final MazeGeneratorPlugin plugin;
-    private final Block block;
-    private final Location[][][] locations;
+    private final Block mazeLocationBlock;
+    private final Location[][][] mazeBlockLocations;
 
 
-    public Maze(MazeGeneratorPlugin plugin, Block block, int size, double wallPercentage) {
+    public Maze(MazeGeneratorPlugin plugin, Block mazeLocationBlock, int size, double wallPercentage) {
         this.plugin = plugin;
-        this.block = block;
+        this.mazeLocationBlock = mazeLocationBlock;
         this.size = size;
         this.wallPercentage = wallPercentage;
-        this.locations = new Location[size][size][size];
+        this.mazeBlockLocations = new Location[size][size][size];
         this.startCoordinate = new int[3];
         this.endCoordinate = new int[3];
     }
@@ -33,7 +33,14 @@ public abstract class Maze {
     public abstract int[][][] generateSimulation();
 
     /**
-     * Create a new maze via simulation.
+     * Generate a new maze.
+     *
+     * @param coreMaterial            floor material for 2D | volume material for 3D.
+     * @param blockerMaterial         wall/blocker material.
+     * @param spreadMaterial          spread animation material.
+     * @param pathMaterial            final path animation material (astar only).
+     * @param startPointGlassMaterial material over the start coordinate (preferably glass).
+     * @param endPointGlassMaterial   material over the end coordinate (preferably glass).
      */
     public abstract void generateNewMaze(
             Material coreMaterial,
@@ -45,40 +52,48 @@ public abstract class Maze {
     );
 
     /**
-     * Create the core part of the mazes.
-     * <p>
-     * 2D - the floor.
-     * 3D - the volume.
+     * Generate the core maze.
+     * 2D is the floor and border walls.
+     * 3D is the volume and border shell.
+     *
+     * @param coreMaterial floor material for 2D | volume material for 3D.
      */
-    public abstract void generateCore(Material core);
+    public abstract void generateCore(Material coreMaterial);
 
     /**
-     * Create the start and end points of the mazes.
+     * Generate the maze start and end points.
+     *
+     * @param startPointGlassMaterial material over the start coordinate (preferably glass).
+     * @param endPointGlassMaterial   material over the end coordinate (preferably glass).
      */
     public abstract void generateStartAndEndPoints(Material startPointGlassMaterial, Material endPointGlassMaterial);
 
     /**
-     * Generate the blocked parts of the mazes.
-     * <p>
-     * 2D - the mazes walls to navigate.
-     * 3D - the blocked areas in the mazes.
-     */
-    public abstract void generateBlockedAreas(int[][][] maze, Material blockerMaterial);
-
-    /**
-     * Create the border walls around the maze.
-     */
-    public abstract void generateBorderWalls(Material coreMaterial);
-
-    /**
-     * Make the animations.
+     * Generate the maze walls/blockers.
      *
-     * @param location spot of a block.
-     * @param time     when to change the block material.
-     * @param material type of block.
-     * @param row      x of the block.
-     * @param col      y of the block.
-     * @param zNum     z of the block.
+     * @param simulationMaze  integer maze.
+     * @param blockerMaterial wall/blocker material.
+     */
+    public abstract void generateBlockedAreas(int[][][] simulationMaze, Material blockerMaterial);
+
+    /**
+     * Generate the maze border.
+     * 2D is the wall around the maze.
+     * 3D is the shell around the volume.
+     *
+     * @param coreMaterial floor material for 2D | volume material for 3D.
+     */
+    public abstract void generateBorder(Material coreMaterial);
+
+    /**
+     * Handle the animations.
+     *
+     * @param location location of a block.
+     * @param time     when to start the block placement animation.
+     * @param material type of block to use.
+     * @param row      location row.
+     * @param col      location column.
+     * @param zNum     location z.
      */
     public void runnableDelayed(Location location, long time, Material material, int row, int col, int zNum) {
         new BukkitRunnable() {
@@ -89,39 +104,73 @@ public abstract class Maze {
                     cancel();
                 } else {
                     location.getBlock().setType(material);
-                    locations[row][col][zNum] = location;
+                    mazeBlockLocations[row][col][zNum] = location;
                     cancel();
                 }
             }
         }.runTaskTimer(plugin, time, 20L);
     }
 
+    /**
+     * Getter: size.
+     *
+     * @return size of the maze.
+     */
     public int getSize() {
         return size;
     }
 
+    /**
+     * Getter: plugin.
+     *
+     * @return plugin object.
+     */
     public MazeGeneratorPlugin getPlugin() {
         return plugin;
     }
 
+    /**
+     * Getter: maze location block.
+     *
+     * @return location of where the maze originally spawns.
+     */
     public Block getMazeLocationBlock() {
-        return block;
+        return mazeLocationBlock;
     }
 
-    public Location[][][] getLocations() {
-        return locations;
+    /**
+     * Getter: maze block locations.
+     *
+     * @return locations of blocks in the maze.
+     */
+    public Location[][][] getMazeBlockLocations() {
+        return mazeBlockLocations;
     }
 
+    /**
+     * Getter: get maze start coordinate.
+     *
+     * @return start coordinate in which the animation starts.
+     */
     public int[] getStartCoordinate() {
         return startCoordinate;
     }
 
+    /**
+     * Getter: get maze end coordinate.
+     *
+     * @return end coordinate in which the animation ends.
+     */
     public int[] getEndCoordinate() {
         return endCoordinate;
     }
 
-    public double getWallPercentage() {
+    /**
+     * Getter: get maze blocker percentage.
+     *
+     * @return percentage of the maze containing blockers (walls).
+     */
+    public double getBlockerPercentage() {
         return wallPercentage;
     }
-
 }

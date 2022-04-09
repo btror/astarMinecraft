@@ -184,7 +184,8 @@ public class PathfindingSimulation3D extends Simulation {
         int zNum = getCurrentNode().getZ();
 
         // front node
-        if (row - 1 > -1 && getGrid()[row - 1][col][zNum].getType() == 0 && !getClosedList().contains(getGrid()[row - 1][col][zNum])) {
+        if (row - 1 > -1 && getGrid()[row - 1][col][zNum].getType() == 0
+                && !getClosedList().contains(getGrid()[row - 1][col][zNum])) {
             Node[][][] grid = getGrid();
             grid[row - 1][col][zNum].setParent(getCurrentNode());
             int g = calculateG(grid[row - 1][col][zNum]);
@@ -202,7 +203,8 @@ public class PathfindingSimulation3D extends Simulation {
         }
 
         // left node
-        if (col + 1 < getSize() && getGrid()[row][col + 1][zNum].getType() == 0 && !getClosedList().contains(getGrid()[row][col + 1][zNum])) {
+        if (col + 1 < getSize() && getGrid()[row][col + 1][zNum].getType() == 0
+                && !getClosedList().contains(getGrid()[row][col + 1][zNum])) {
             Node[][][] grid = getGrid();
             grid[row][col + 1][zNum].setParent(getCurrentNode());
             int g = calculateG(grid[row][col + 1][zNum]);
@@ -220,7 +222,8 @@ public class PathfindingSimulation3D extends Simulation {
         }
 
         // behind node
-        if (row + 1 < getSize() && getGrid()[row + 1][col][zNum].getType() == 0 && !getClosedList().contains(getGrid()[row + 1][col][zNum])) {
+        if (row + 1 < getSize() && getGrid()[row + 1][col][zNum].getType() == 0
+                && !getClosedList().contains(getGrid()[row + 1][col][zNum])) {
             Node[][][] grid = getGrid();
             grid[row + 1][col][zNum].setParent(getCurrentNode());
             int g = calculateG(grid[row + 1][col][zNum]);
@@ -238,7 +241,8 @@ public class PathfindingSimulation3D extends Simulation {
         }
 
         // right node
-        if (col - 1 > -1 && getGrid()[row][col - 1][zNum].getType() == 0 && !getClosedList().contains(getGrid()[row][col - 1][zNum])) {
+        if (col - 1 > -1 && getGrid()[row][col - 1][zNum].getType() == 0
+                && !getClosedList().contains(getGrid()[row][col - 1][zNum])) {
             Node[][][] grid = getGrid();
             grid[row][col - 1][zNum].setParent(getCurrentNode());
             int g = calculateG(grid[row][col - 1][zNum]);
@@ -256,7 +260,8 @@ public class PathfindingSimulation3D extends Simulation {
         }
 
         // bottom node
-        if (zNum - 1 > -1 && getGrid()[row][col][zNum - 1].getType() == 0 && !getClosedList().contains(getGrid()[row][col][zNum - 1])) {
+        if (zNum - 1 > -1 && getGrid()[row][col][zNum - 1].getType() == 0
+                && !getClosedList().contains(getGrid()[row][col][zNum - 1])) {
             Node[][][] grid = getGrid();
             grid[row][col][zNum - 1].setParent(getCurrentNode());
             int g = calculateG(grid[row][col][zNum - 1]);
@@ -274,7 +279,8 @@ public class PathfindingSimulation3D extends Simulation {
         }
 
         // top node
-        if (zNum + 1 < getSize() && getGrid()[row][col][zNum + 1].getType() == 0 && !getClosedList().contains(getGrid()[row][col][zNum + 1])) {
+        if (zNum + 1 < getSize() && getGrid()[row][col][zNum + 1].getType() == 0
+                && !getClosedList().contains(getGrid()[row][col][zNum + 1])) {
             Node[][][] grid = getGrid();
             grid[row][col][zNum + 1].setParent(getCurrentNode());
             int g = calculateG(grid[row][col][zNum + 1]);

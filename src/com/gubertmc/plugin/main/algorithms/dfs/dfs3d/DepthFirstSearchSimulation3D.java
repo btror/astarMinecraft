@@ -1,15 +1,14 @@
-package com.gubertmc.plugin.main.algorithms.bfs.bfs3d;
+package com.gubertmc.plugin.main.algorithms.dfs.dfs3d;
 
 import com.gubertmc.plugin.main.algorithms.Simulation;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.Stack;
 
-public class BreadthFirstSearchSimulation3D extends Simulation {
+public class DepthFirstSearchSimulation3D extends Simulation {
 
-    private boolean[][][] visited;
+    public boolean[][][] visited;
 
-    public BreadthFirstSearchSimulation3D(int[][][] maze, int[] startCoordinate, int[] endCoordinate) {
+    public DepthFirstSearchSimulation3D(int[][][] maze, int[] startCoordinate, int[] endCoordinate) {
         super(maze, startCoordinate, endCoordinate, false);
     }
 
@@ -27,18 +26,17 @@ public class BreadthFirstSearchSimulation3D extends Simulation {
         }
     }
 
-    @Override
     public boolean start() {
-        Queue<String> queue = new LinkedList<>();
-        queue.add(getStartCoordinate()[1] + "," + getStartCoordinate()[0] + "," + getStartCoordinate()[2]);
+        Stack<String> stack = new Stack<>();
+        stack.push(getStartCoordinate()[1] + "," + getStartCoordinate()[0] + "," + getStartCoordinate()[2]);
 
         boolean pathFound = false;
-        while (!queue.isEmpty()) {
+        while (!stack.empty()) {
             if (getTileGrid()[getEndCoordinate()[1]][getEndCoordinate()[0]][2] == 2) {
                 pathFound = true;
                 break;
             }
-            String x = queue.remove();
+            String x = stack.pop();
             int row = Integer.parseInt(x.split(",")[0]);
             int col = Integer.parseInt(x.split(",")[1]);
             int z = Integer.parseInt(x.split(",")[2]);
@@ -53,12 +51,12 @@ public class BreadthFirstSearchSimulation3D extends Simulation {
             tileGrid[row][col][z] = 2;
             setTileGrid(tileGrid);
 
-            queue.add(row + "," + (col - 1) + "," + z);
-            queue.add(row + "," + (col + 1) + "," + z);
-            queue.add((row - 1) + "," + col + "," + z);
-            queue.add((row + 1) + "," + col + "," + z);
-            queue.add(row + "," + col + "," + (z - 1));
-            queue.add(row + "," + col + "," + (z + 1));
+            stack.push(row + "," + (col - 1) + "," + z);
+            stack.push(row + "," + (col + 1) + "," + z);
+            stack.push((row - 1) + "," + col + "," + z);
+            stack.push((row + 1) + "," + col + "," + z);
+            stack.push(row + "," + col + "," + (z - 1));
+            stack.push(row + "," + col + "," + (z + 1));
         }
         return pathFound;
     }

@@ -1,4 +1,4 @@
-package com.gubertmc.plugin.main.algorithms.bfs.bfs3d;
+package com.gubertmc.plugin.main.algorithms.dfs.dfs3d;
 
 import com.gubertmc.MazeGeneratorPlugin;
 import com.gubertmc.plugin.main.algorithms.Animation;
@@ -7,15 +7,14 @@ import org.bukkit.Material;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.Stack;
 
-public class BreadthFirstSearchAnimation3D extends Animation {
+public class DepthFirstSearchAnimation3D extends Animation {
 
     private boolean[][][] visited;
     private int[][][] textGrid;
 
-    public BreadthFirstSearchAnimation3D(
+    public DepthFirstSearchAnimation3D(
             MazeGeneratorPlugin plugin,
             Location[][][] tiles,
             int[] startCoordinate,
@@ -70,18 +69,18 @@ public class BreadthFirstSearchAnimation3D extends Animation {
         int length = textGrid[0].length;
         int zLength = textGrid[0][0].length;
 
-        Queue<String> queue = new LinkedList<>();
-        queue.add(getStartCoordinate()[1] + "," + getStartCoordinate()[0] + "," + getStartCoordinate()[2]);
+        Stack<String> stack = new Stack<>();
+        stack.push(getStartCoordinate()[1] + "," + getStartCoordinate()[0] + "," + getStartCoordinate()[2]);
 
-        while (!queue.isEmpty()) {
+        while (!stack.empty()) {
             if (textGrid[getEndCoordinate()[1]][getEndCoordinate()[0]][getEndCoordinate()[2]] != 5) {
                 break;
             }
 
-            String xs = queue.remove();
-            int row = Integer.parseInt(xs.split(",")[0]);
-            int col = Integer.parseInt(xs.split(",")[1]);
-            int z = Integer.parseInt(xs.split(",")[2]);
+            String x = stack.pop();
+            int row = Integer.parseInt(x.split(",")[0]);
+            int col = Integer.parseInt(x.split(",")[1]);
+            int z = Integer.parseInt(x.split(",")[2]);
 
             if (row < 0 || col < 0 || row >= height || col >= length
                     || z < 0 || z >= zLength || visited[row][col][z]) {
@@ -94,12 +93,12 @@ public class BreadthFirstSearchAnimation3D extends Animation {
             exploredPlaces.add(getTileGrid()[row][col][z]);
             setExploredPlaces(exploredPlaces);
 
-            queue.add(row + "," + (col - 1) + "," + z);
-            queue.add(row + "," + (col + 1) + "," + z);
-            queue.add((row - 1) + "," + col + "," + z);
-            queue.add((row + 1) + "," + col + "," + z);
-            queue.add(row + "," + col + "," + (z - 1));
-            queue.add(row + "," + col + "," + (z + 1));
+            stack.push(row + "," + (col - 1) + "," + z);
+            stack.push(row + "," + (col + 1) + "," + z);
+            stack.push((row - 1) + "," + col + "," + z);
+            stack.push((row + 1) + "," + col + "," + z);
+            stack.push(row + "," + col + "," + (z - 1));
+            stack.push(row + "," + col + "," + (z + 1));
         }
         return true;
     }

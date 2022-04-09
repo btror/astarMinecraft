@@ -120,5 +120,4 @@ public abstract class Simulation {
     public void setEndNode(Node endNode) {
         this.endNode = endNode;
     }
-
 }

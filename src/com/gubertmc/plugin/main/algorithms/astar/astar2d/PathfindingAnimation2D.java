@@ -25,7 +25,20 @@ public class PathfindingAnimation2D extends Animation {
             Material startGlassMaterial,
             Material endGlassMaterial
     ) {
-        super(plugin, tiles, startCoordinate, endCoordinate, size, wallMaterial, pathMaterial, pathSpreadMaterial, groundMaterial, startGlassMaterial, endGlassMaterial, false);
+        super(
+                plugin,
+                tiles,
+                startCoordinate,
+                endCoordinate,
+                size,
+                wallMaterial,
+                pathMaterial,
+                pathSpreadMaterial,
+                groundMaterial,
+                startGlassMaterial,
+                endGlassMaterial,
+                false
+        );
     }
 
     @Override
@@ -243,7 +256,8 @@ public class PathfindingAnimation2D extends Animation {
         int zNum = 0;
 
         // front node
-        if (row - 1 > -1 && getGrid()[row - 1][col][zNum].getType() == 0 && !getClosedList().contains(getGrid()[row - 1][col][zNum])) {
+        if (row - 1 > -1 && getGrid()[row - 1][col][zNum].getType() == 0
+                && !getClosedList().contains(getGrid()[row - 1][col][zNum])) {
             Node[][][] grid = getGrid();
             grid[row - 1][col][zNum].setParent(getCurrentNode());
             int g = calculateG(grid[row - 1][col][zNum]);
@@ -261,7 +275,9 @@ public class PathfindingAnimation2D extends Animation {
 
             Location loc = getTileGrid()[row - 1][col][zNum];
             if (!getExploredPlaces().contains(loc)) {
-                loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ());
+                loc = new Location(
+                        loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ()
+                );
                 ArrayList<Location> exploredPlaces = getExploredPlaces();
                 exploredPlaces.add(loc);
                 setExploredPlaces(exploredPlaces);
@@ -269,7 +285,8 @@ public class PathfindingAnimation2D extends Animation {
         }
 
         // left node
-        if (col + 1 < getSize() && getGrid()[row][col + 1][zNum].getType() == 0 && !getClosedList().contains(getGrid()[row][col + 1][zNum])) {
+        if (col + 1 < getSize() && getGrid()[row][col + 1][zNum].getType() == 0
+                && !getClosedList().contains(getGrid()[row][col + 1][zNum])) {
             Node[][][] grid = getGrid();
             grid[row][col + 1][zNum].setParent(getCurrentNode());
             int g = calculateG(grid[row][col + 1][zNum]);
@@ -287,7 +304,9 @@ public class PathfindingAnimation2D extends Animation {
 
             Location loc = getTileGrid()[row][col + 1][zNum];
             if (!getExploredPlaces().contains(loc)) {
-                loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ());
+                loc = new Location(
+                        loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ()
+                );
                 ArrayList<Location> exploredPlaces = getExploredPlaces();
                 exploredPlaces.add(loc);
                 setExploredPlaces(exploredPlaces);
@@ -295,7 +314,8 @@ public class PathfindingAnimation2D extends Animation {
         }
 
         // behind node
-        if (row + 1 < getSize() && getGrid()[row + 1][col][zNum].getType() == 0 && !getClosedList().contains(getGrid()[row + 1][col][zNum])) {
+        if (row + 1 < getSize() && getGrid()[row + 1][col][zNum].getType() == 0
+                && !getClosedList().contains(getGrid()[row + 1][col][zNum])) {
             Node[][][] grid = getGrid();
             grid[row + 1][col][zNum].setParent(getCurrentNode());
             int g = calculateG(grid[row + 1][col][zNum]);
@@ -313,7 +333,9 @@ public class PathfindingAnimation2D extends Animation {
 
             Location loc = getTileGrid()[row + 1][col][zNum];
             if (!getExploredPlaces().contains(loc)) {
-                loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ());
+                loc = new Location(
+                        loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ()
+                );
                 ArrayList<Location> exploredPlaces = getExploredPlaces();
                 exploredPlaces.add(loc);
                 setExploredPlaces(exploredPlaces);
@@ -321,7 +343,8 @@ public class PathfindingAnimation2D extends Animation {
         }
 
         // right node
-        if (col - 1 > -1 && getGrid()[row][col - 1][zNum].getType() == 0 && !getClosedList().contains(getGrid()[row][col - 1][zNum])) {
+        if (col - 1 > -1 && getGrid()[row][col - 1][zNum].getType() == 0
+                && !getClosedList().contains(getGrid()[row][col - 1][zNum])) {
             Node[][][] grid = getGrid();
             grid[row][col - 1][zNum].setParent(getCurrentNode());
             int g = calculateG(grid[row][col - 1][zNum]);
@@ -339,7 +362,9 @@ public class PathfindingAnimation2D extends Animation {
 
             Location loc = getTileGrid()[row][col - 1][zNum];
             if (!getExploredPlaces().contains(loc)) {
-                loc = new Location(loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ());
+                loc = new Location(
+                        loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ()
+                );
                 ArrayList<Location> exploredPlaces = getExploredPlaces();
                 exploredPlaces.add(loc);
                 setExploredPlaces(exploredPlaces);

@@ -246,5 +246,4 @@ public abstract class Animation {
     public void setThePath(ArrayList<Location> thePath) {
         this.thePath = thePath;
     }
-
 }
