@@ -2,24 +2,16 @@ package com.gubertmc.plugin.main.mazes;
 
 import com.gubertmc.MazeGeneratorPlugin;
 import com.gubertmc.plugin.main.Maze;
-import com.gubertmc.plugin.main.algorithms.Animation;
-import com.gubertmc.plugin.main.algorithms.Simulation;
-import com.gubertmc.plugin.main.algorithms.bfs.bfs2d.BreadthFirstSearchAnimation2D;
-import com.gubertmc.plugin.main.algorithms.bfs.bfs2d.BreadthFirstSearchSimulation2D;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.scheduler.BukkitRunnable;
 
-import static org.bukkit.Bukkit.getServer;
-
-public class BreadthFirstSearchMaze2D extends Maze {
+public abstract class Maze2D extends Maze {
 
     private long time;
     private boolean isValid;
 
-    public BreadthFirstSearchMaze2D(MazeGeneratorPlugin plugin, Block block, int size, double wallPercentage) {
+    public Maze2D(MazeGeneratorPlugin plugin, Block block, int size, double wallPercentage) {
         super(plugin, block, size, wallPercentage);
     }
 
@@ -112,74 +104,14 @@ public class BreadthFirstSearchMaze2D extends Maze {
      * @param startPointGlassMaterial material over the start coordinate (preferably glass).
      * @param endPointGlassMaterial   material over the end coordinate (preferably glass).
      */
-    @Override
-    public void generateNewMaze(
+    public abstract void generateNewMaze(
             Material coreMaterial,
             Material blockerMaterial,
             Material spreadMaterial,
             Material pathMaterial,
             Material startPointGlassMaterial,
             Material endPointGlassMaterial
-    ) {
-        isValid = false;
-        int count = 0;
-        while (!isValid) {
-            int[][][] simulationMaze = generateSimulation();
-            Simulation simulation = new BreadthFirstSearchSimulation2D(
-                    simulationMaze, getStartCoordinate(), getEndCoordinate()
-            );
-            simulation.setup();
-            isValid = simulation.start();
-
-            if (isValid) {
-                time = 0L;
-                generateCore(coreMaterial);
-                generateBorder(coreMaterial);
-                clearOldBeacons();
-                generateStartAndEndPoints(startPointGlassMaterial, endPointGlassMaterial);
-                generateBlockedAreas(simulationMaze, blockerMaterial);
-
-                time += 5L;
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        Animation animation = new BreadthFirstSearchAnimation2D(
-                                getPlugin(),
-                                getMazeBlockLocations(),
-                                getStartCoordinate(),
-                                getEndCoordinate(),
-                                getSize(),
-                                blockerMaterial,
-                                pathMaterial,
-                                spreadMaterial,
-                                coreMaterial,
-                                startPointGlassMaterial,
-                                endPointGlassMaterial
-                        );
-                        animation.setup();
-                        isValid = animation.start();
-                        getServer().broadcastMessage(
-                                ChatColor.GREEN + "" + getSize() + "x" + getSize() + " maze generated..."
-                        );
-                        animation.showAnimation(time);
-                        cancel();
-                    }
-                }.runTaskTimer(getPlugin(), time, 20L);
-
-                time = 0;
-            } else {
-                count++;
-                System.out.println("Invalid maze - starting new breadthFirstSearchSimulation2D...");
-            }
-            if (count == 50) {
-                getServer().broadcastMessage(
-                        ChatColor.RED + "A maze could not be successfully generated within 50 simulations. You " +
-                                "may experience server lag. Creating a larger maze with a lower percentage of " +
-                                "walls/blockers will greatly help and put less stress on the server."
-                );
-            }
-        }
-    }
+    );
 
     /**
      * Generate the core maze.
@@ -314,16 +246,16 @@ public class BreadthFirstSearchMaze2D extends Maze {
     /**
      * Generate blocked parts of the maze.
      *
-     * @param maze            maze.
+     * @param simulationMaze  maze.
      * @param blockerMaterial maze walls.
      */
     @Override
-    public void generateBlockedAreas(int[][][] maze, Material blockerMaterial) {
+    public void generateBlockedAreas(int[][][] simulationMaze, Material blockerMaterial) {
         time += 1L;
 
         for (int i = 0; i < getSize(); i++) {
             for (int j = 0; j < getSize(); j++) {
-                if (maze[i][j][0] == 1) {
+                if (simulationMaze[i][j][0] == 1) {
                     Location mazeWall = new Location(
                             getMazeLocationBlock().getWorld(),
                             getMazeLocationBlock().getX() + i,
@@ -448,5 +380,21 @@ public class BreadthFirstSearchMaze2D extends Maze {
         }
 
         time += 2L;
+    }
+
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
+    }
+
+    public boolean isValid() {
+        return isValid;
+    }
+
+    public void setValid(boolean valid) {
+        isValid = valid;
     }
 }
