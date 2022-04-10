@@ -40,16 +40,20 @@ public class ControlPlatform implements Listener {
      * Spawn a control platform.
      */
     public void spawn() {
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 3; j++) {
+        // Side 1.
+        for (int i = 0; i < 11; i++) { // was 10
+            // Create control platform ground.
+            for (int j = 0; j < 10; j++) {
                 Location floor = new Location(
                         mazeLocationBlock.getWorld(),
                         mazeLocationBlock.getX() + i,
                         mazeLocationBlock.getY(),
-                        mazeLocationBlock.getZ() + j - 4
+                        mazeLocationBlock.getZ() - j - 2
                 );
                 floor.getBlock().setType(Material.STRIPPED_OAK_WOOD);
             }
+
+            // Create control platform wall 1.
             for (int k = 1; k < 3; k++) {
                 Location wall = new Location(
                         mazeLocationBlock.getWorld(),
@@ -59,111 +63,107 @@ public class ControlPlatform implements Listener {
                 );
                 wall.getBlock().setType(Material.STRIPPED_OAK_WOOD);
 
-                if (k == 2 && i > 1) {
+                // Create item frames and buttons.
+                if (k == 2 && i > 3 && i < 10) {
                     ItemFrame frame = mazeLocationBlock.getWorld().spawn(wall.add(0, 0, -1), ItemFrame.class);
 
                     switch (i) {
-                        case 2 -> {
+                        case 4 -> {
                             frame.setItem(new ItemStack(spreadMaterial));
                             frames[0] = frame;
                         }
-                        case 3 -> {
+                        case 5 -> {
                             frame.setItem(new ItemStack(blockerMaterial));
                             frames[1] = frame;
                         }
-                        case 4 -> {
+                        case 6 -> {
                             frame.setItem(new ItemStack(coreMaterial));
                             frames[2] = frame;
                         }
-                        case 5 -> {
+                        case 7 -> {
                             frame.setItem(new ItemStack(pathMaterial));
                             frames[3] = frame;
                         }
-                        case 6 -> {
+                        case 8 -> {
                             frame.setItem(new ItemStack(startPointGlassMaterial));
                             frames[4] = frame;
                         }
-                        default -> {
+                        case 9 -> {
                             frame.setItem(new ItemStack(endPointGlassMaterial));
                             frames[5] = frame;
                         }
                     }
                 }
 
-                if (k == 1 && i == 0) {
+                // Create signs.
+                if (k == 1 && i > 2 && i != 4) {
                     Location location = new Location(
                             mazeLocationBlock.getWorld(),
-                            mazeLocationBlock.getX() + i + 1,
-                            mazeLocationBlock.getY() + 1 + k,
-                            mazeLocationBlock.getZ() - 3
-                    );
-                    location.getBlock().getRelative(BlockFace.WEST).setType(Material.CREEPER_WALL_HEAD);
-                }
-
-                if (k == 1 && i == 1) {
-                    Location location = new Location(
-                            mazeLocationBlock.getWorld(),
-                            mazeLocationBlock.getX() + i + 1,
-                            mazeLocationBlock.getY() + 1 + k,
-                            mazeLocationBlock.getZ() - 3
-                    );
-                    location.getBlock().getRelative(BlockFace.WEST).setType(Material.WARPED_BUTTON);
-                    startButton = location.getBlock().getRelative(BlockFace.WEST);
-                }
-
-                if (k == 1) {
-                    Location location = new Location(
-                            mazeLocationBlock.getWorld(),
-                            mazeLocationBlock.getX() + i + 1,
+                            mazeLocationBlock.getX() + i,
                             mazeLocationBlock.getY() + k,
                             mazeLocationBlock.getZ() - 3
                     );
+
                     location.getBlock().getRelative(BlockFace.WEST).setType(Material.WARPED_WALL_SIGN);
                     Sign sign = (Sign) location.getBlock().getRelative(BlockFace.WEST).getState();
-
                     switch (i) {
-                        case 0 -> {
-                            sign.setLine(0, "Project Details");
-                            sign.setLine(2, "Creator - btror");
-                            sign.setLine(3, "github.com/btror");
-                            sign.setColor(DyeColor.LIME);
-                        }
-                        case 1 -> {
+                        case 3 -> {
                             sign.setLine(1, "Start/reset");
                             sign.setColor(DyeColor.ORANGE);
                         }
-                        case 2 -> {
+                        case 5 -> {
                             sign.setLine(1, "Spread");
                             sign.setColor(DyeColor.WHITE);
                         }
-                        case 3 -> {
+                        case 6 -> {
                             sign.setLine(1, "Walls/Blockers");
                             sign.setColor(DyeColor.WHITE);
                         }
-                        case 4 -> {
+                        case 7 -> {
                             sign.setLine(1, "Border/outline");
                             sign.setColor(DyeColor.WHITE);
                         }
-                        case 5 -> {
-                            sign.setLine(1, "Pathfinding Path");
-                            sign.setLine(2, "(only for A*)");
+                        case 8 -> {
+                            sign.setLine(1, "2nd Path A*");
                             sign.setColor(DyeColor.WHITE);
                         }
-                        case 6 -> {
+                        case 9 -> {
                             sign.setLine(1, "Start Coordinate");
                             sign.setColor(DyeColor.WHITE);
                         }
-                        case 7 -> {
+                        case 10 -> {
                             sign.setLine(1, "End Coordinate");
                             sign.setColor(DyeColor.WHITE);
                         }
                     }
-
                     sign.setGlowingText(true);
                     sign.update();
                 }
             }
+
+            // Create control platform wall 2.
+            if (i < 9) {
+                for (int k = 1; k < 3; k++) {
+                    Location wall = new Location(
+                            mazeLocationBlock.getWorld(),
+                            mazeLocationBlock.getX(), // - 3
+                            mazeLocationBlock.getY() + k,
+                            mazeLocationBlock.getZ() - i - 3 // - i - 2
+                    );
+                    wall.getBlock().setType(Material.STRIPPED_OAK_WOOD);
+                }
+            }
         }
+
+        // Spawn start button.
+        Location wall = new Location(
+                mazeLocationBlock.getWorld(),
+                mazeLocationBlock.getX() + 3,
+                mazeLocationBlock.getY() + 2,
+                mazeLocationBlock.getZ() - 3
+        );
+        wall.getBlock().getRelative(BlockFace.WEST).setType(Material.WARPED_BUTTON);
+        startButton = wall.getBlock().getRelative(BlockFace.WEST);
     }
 
     /**
