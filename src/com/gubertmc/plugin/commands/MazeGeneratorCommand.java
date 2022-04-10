@@ -7,6 +7,7 @@ import com.gubertmc.plugin.main.mazes.custom.*;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -150,7 +151,7 @@ public record MazeGeneratorCommand(MazeGeneratorPlugin plugin) implements Comman
     @EventHandler
     public void onButtonPressed(PlayerInteractEvent e) {
         if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            if (Objects.requireNonNull(e.getClickedBlock()).getType() == Material.WARPED_BUTTON) {
+            if (Objects.equals(e.getClickedBlock(), controlPlatform.getStartButton())) {
                 boolean acceptableFrames = true;
                 ItemFrame[] frames = controlPlatform.getFrames();
 

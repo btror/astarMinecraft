@@ -14,6 +14,7 @@ import org.bukkit.inventory.ItemStack;
 public class ControlPlatform implements Listener {
 
     private final Block mazeLocationBlock;
+    private Block startButton;
     private Material coreMaterial;
     private Material blockerMaterial;
     private Material spreadMaterial;
@@ -107,6 +108,7 @@ public class ControlPlatform implements Listener {
                             mazeLocationBlock.getZ() - 3
                     );
                     location.getBlock().getRelative(BlockFace.WEST).setType(Material.WARPED_BUTTON);
+                    startButton = location.getBlock().getRelative(BlockFace.WEST);
                 }
 
                 if (k == 1) {
@@ -240,5 +242,14 @@ public class ControlPlatform implements Listener {
         this.pathMaterial = frames[3].getItem().getType();
         this.startPointGlassMaterial = frames[4].getItem().getType();
         this.endPointGlassMaterial = frames[5].getItem().getType();
+    }
+
+    /**
+     * Getter: get start button.
+     *
+     * @return maze start/reset button.
+     */
+    public Block getStartButton() {
+        return startButton;
     }
 }
