@@ -2,24 +2,16 @@ package com.gubertmc.plugin.main.mazes;
 
 import com.gubertmc.MazeGeneratorPlugin;
 import com.gubertmc.plugin.main.Maze;
-import com.gubertmc.plugin.main.algorithms.Animation;
-import com.gubertmc.plugin.main.algorithms.Simulation;
-import com.gubertmc.plugin.main.algorithms.dfs.dfs3d.DepthFirstSearchAnimation3D;
-import com.gubertmc.plugin.main.algorithms.dfs.dfs3d.DepthFirstSearchSimulation3D;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.scheduler.BukkitRunnable;
 
-import static org.bukkit.Bukkit.getServer;
-
-public class DepthFirstSearchMaze3D extends Maze {
+public abstract class Maze3D extends Maze {
 
     private long time;
     private boolean isValid;
 
-    public DepthFirstSearchMaze3D(MazeGeneratorPlugin plugin, Block block, int size, double wallPercentage) {
+    public Maze3D(MazeGeneratorPlugin plugin, Block block, int size, double wallPercentage) {
         super(plugin, block, size, wallPercentage);
     }
 
@@ -123,72 +115,14 @@ public class DepthFirstSearchMaze3D extends Maze {
      * @param startPointGlassMaterial material over the start coordinate (preferably glass).
      * @param endPointGlassMaterial   material over the end coordinate (preferably glass).
      */
-    @Override
-    public void generateNewMaze(
+    public abstract void generateNewMaze(
             Material coreMaterial,
             Material blockerMaterial,
             Material spreadMaterial,
             Material pathMaterial,
             Material startPointGlassMaterial,
             Material endPointGlassMaterial
-    ) {
-        isValid = false;
-        int count = 0;
-        while (!isValid) {
-            int[][][] simulationMaze = generateSimulation();
-            Simulation simulation = new DepthFirstSearchSimulation3D(
-                    simulationMaze, getStartCoordinate(), getEndCoordinate()
-            );
-            simulation.setup();
-            isValid = simulation.start();
-
-            if (isValid) {
-                time = 0L;
-                generateCore(coreMaterial);
-                generateBorder(coreMaterial);
-                generateStartAndEndPoints(startPointGlassMaterial, endPointGlassMaterial);
-                generateBlockedAreas(simulationMaze, blockerMaterial);
-
-                time += 5L;
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        Animation animation = new DepthFirstSearchAnimation3D(
-                                getPlugin(), getMazeBlockLocations(),
-                                getStartCoordinate(),
-                                getEndCoordinate(),
-                                getSize(),
-                                blockerMaterial,
-                                pathMaterial,
-                                spreadMaterial,
-                                coreMaterial,
-                                startPointGlassMaterial,
-                                endPointGlassMaterial
-                        );
-                        animation.setup();
-                        isValid = animation.start();
-                        getServer().broadcastMessage(
-                                ChatColor.GREEN + "" + getSize() + "x" + getSize() + "x" + getSize()
-                                        + " maze generated..."
-                        );
-                        animation.showAnimation(time);
-                        cancel();
-                    }
-                }.runTaskTimer(getPlugin(), time, 20L);
-
-                time = 0;
-            } else {
-                count++;
-                System.out.println("Invalid maze - starting new simulation...");
-            }
-            if (count == 50) {
-                getServer().broadcastMessage(ChatColor.RED + "A maze could not be successfully generated " +
-                        "within 50 simulations. You may experience server lag. Creating a larger maze with a " +
-                        "lower percentage of walls/blockers will greatly help and put less stress on the server."
-                );
-            }
-        }
-    }
+    );
 
     /**
      * Generate the core maze.
@@ -274,17 +208,17 @@ public class DepthFirstSearchMaze3D extends Maze {
     /**
      * Generate blocked parts of the maze.
      *
-     * @param maze            maze.
+     * @param simulationMaze  maze.
      * @param blockerMaterial maze walls.
      */
     @Override
-    public void generateBlockedAreas(int[][][] maze, Material blockerMaterial) {
+    public void generateBlockedAreas(int[][][] simulationMaze, Material blockerMaterial) {
         time += 1L;
 
         for (int i = 0; i < getSize(); i++) {
             for (int j = 0; j < getSize(); j++) {
                 for (int k = 0; k < getSize(); k++) {
-                    if (maze[i][j][k] == 1) {
+                    if (simulationMaze[i][j][k] == 1) {
                         Location mazeWall = new Location(
                                 getMazeLocationBlock().getWorld(),
                                 getMazeLocationBlock().getX() + i,
@@ -390,5 +324,21 @@ public class DepthFirstSearchMaze3D extends Maze {
         }
 
         time += 1L;
+    }
+
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
+    }
+
+    public boolean isValid() {
+        return isValid;
+    }
+
+    public void setValid(boolean valid) {
+        isValid = valid;
     }
 }

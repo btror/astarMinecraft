@@ -3,7 +3,7 @@ package com.gubertmc.plugin.commands;
 import com.gubertmc.MazeGeneratorPlugin;
 import com.gubertmc.plugin.ControlPlatform;
 import com.gubertmc.plugin.main.Maze;
-import com.gubertmc.plugin.main.mazes.*;
+import com.gubertmc.plugin.main.mazes.custom.*;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -26,8 +26,6 @@ public record MazeGeneratorCommand(MazeGeneratorPlugin plugin) implements Comman
 
     /**
      * Handle the command call.
-     * <p>
-     * /astar Dimensions Size Percentage
      *
      * @param commandSender command sender.
      * @param command       command.
