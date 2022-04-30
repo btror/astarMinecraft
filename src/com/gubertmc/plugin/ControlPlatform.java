@@ -14,7 +14,19 @@ import org.bukkit.inventory.ItemStack;
 public class ControlPlatform implements Listener {
 
     private final Block mazeLocationBlock;
+    private final int size;
+    private final double blockerPercentage;
+    private final String algorithmName;
     private Block startButton;
+    private Block rightButton1;
+    private Block leftButton1;
+    private Block rightButton2;
+    private Block leftButton2;
+    private Block rightButton3;
+    private Block leftButton3;
+    private Sign sizeSign;
+    private Sign algorithmSign;
+    private Sign percentageSign;
     private Material coreMaterial;
     private Material blockerMaterial;
     private Material spreadMaterial;
@@ -24,9 +36,11 @@ public class ControlPlatform implements Listener {
     private ItemFrame[] frames;
 
 
-    public ControlPlatform(Block mazeLocationBlock) {
+    public ControlPlatform(Block mazeLocationBlock, int size, double blockerPercentage, String algorithmName) {
         this.mazeLocationBlock = mazeLocationBlock;
-
+        this.size = size;
+        this.blockerPercentage = blockerPercentage;
+        this.algorithmName = algorithmName;
         this.frames = new ItemFrame[6];
         this.coreMaterial = Material.RED_STAINED_GLASS;
         this.blockerMaterial = Material.LAPIS_BLOCK;
@@ -40,10 +54,10 @@ public class ControlPlatform implements Listener {
      * Spawn a control platform.
      */
     public void spawn() {
-        // Side 1.
-        for (int i = 0; i < 11; i++) { // was 10
-            // Create control platform ground.
-            for (int j = 0; j < 10; j++) {
+        // 13 blocks long.
+        for (int i = 0; i < 13; i++) { // was 11
+            // Create control platform floor.
+            for (int j = 0; j < 5; j++) {
                 Location floor = new Location(
                         mazeLocationBlock.getWorld(),
                         mazeLocationBlock.getX() + i,
@@ -53,8 +67,8 @@ public class ControlPlatform implements Listener {
                 floor.getBlock().setType(Material.STRIPPED_OAK_WOOD);
             }
 
-            // Create control platform wall 1.
-            for (int k = 1; k < 3; k++) {
+            // Create control platform wall.
+            for (int k = 1; k < 5; k++) {
                 Location wall = new Location(
                         mazeLocationBlock.getWorld(),
                         mazeLocationBlock.getX() + i,
@@ -63,40 +77,135 @@ public class ControlPlatform implements Listener {
                 );
                 wall.getBlock().setType(Material.STRIPPED_OAK_WOOD);
 
-                // Create item frames and buttons.
-                if (k == 2 && i > 3 && i < 10) {
-                    ItemFrame frame = mazeLocationBlock.getWorld().spawn(wall.add(0, 0, -1), ItemFrame.class);
+                // Create signs for size, algorithm, and blocker percentage toggle.
+                if (k == 3 && i > 1) {
+                    if (i != 9 && i != 5) {
+                        Location location = new Location(
+                                mazeLocationBlock.getWorld(),
+                                mazeLocationBlock.getX() + i,
+                                mazeLocationBlock.getY() + k,
+                                mazeLocationBlock.getZ() - 3
+                        );
 
-                    switch (i) {
-                        case 4 -> {
-                            frame.setItem(new ItemStack(spreadMaterial));
-                            frames[0] = frame;
+                        location.getBlock().getRelative(BlockFace.WEST).setType(Material.WARPED_WALL_SIGN);
+                        Sign sign = (Sign) location.getBlock().getRelative(BlockFace.WEST).getState();
+                        switch (i) {
+                            case 2, 6, 10 -> {
+                                sign.setLine(1, "Scroll Right");
+                                sign.setLine(2, "->");
+                                sign.setColor(DyeColor.GREEN);
+                            }
+                            case 4, 8, 12 -> {
+                                sign.setLine(1, "Scroll Left");
+                                sign.setLine(2, "<-");
+                                sign.setColor(DyeColor.GREEN);
+                            }
+                            case 3 -> {
+                                sign.setLine(1, "Blocker");
+                                sign.setLine(2, "Percentage");
+                                sign.setColor(DyeColor.WHITE);
+                            }
+                            case 7 -> {
+                                sign.setLine(1, "Size");
+                                sign.setColor(DyeColor.WHITE);
+                            }
+                            case 11 -> {
+                                sign.setLine(1, "Algorithm");
+                                sign.setColor(DyeColor.WHITE);
+                            }
                         }
-                        case 5 -> {
-                            frame.setItem(new ItemStack(blockerMaterial));
-                            frames[1] = frame;
-                        }
-                        case 6 -> {
-                            frame.setItem(new ItemStack(coreMaterial));
-                            frames[2] = frame;
-                        }
-                        case 7 -> {
-                            frame.setItem(new ItemStack(pathMaterial));
-                            frames[3] = frame;
-                        }
-                        case 8 -> {
-                            frame.setItem(new ItemStack(startPointGlassMaterial));
-                            frames[4] = frame;
-                        }
-                        case 9 -> {
-                            frame.setItem(new ItemStack(endPointGlassMaterial));
-                            frames[5] = frame;
+                        sign.setGlowingText(true);
+                        sign.update();
+                    }
+                }
+
+                if (k == 4 && i == 3) {
+                    Location location = new Location(
+                            mazeLocationBlock.getWorld(),
+                            mazeLocationBlock.getX() + i,
+                            mazeLocationBlock.getY() + k,
+                            mazeLocationBlock.getZ() - 3
+                    );
+
+                    location.getBlock().getRelative(BlockFace.WEST).setType(Material.DARK_OAK_WALL_SIGN);
+                    Sign sign = (Sign) location.getBlock().getRelative(BlockFace.WEST).getState();
+                    sign.setLine(1, (int) (blockerPercentage * 100) + "%");
+                    sign.setColor(DyeColor.YELLOW);
+                    sign.setGlowingText(true);
+                    sign.update();
+                    percentageSign = sign;
+                }
+
+                if (k == 4 && i == 7) {
+                    Location location = new Location(
+                            mazeLocationBlock.getWorld(),
+                            mazeLocationBlock.getX() + i,
+                            mazeLocationBlock.getY() + k,
+                            mazeLocationBlock.getZ() - 3
+                    );
+
+                    location.getBlock().getRelative(BlockFace.WEST).setType(Material.DARK_OAK_WALL_SIGN);
+                    Sign sign = (Sign) location.getBlock().getRelative(BlockFace.WEST).getState();
+                    sign.setLine(1, size + "x" + size);
+                    sign.setColor(DyeColor.YELLOW);
+                    sign.setGlowingText(true);
+                    sign.update();
+                    sizeSign = sign;
+                }
+
+                if (k == 4 && i == 11) {
+                    Location location = new Location(
+                            mazeLocationBlock.getWorld(),
+                            mazeLocationBlock.getX() + i,
+                            mazeLocationBlock.getY() + k,
+                            mazeLocationBlock.getZ() - 3
+                    );
+
+                    location.getBlock().getRelative(BlockFace.WEST).setType(Material.DARK_OAK_WALL_SIGN);
+                    Sign sign = (Sign) location.getBlock().getRelative(BlockFace.WEST).getState();
+                    sign.setLine(1, algorithmName);
+                    sign.setColor(DyeColor.YELLOW);
+                    sign.setGlowingText(true);
+                    sign.update();
+                    algorithmSign = sign;
+                }
+
+                // Create bottom item frames and buttons.
+                if (k == 2 && i > 4 && i < 12) {
+                    if (i != 8) {
+                        ItemFrame frame = mazeLocationBlock.getWorld().spawn(wall.add(0, 0, -1), ItemFrame.class);
+
+                        switch (i) {
+                            case 5 -> {
+                                frame.setItem(new ItemStack(spreadMaterial));
+                                frames[0] = frame;
+                            }
+                            case 6 -> {
+                                frame.setItem(new ItemStack(blockerMaterial));
+                                frames[1] = frame;
+                            }
+                            case 7 -> {
+                                frame.setItem(new ItemStack(coreMaterial));
+                                frames[2] = frame;
+                            }
+                            case 9 -> {
+                                frame.setItem(new ItemStack(pathMaterial));
+                                frames[3] = frame;
+                            }
+                            case 10 -> {
+                                frame.setItem(new ItemStack(startPointGlassMaterial));
+                                frames[4] = frame;
+                            }
+                            case 11 -> {
+                                frame.setItem(new ItemStack(endPointGlassMaterial));
+                                frames[5] = frame;
+                            }
                         }
                     }
                 }
 
-                // Create signs.
-                if (k == 1 && i > 2 && i != 4) {
+                // Create signs for item frames.
+                if (k == 1 && i > 1 && i != 3 && i != 5 && i != 9) {
                     Location location = new Location(
                             mazeLocationBlock.getWorld(),
                             mazeLocationBlock.getX() + i,
@@ -107,31 +216,36 @@ public class ControlPlatform implements Listener {
                     location.getBlock().getRelative(BlockFace.WEST).setType(Material.WARPED_WALL_SIGN);
                     Sign sign = (Sign) location.getBlock().getRelative(BlockFace.WEST).getState();
                     switch (i) {
-                        case 3 -> {
+                        case 2 -> {
+                            sign.setLine(0, "By Gubert");
+                            sign.setLine(2, "github.com/btror");
+                            sign.setColor(DyeColor.MAGENTA);
+                        }
+                        case 4 -> {
                             sign.setLine(1, "Start/reset");
                             sign.setColor(DyeColor.ORANGE);
                         }
-                        case 5 -> {
+                        case 6 -> {
                             sign.setLine(1, "Spread");
                             sign.setColor(DyeColor.WHITE);
                         }
-                        case 6 -> {
+                        case 7 -> {
                             sign.setLine(1, "Walls/Blockers");
                             sign.setColor(DyeColor.WHITE);
                         }
-                        case 7 -> {
+                        case 8 -> {
                             sign.setLine(1, "Border/outline");
                             sign.setColor(DyeColor.WHITE);
                         }
-                        case 8 -> {
+                        case 10 -> {
                             sign.setLine(1, "2nd Path A*");
                             sign.setColor(DyeColor.WHITE);
                         }
-                        case 9 -> {
+                        case 11 -> {
                             sign.setLine(1, "Start Coordinate");
                             sign.setColor(DyeColor.WHITE);
                         }
-                        case 10 -> {
+                        case 12 -> {
                             sign.setLine(1, "End Coordinate");
                             sign.setColor(DyeColor.WHITE);
                         }
@@ -140,30 +254,77 @@ public class ControlPlatform implements Listener {
                     sign.update();
                 }
             }
-
-            // Create control platform wall 2.
-            if (i < 9) {
-                for (int k = 1; k < 3; k++) {
-                    Location wall = new Location(
-                            mazeLocationBlock.getWorld(),
-                            mazeLocationBlock.getX(), // - 3
-                            mazeLocationBlock.getY() + k,
-                            mazeLocationBlock.getZ() - i - 3 // - i - 2
-                    );
-                    wall.getBlock().setType(Material.STRIPPED_OAK_WOOD);
-                }
-            }
         }
 
-        // Spawn start button.
-        Location wall = new Location(
+        // Create start button.
+        Location startButtonLocation = new Location(
                 mazeLocationBlock.getWorld(),
-                mazeLocationBlock.getX() + 3,
+                mazeLocationBlock.getX() + 4,
                 mazeLocationBlock.getY() + 2,
                 mazeLocationBlock.getZ() - 3
         );
-        wall.getBlock().getRelative(BlockFace.WEST).setType(Material.WARPED_BUTTON);
-        startButton = wall.getBlock().getRelative(BlockFace.WEST);
+        startButtonLocation.getBlock().getRelative(BlockFace.WEST).setType(Material.WARPED_BUTTON);
+        startButton = startButtonLocation.getBlock().getRelative(BlockFace.WEST);
+
+        // Scroll-right button 1.
+        Location rightButtonLoc1 = new Location(
+                mazeLocationBlock.getWorld(),
+                mazeLocationBlock.getX() + 6,
+                mazeLocationBlock.getY() + 4,
+                mazeLocationBlock.getZ() - 3
+        );
+        rightButtonLoc1.getBlock().getRelative(BlockFace.WEST).setType(Material.WARPED_BUTTON);
+        rightButton1 = rightButtonLoc1.getBlock().getRelative(BlockFace.WEST);
+
+        // Scroll-right button 2.
+        Location rightButtonLoc2 = new Location(
+                mazeLocationBlock.getWorld(),
+                mazeLocationBlock.getX() + 10,
+                mazeLocationBlock.getY() + 4,
+                mazeLocationBlock.getZ() - 3
+        );
+        rightButtonLoc2.getBlock().getRelative(BlockFace.WEST).setType(Material.WARPED_BUTTON);
+        rightButton2 = rightButtonLoc2.getBlock().getRelative(BlockFace.WEST);
+
+        // Scroll-right button 3.
+        Location rightButtonLoc3 = new Location(
+                mazeLocationBlock.getWorld(),
+                mazeLocationBlock.getX() + 2,
+                mazeLocationBlock.getY() + 4,
+                mazeLocationBlock.getZ() - 3
+        );
+        rightButtonLoc3.getBlock().getRelative(BlockFace.WEST).setType(Material.WARPED_BUTTON);
+        rightButton3 = rightButtonLoc3.getBlock().getRelative(BlockFace.WEST);
+
+        // Scroll-left button 1.
+        Location leftButtonLoc1 = new Location(
+                mazeLocationBlock.getWorld(),
+                mazeLocationBlock.getX() + 8,
+                mazeLocationBlock.getY() + 4,
+                mazeLocationBlock.getZ() - 3
+        );
+        leftButtonLoc1.getBlock().getRelative(BlockFace.WEST).setType(Material.ACACIA_BUTTON);
+        leftButton1 = leftButtonLoc1.getBlock().getRelative(BlockFace.WEST);
+
+        // Scroll-left button 2.
+        Location leftButtonLoc2 = new Location(
+                mazeLocationBlock.getWorld(),
+                mazeLocationBlock.getX() + 12,
+                mazeLocationBlock.getY() + 4,
+                mazeLocationBlock.getZ() - 3
+        );
+        leftButtonLoc2.getBlock().getRelative(BlockFace.WEST).setType(Material.ACACIA_BUTTON);
+        leftButton2 = leftButtonLoc2.getBlock().getRelative(BlockFace.WEST);
+
+        // Scroll-left button 3.
+        Location leftButtonLoc3 = new Location(
+                mazeLocationBlock.getWorld(),
+                mazeLocationBlock.getX() + 4,
+                mazeLocationBlock.getY() + 4,
+                mazeLocationBlock.getZ() - 3
+        );
+        leftButtonLoc3.getBlock().getRelative(BlockFace.WEST).setType(Material.ACACIA_BUTTON);
+        leftButton3 = leftButtonLoc3.getBlock().getRelative(BlockFace.WEST);
     }
 
     /**
@@ -251,5 +412,113 @@ public class ControlPlatform implements Listener {
      */
     public Block getStartButton() {
         return startButton;
+    }
+
+    /**
+     * Getter: get scroll-left button 1.
+     *
+     * @return scroll-left button 1.
+     */
+    public Block getLeftButton1() {
+        return leftButton1;
+    }
+
+    /**
+     * Getter: get scroll-right button 1.
+     *
+     * @return scroll-right button 1.
+     */
+    public Block getRightButton1() {
+        return rightButton1;
+    }
+
+    /**
+     * Getter: get scroll-left button 2.
+     *
+     * @return scroll-left button 2.
+     */
+    public Block getLeftButton2() {
+        return leftButton2;
+    }
+
+    /**
+     * Getter: get scroll-right button 2.
+     *
+     * @return scroll-right button 2.
+     */
+    public Block getRightButton2() {
+        return rightButton2;
+    }
+
+    /**
+     * Getter: get scroll-left button 3.
+     *
+     * @return scroll-left button 3.
+     */
+    public Block getLeftButton3() {
+        return leftButton3;
+    }
+
+    /**
+     * Getter: get scroll-right button 3.
+     *
+     * @return scroll-right button 3.
+     */
+    public Block getRightButton3() {
+        return rightButton3;
+    }
+
+    /**
+     * Getter: get maze size sign.
+     *
+     * @return maze size sign.
+     */
+    public Sign getSizeSign() {
+        return sizeSign;
+    }
+
+    /**
+     * Getter: get maze blocker percentage sign.
+     *
+     * @return maze blocker percentage sign.
+     */
+    public Sign getPercentageSign() {
+        return percentageSign;
+    }
+
+    /**
+     * Getter: get maze algorithm sign.
+     *
+     * @return maze algorithm sign.
+     */
+    public Sign getAlgorithmSign() {
+        return algorithmSign;
+    }
+
+    /**
+     * Setter: set maze size sign.
+     *
+     * @param sign maze size sign.
+     */
+    public void setSizeSign(Sign sign) {
+        sizeSign = sign;
+    }
+
+    /**
+     * Setter: set algorithm sign.
+     *
+     * @param sign maze algorithm sign.
+     */
+    public void setAlgorithmSign(Sign sign) {
+        algorithmSign = sign;
+    }
+
+    /**
+     * Setter: set blocker percentage sign.
+     *
+     * @param sign maze blocker percentage sign.
+     */
+    public void setPercentageSign(Sign sign) {
+        percentageSign = sign;
     }
 }

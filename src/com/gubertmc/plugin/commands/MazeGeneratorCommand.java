@@ -6,8 +6,7 @@ import com.gubertmc.plugin.main.Maze;
 import com.gubertmc.plugin.main.mazes.custom.*;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.BlockFace;
+import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -23,7 +22,12 @@ import java.util.Objects;
 public record MazeGeneratorCommand(MazeGeneratorPlugin plugin) implements CommandExecutor, Listener {
 
     private static Maze maze;
+    private static Location mazeLocation;
     private static ControlPlatform controlPlatform;
+    private static final String[] algorithms = {"A* 2D", "A* 3D", "BFS 2D", "BFS 3D", "DFS 2D", "DFS 3D"};
+    private static int index = 0;
+    private static int size = 15;
+    private static double blockerPercentage = 0.35;
 
     /**
      * Handle the command call.
@@ -38,106 +42,36 @@ public record MazeGeneratorCommand(MazeGeneratorPlugin plugin) implements Comman
     public boolean onCommand(CommandSender commandSender, Command command, String alias, String[] args) {
         Player player = (Player) commandSender;
         try {
-            if (args.length > 0 && args.length < 4) {
-                double percentage;
+            Location location = player.getLocation();
+            location = new Location(
+                    location.getWorld(),
+                    location.getX() + 1,
+                    location.getY(),
+                    location.getZ() + 1
+            );
+            mazeLocation = location;
+            maze = new PathfindingMaze2D(
+                    plugin,
+                    location.getBlock(),
+                    size,
+                    blockerPercentage
+            );
 
-                Location location = player.getLocation();
-                location = new Location(
-                        location.getWorld(),
-                        location.getX() + 1,
-                        location.getY(),
-                        location.getZ() + 1
-                );
+            player.sendMessage("Spawning control platform...");
 
-                if (args.length < 3) {
-                    percentage = .2;
-                } else {
-                    percentage = Double.parseDouble(args[2]);
+            controlPlatform = new ControlPlatform(
+                    player.getLocation().getBlock(),
+                    size,
+                    blockerPercentage,
+                    algorithms[index]
+            );
+            controlPlatform.spawn();
 
-                    if (percentage < 0 || percentage > 1) {
-                        percentage /= 100;
-                    }
-                    if (percentage > .80) {
-                        player.sendMessage(
-                                ChatColor.AQUA + "The percentage of maze blockers must be less than 81%."
-                        );
-                        player.sendMessage(ChatColor.AQUA + "Resetting percentage to 80%...");
-                    }
-                }
+            return true;
 
-                switch (args[0].toUpperCase()) {
-                    case "ASTAR2D" -> maze = new PathfindingMaze2D(
-                            plugin,
-                            location.getBlock(),
-                            Integer.parseInt(args[1]),
-                            percentage
-                    );
-                    case "ASTAR3D" -> maze = new PathfindingMaze3D(
-                            plugin,
-                            location.getBlock(),
-                            Integer.parseInt(args[1]),
-                            percentage
-                    );
-                    case "BFS2D" -> maze = new BreadthFirstSearchMaze2D(
-                            plugin,
-                            location.getBlock(),
-                            Integer.parseInt(args[1]),
-                            percentage
-                    );
-                    case "BFS3D" -> maze = new BreadthFirstSearchMaze3D(
-                            plugin,
-                            location.getBlock(),
-                            Integer.parseInt(args[1]),
-                            percentage
-                    );
-                    case "DFS2D" -> maze = new DepthFirstSearchMaze2D(
-                            plugin,
-                            location.getBlock(),
-                            Integer.parseInt(args[1]),
-                            percentage
-                    );
-                    case "DFS3D" -> maze = new DepthFirstSearchMaze3D(
-                            plugin,
-                            location.getBlock(),
-                            Integer.parseInt(args[1]),
-                            percentage
-                    );
-                    default -> {
-                        player.sendMessage(
-                                ChatColor.RED + "" + ChatColor.BOLD + "/maze <algorithm> <size> <percentage>"
-                        );
-                        player.sendMessage(
-                                ChatColor.YELLOW + "" + "algorithm -> astar2d, astar3d, bfs2d, bfs3d, dfs2d, dfs3d"
-                        );
-                        player.sendMessage(ChatColor.YELLOW + "" + "size -> a positive integer");
-                        player.sendMessage(ChatColor.YELLOW + "" + "percentage -> 0-1 or 1-100");
-
-                        return false;
-                    }
-                }
-                player.sendMessage("Spawning control platform...");
-
-                controlPlatform = new ControlPlatform(
-                        player.getLocation().getBlock()
-                );
-                controlPlatform.spawn();
-
-                return true;
-            } else {
-                player.sendMessage(
-                        ChatColor.RED + "" + ChatColor.BOLD + "/maze <algorithm> <size> <percentage>"
-                );
-                player.sendMessage(
-                        ChatColor.YELLOW + "" + "algorithm -> astar2d, astar3d, bfs2d, bfs3d, dfs2d, dfs3d"
-                );
-                player.sendMessage(ChatColor.YELLOW + "" + "size -> a positive integer");
-                player.sendMessage(ChatColor.YELLOW + "" + "percentage -> 0-1 or 1-100");
-            }
-        } catch (Exception exception) {
-            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "/maze <algorithm> <size> <percentage>");
-            player.sendMessage(ChatColor.YELLOW + "" + "algorithm -> astar2d, astar3d, bfs2d, bfs3d, dfs2d, dfs3d");
-            player.sendMessage(ChatColor.YELLOW + "" + "size -> a positive integer");
-            player.sendMessage(ChatColor.YELLOW + "" + "percentage -> 0-1 or 1-100");
+        } catch (Exception e) {
+            System.out.println(e);
+            player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "/maze");
         }
 
         return false;
@@ -173,6 +107,95 @@ public record MazeGeneratorCommand(MazeGeneratorPlugin plugin) implements Comman
                 } else {
                     e.getPlayer().sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "Maze items must be blocks...");
                 }
+            } else if (Objects.equals(e.getClickedBlock(), controlPlatform.getRightButton2())) {
+                Sign sign = controlPlatform.getAlgorithmSign();
+                if (index == algorithms.length - 1) {
+                    index = 0;
+                } else {
+                    index++;
+                }
+                sign.setLine(1, algorithms[index]);
+                sign.update();
+                controlPlatform.setAlgorithmSign(sign);
+            } else if (Objects.equals(e.getClickedBlock(), controlPlatform.getLeftButton2())) {
+                Sign sign = controlPlatform.getAlgorithmSign();
+                if (index == 0) {
+                    index = algorithms.length - 1;
+                } else {
+                    index--;
+                }
+                sign.setLine(1, algorithms[index]);
+                sign.update();
+                controlPlatform.setAlgorithmSign(sign);
+            } else if (Objects.equals(e.getClickedBlock(), controlPlatform.getRightButton1())) {
+                Sign sign = controlPlatform.getSizeSign();
+                sign.setLine(1, "" + (size + 1) + "x" + (size + 1));
+                sign.update();
+                size++;
+                controlPlatform.setSizeSign(sign);
+            } else if (Objects.equals(e.getClickedBlock(), controlPlatform.getLeftButton1())) {
+                Sign sign = controlPlatform.getSizeSign();
+                if (size > 6) {
+                    sign.setLine(1, "" + (size - 1) + "x" + (size - 1));
+                    sign.update();
+                    size--;
+                    controlPlatform.setSizeSign(sign);
+                }
+            } else if (Objects.equals(e.getClickedBlock(), controlPlatform.getRightButton3())) {
+                Sign sign = controlPlatform.getPercentageSign();
+                if (blockerPercentage < .80) {
+                    sign.setLine(1, "" + (int) ((blockerPercentage * 100) + 1) + "%");
+                    sign.update();
+                    blockerPercentage += .01;
+                    controlPlatform.setPercentageSign(sign);
+                }
+            } else if (Objects.equals(e.getClickedBlock(), controlPlatform.getLeftButton3())) {
+                Sign sign = controlPlatform.getPercentageSign();
+                if (blockerPercentage > 0) {
+                    sign.setLine(1, "" + (int) ((blockerPercentage * 100) - 1) + "%");
+                    sign.update();
+                    blockerPercentage -= .01;
+                    controlPlatform.setPercentageSign(sign);
+                }
+            }
+
+            switch (index) {
+                case 0 -> maze = new PathfindingMaze2D(
+                        plugin,
+                        mazeLocation.getBlock(),
+                        size,
+                        blockerPercentage
+                );
+                case 1 -> maze = new PathfindingMaze3D(
+                        plugin,
+                        mazeLocation.getBlock(),
+                        size,
+                        blockerPercentage
+                );
+                case 2 -> maze = new BreadthFirstSearchMaze2D(
+                        plugin,
+                        mazeLocation.getBlock(),
+                        size,
+                        blockerPercentage
+                );
+                case 3 -> maze = new BreadthFirstSearchMaze3D(
+                        plugin,
+                        mazeLocation.getBlock(),
+                        size,
+                        blockerPercentage
+                );
+                case 4 -> maze = new DepthFirstSearchMaze2D(
+                        plugin,
+                        mazeLocation.getBlock(),
+                        size,
+                        blockerPercentage
+                );
+                case 5 -> maze = new DepthFirstSearchMaze3D(
+                        plugin,
+                        mazeLocation.getBlock(),
+                        size,
+                        blockerPercentage
+                );
             }
         }
     }
