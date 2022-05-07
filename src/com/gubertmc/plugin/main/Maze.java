@@ -48,7 +48,8 @@ public abstract class Maze {
             Material spreadMaterial,
             Material pathMaterial,
             Material startPointGlassMaterial,
-            Material endPointGlassMaterial
+            Material endPointGlassMaterial,
+            long time
     );
 
     /**
@@ -58,7 +59,7 @@ public abstract class Maze {
      *
      * @param coreMaterial floor material for 2D | volume material for 3D.
      */
-    public abstract void generateCore(Material coreMaterial);
+    public abstract void generateCore(Material coreMaterial, long time);
 
     /**
      * Generate the maze start and end points.

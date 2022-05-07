@@ -6,6 +6,8 @@ import com.gubertmc.plugin.main.Maze;
 import com.gubertmc.plugin.main.mazes.custom.*;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -27,6 +29,7 @@ public record MazeGeneratorCommand(MazeGeneratorPlugin plugin) implements Comman
     private static final String[] algorithms = {"A* 2D", "A* 3D", "BFS 2D", "BFS 3D", "DFS 2D", "DFS 3D"};
     private static int index = 0;
     private static int size = 15;
+    private static int originalSize;
     private static double blockerPercentage = 0.35;
 
     /**
@@ -66,11 +69,12 @@ public record MazeGeneratorCommand(MazeGeneratorPlugin plugin) implements Comman
                     algorithms[index]
             );
             controlPlatform.spawn();
+            originalSize = size;
 
             return true;
 
         } catch (Exception e) {
-            System.out.println(e);
+            System.out.println(e.getMessage());
             player.sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "/maze");
         }
 
@@ -96,13 +100,41 @@ public record MazeGeneratorCommand(MazeGeneratorPlugin plugin) implements Comman
                 }
                 if (acceptableFrames) {
                     controlPlatform.setFrames(frames);
+                    long time = 1L;
+                    System.out.println("original size: " + originalSize);
+                    System.out.println("size: " + size);
+                    System.out.println("--------------------");
+                    if (originalSize != size) {
+                        // TODO: clear old maze spaces
+                        for (int i = -1; i < originalSize + 1; i++) {
+                            for (int j = -1; j < originalSize + 1; j++) {
+                                for (int k = -1; k < originalSize + 1; k++) {
+                                    Location location = new Location(
+                                            maze.getMazeLocationBlock().getWorld(),
+                                            maze.getMazeLocationBlock().getX() + i,
+                                            maze.getMazeLocationBlock().getY() + k,
+                                            maze.getMazeLocationBlock().getZ() + j
+                                    );
+                                    if (location.getBlock().getType() != Material.AIR) {
+                                        maze.runnableDelayed(location, time, Material.AIR, -1, -1, -1);
+                                    }
+                                }
+                            }
+                            if (i % (int) (originalSize * .15) == 0) {
+                                time += 2L;
+                            }
+                        }
+                        time += 1L;
+                        originalSize = size;
+                    }
                     maze.generateNewMaze(
                             controlPlatform.getCoreMaterial(),
                             controlPlatform.getBlockerMaterial(),
                             controlPlatform.getSpreadMaterial(),
                             controlPlatform.getPathMaterial(),
                             controlPlatform.getStartPointGlassMaterial(),
-                            controlPlatform.getEndPointGlassMaterial()
+                            controlPlatform.getEndPointGlassMaterial(),
+                            time
                     );
                 } else {
                     e.getPlayer().sendMessage(ChatColor.RED + "" + ChatColor.BOLD + "Maze items must be blocks...");
@@ -135,7 +167,7 @@ public record MazeGeneratorCommand(MazeGeneratorPlugin plugin) implements Comman
                 controlPlatform.setSizeSign(sign);
             } else if (Objects.equals(e.getClickedBlock(), controlPlatform.getLeftButton1())) {
                 Sign sign = controlPlatform.getSizeSign();
-                if (size > 6) {
+                if (size > 7) {
                     sign.setLine(1, "" + (size - 1) + "x" + (size - 1));
                     sign.update();
                     size--;
