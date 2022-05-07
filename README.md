@@ -4,12 +4,12 @@
 
 #### This is an implementation of the A* pathfinding algorithm (and other algorithms).
 
-
-### Commands
-<code>/maze</code>
-
-### Demo
+### Video
 [![I made an AI in Minecraft | A* pathfinding](Resources/thumbnail.jpg)](https://www.youtube.com/watch?v=Xl7rD66Rv3g "I made an AI in Minecraft | A* pathfinding")
+
+
+### Command
+<code>/maze</code>
 
 ### More demos and walkthroughs
 <details>
