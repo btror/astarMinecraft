@@ -110,7 +110,8 @@ public abstract class Maze2D extends Maze {
             Material spreadMaterial,
             Material pathMaterial,
             Material startPointGlassMaterial,
-            Material endPointGlassMaterial
+            Material endPointGlassMaterial,
+            long time
     );
 
     /**
@@ -121,8 +122,8 @@ public abstract class Maze2D extends Maze {
      * @param coreMaterial floor material for 2D | volume material for 3D.
      */
     @Override
-    public void generateCore(Material coreMaterial) {
-        time = 1L;
+    public void generateCore(Material coreMaterial, long adjustedTime) {
+        time = adjustedTime + 1L;
 
         int count = 0;
         for (int i = 0; i < getSize(); i++) {
@@ -143,14 +144,16 @@ public abstract class Maze2D extends Maze {
                 );
                 runnableDelayed(locationAboveFloor, time, Material.AIR, i, j, 0);
 
-                for (int k = 2; k < 4; k++) {
+                for (int k = 2; k < getSize() + 1; k++) {
                     Location debris = new Location(
                             getMazeLocationBlock().getWorld(),
                             getMazeLocationBlock().getX() + i,
                             getMazeLocationBlock().getY() + k,
                             getMazeLocationBlock().getZ() + j
                     );
-                    runnableDelayed(debris, time, Material.AIR, -1, -1, -1);
+                    if (debris.getBlock().getType() != Material.AIR) {
+                        runnableDelayed(debris, time, Material.AIR, -1, -1, -1);
+                    }
                 }
 
                 if (count % 110 == 0) {
@@ -306,6 +309,17 @@ public abstract class Maze2D extends Maze {
                             runnableDelayed(border, time, coreMaterial, -1, -1, -1);
                         }
                     }
+                    for (int k = 3; k < getSize() + 1; k++) {
+                        Location border = new Location(
+                                getMazeLocationBlock().getWorld(),
+                                getMazeLocationBlock().getX() + i,
+                                getMazeLocationBlock().getY() + k,
+                                getMazeLocationBlock().getZ() + j
+                        );
+                        if (border.getBlock().getType() != Material.AIR) {
+                            runnableDelayed(border, time, Material.AIR, -1, -1, -1);
+                        }
+                    }
                 }
                 if (i == getSize()) {
                     for (int k = 0; k < 3; k++) {
@@ -317,6 +331,17 @@ public abstract class Maze2D extends Maze {
                         );
                         if (border.getBlock().getType() != coreMaterial) {
                             runnableDelayed(border, time, coreMaterial, -1, -1, -1);
+                        }
+                    }
+                    for (int k = 3; k < getSize() + 1; k++) {
+                        Location border = new Location(
+                                getMazeLocationBlock().getWorld(),
+                                getMazeLocationBlock().getX() + i,
+                                getMazeLocationBlock().getY() + k,
+                                getMazeLocationBlock().getZ() + j
+                        );
+                        if (border.getBlock().getType() != Material.AIR) {
+                            runnableDelayed(border, time, Material.AIR, -1, -1, -1);
                         }
                     }
                 }
@@ -332,6 +357,17 @@ public abstract class Maze2D extends Maze {
                             runnableDelayed(border, time, coreMaterial, -1, -1, -1);
                         }
                     }
+                    for (int k = 3; k < getSize() + 1; k++) {
+                        Location border = new Location(
+                                getMazeLocationBlock().getWorld(),
+                                getMazeLocationBlock().getX() + i,
+                                getMazeLocationBlock().getY() + k,
+                                getMazeLocationBlock().getZ() + j
+                        );
+                        if (border.getBlock().getType() != Material.AIR) {
+                            runnableDelayed(border, time, Material.AIR, -1, -1, -1);
+                        }
+                    }
                 }
                 if (j == getSize()) {
                     for (int k = 0; k < 3; k++) {
@@ -343,6 +379,17 @@ public abstract class Maze2D extends Maze {
                         );
                         if (border.getBlock().getType() != coreMaterial) {
                             runnableDelayed(border, time, coreMaterial, -1, -1, -1);
+                        }
+                    }
+                    for (int k = 3; k < getSize() + 1; k++) {
+                        Location border = new Location(
+                                getMazeLocationBlock().getWorld(),
+                                getMazeLocationBlock().getX() + i,
+                                getMazeLocationBlock().getY() + k,
+                                getMazeLocationBlock().getZ() + j
+                        );
+                        if (border.getBlock().getType() != Material.AIR) {
+                            runnableDelayed(border, time, Material.AIR, -1, -1, -1);
                         }
                     }
                 }

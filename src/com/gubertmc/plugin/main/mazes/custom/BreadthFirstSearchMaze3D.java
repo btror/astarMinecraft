@@ -36,7 +36,8 @@ public class BreadthFirstSearchMaze3D extends Maze3D {
             Material spreadMaterial,
             Material pathMaterial,
             Material startPointGlassMaterial,
-            Material endPointGlassMaterial
+            Material endPointGlassMaterial,
+            long adjustedTime
     ) {
         setValid(false);
         int count = 0;
@@ -50,7 +51,7 @@ public class BreadthFirstSearchMaze3D extends Maze3D {
 
             if (isValid()) {
                 setTime(0L);
-                generateCore(coreMaterial);
+                generateCore(coreMaterial, adjustedTime);
                 generateBorder(coreMaterial);
                 generateStartAndEndPoints(startPointGlassMaterial, endPointGlassMaterial);
                 generateBlockedAreas(simulationMaze, blockerMaterial);

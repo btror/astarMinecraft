@@ -36,7 +36,8 @@ public class DepthFirstSearchMaze2D extends Maze2D {
             Material spreadMaterial,
             Material pathMaterial,
             Material startPointGlassMaterial,
-            Material endPointGlassMaterial
+            Material endPointGlassMaterial,
+            long adjustedTime
     ) {
         setValid(false);
         int count = 0;
@@ -50,7 +51,7 @@ public class DepthFirstSearchMaze2D extends Maze2D {
 
             if (isValid()) {
                 setTime(0L);
-                generateCore(coreMaterial);
+                generateCore(coreMaterial, adjustedTime);
                 generateBorder(coreMaterial);
                 clearOldBeacons();
                 generateStartAndEndPoints(startPointGlassMaterial, endPointGlassMaterial);

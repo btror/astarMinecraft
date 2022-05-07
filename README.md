@@ -4,50 +4,12 @@
 
 #### This is an implementation of the A* pathfinding algorithm (and other algorithms).
 
-
-### Commands
-<code>/maze &lt;algorithm&gt; &lt;size&gt; &lt;percentage&gt;</code>
-
-- Algorithm is required.
-    - Options:
-        - astar2d
-        - astar3d
-        - bfs2d
-        - bfs3d
-        - dfs2d
-        - dfs3d
-- Size is required.
-    - Must be an integer.
-- Percentage is optional.
-    - Can be a decimal or integer.
-    - Formats:
-        - A number between 0 and 1.
-        - A number between 0 and 100.
-    - Both formats map to the same percentage. For example, 0.5 and 50 both equal 50%, 0.23 and 23 both equal 23%,
-      etc...
+### Video
+[![I made an AI in Minecraft | A* pathfinding](Resources/thumbnail.jpg)](https://www.youtube.com/watch?v=Xl7rD66Rv3g "I made an AI in Minecraft | A* pathfinding")
 
 
-### Example Usage
-<code>/maze astar2d 30 0.5</code>
-or
-<code>/maze astar2d 30 50</code> (same thing)
-
-<code>/maze astar3d 10 0.2</code>
-or
-<code>/maze astar3d 10 20</code> (same thing)
-
-<code>/maze bfs2d 50 0.25</code>
-or
-<code>/maze bfs2d 50 25</code> (same thing)
-
-<code>/maze dfs2d 30 0.45</code>
-or
-<code>/maze dfs2d 30 45</code> (same thing)
-
-
-### Demo
-<img src="Resources/part2.gif" width="550" height="330">
-
+### Command
+<code>/maze</code>
 
 ### More demos and walkthroughs
 <details>
