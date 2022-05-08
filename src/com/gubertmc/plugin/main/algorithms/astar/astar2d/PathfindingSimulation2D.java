@@ -1,7 +1,7 @@
 package com.gubertmc.plugin.main.algorithms.astar.astar2d;
 
 import com.gubertmc.plugin.main.algorithms.Simulation;
-import com.gubertmc.plugin.main.algorithms.astar.Node;
+import com.gubertmc.plugin.main.algorithms.Node;
 
 import java.util.ArrayList;
 import java.util.PriorityQueue;

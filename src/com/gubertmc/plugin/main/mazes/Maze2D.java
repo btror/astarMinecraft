@@ -286,123 +286,123 @@ public abstract class Maze2D extends Maze {
         time += 1L;
     }
 
-    /**
-     * Generate border around the maze.
-     *
-     * @param coreMaterial ground material.
-     */
-    @Override
-    public void generateBorder(Material coreMaterial) {
-        time += 1L;
-
-        for (int i = -1; i < getSize() + 1; i++) {
-            for (int j = -1; j < getSize() + 1; j++) {
-                if (i == -1) {
-                    for (int k = 0; k < 3; k++) {
-                        Location border = new Location(
-                                getMazeLocationBlock().getWorld(),
-                                getMazeLocationBlock().getX() + i,
-                                getMazeLocationBlock().getY() + k,
-                                getMazeLocationBlock().getZ() + j
-                        );
-                        if (border.getBlock().getType() != coreMaterial) {
-                            runnableDelayed(border, time, coreMaterial, -1, -1, -1);
-                        }
-                    }
-                    for (int k = 3; k < getSize() + 1; k++) {
-                        Location border = new Location(
-                                getMazeLocationBlock().getWorld(),
-                                getMazeLocationBlock().getX() + i,
-                                getMazeLocationBlock().getY() + k,
-                                getMazeLocationBlock().getZ() + j
-                        );
-                        if (border.getBlock().getType() != Material.AIR) {
-                            runnableDelayed(border, time, Material.AIR, -1, -1, -1);
-                        }
-                    }
-                }
-                if (i == getSize()) {
-                    for (int k = 0; k < 3; k++) {
-                        Location border = new Location(
-                                getMazeLocationBlock().getWorld(),
-                                getMazeLocationBlock().getX() + i,
-                                getMazeLocationBlock().getY() + k,
-                                getMazeLocationBlock().getZ() + j
-                        );
-                        if (border.getBlock().getType() != coreMaterial) {
-                            runnableDelayed(border, time, coreMaterial, -1, -1, -1);
-                        }
-                    }
-                    for (int k = 3; k < getSize() + 1; k++) {
-                        Location border = new Location(
-                                getMazeLocationBlock().getWorld(),
-                                getMazeLocationBlock().getX() + i,
-                                getMazeLocationBlock().getY() + k,
-                                getMazeLocationBlock().getZ() + j
-                        );
-                        if (border.getBlock().getType() != Material.AIR) {
-                            runnableDelayed(border, time, Material.AIR, -1, -1, -1);
-                        }
-                    }
-                }
-                if (j == -1) {
-                    for (int k = 0; k < 3; k++) {
-                        Location border = new Location(
-                                getMazeLocationBlock().getWorld(),
-                                getMazeLocationBlock().getX() + i,
-                                getMazeLocationBlock().getY() + k,
-                                getMazeLocationBlock().getZ() + j
-                        );
-                        if (border.getBlock().getType() != coreMaterial) {
-                            runnableDelayed(border, time, coreMaterial, -1, -1, -1);
-                        }
-                    }
-                    for (int k = 3; k < getSize() + 1; k++) {
-                        Location border = new Location(
-                                getMazeLocationBlock().getWorld(),
-                                getMazeLocationBlock().getX() + i,
-                                getMazeLocationBlock().getY() + k,
-                                getMazeLocationBlock().getZ() + j
-                        );
-                        if (border.getBlock().getType() != Material.AIR) {
-                            runnableDelayed(border, time, Material.AIR, -1, -1, -1);
-                        }
-                    }
-                }
-                if (j == getSize()) {
-                    for (int k = 0; k < 3; k++) {
-                        Location border = new Location(
-                                getMazeLocationBlock().getWorld(),
-                                getMazeLocationBlock().getX() + i,
-                                getMazeLocationBlock().getY() + k,
-                                getMazeLocationBlock().getZ() + j
-                        );
-                        if (border.getBlock().getType() != coreMaterial) {
-                            runnableDelayed(border, time, coreMaterial, -1, -1, -1);
-                        }
-                    }
-                    for (int k = 3; k < getSize() + 1; k++) {
-                        Location border = new Location(
-                                getMazeLocationBlock().getWorld(),
-                                getMazeLocationBlock().getX() + i,
-                                getMazeLocationBlock().getY() + k,
-                                getMazeLocationBlock().getZ() + j
-                        );
-                        if (border.getBlock().getType() != Material.AIR) {
-                            runnableDelayed(border, time, Material.AIR, -1, -1, -1);
-                        }
-                    }
-                }
-            }
-            if (i > 0) {
-                if (i % (int) (getSize() * .15) == 0) {
-                    time += 2L;
-                }
-            }
-        }
-
-        time += 1L;
-    }
+//    /**
+//     * Generate border around the maze.
+//     *
+//     * @param coreMaterial ground material.
+//     */
+//    @Override
+//    public void generateBorder(Material coreMaterial) {
+//        time += 1L;
+//
+//        for (int i = -1; i < getSize() + 1; i++) {
+//            for (int j = -1; j < getSize() + 1; j++) {
+//                if (i == -1) {
+//                    for (int k = 0; k < 3; k++) {
+//                        Location border = new Location(
+//                                getMazeLocationBlock().getWorld(),
+//                                getMazeLocationBlock().getX() + i,
+//                                getMazeLocationBlock().getY() + k,
+//                                getMazeLocationBlock().getZ() + j
+//                        );
+//                        if (border.getBlock().getType() != coreMaterial) {
+//                            runnableDelayed(border, time, coreMaterial, -1, -1, -1);
+//                        }
+//                    }
+//                    for (int k = 3; k < getSize() + 1; k++) {
+//                        Location border = new Location(
+//                                getMazeLocationBlock().getWorld(),
+//                                getMazeLocationBlock().getX() + i,
+//                                getMazeLocationBlock().getY() + k,
+//                                getMazeLocationBlock().getZ() + j
+//                        );
+//                        if (border.getBlock().getType() != Material.AIR) {
+//                            runnableDelayed(border, time, Material.AIR, -1, -1, -1);
+//                        }
+//                    }
+//                }
+//                if (i == getSize()) {
+//                    for (int k = 0; k < 3; k++) {
+//                        Location border = new Location(
+//                                getMazeLocationBlock().getWorld(),
+//                                getMazeLocationBlock().getX() + i,
+//                                getMazeLocationBlock().getY() + k,
+//                                getMazeLocationBlock().getZ() + j
+//                        );
+//                        if (border.getBlock().getType() != coreMaterial) {
+//                            runnableDelayed(border, time, coreMaterial, -1, -1, -1);
+//                        }
+//                    }
+//                    for (int k = 3; k < getSize() + 1; k++) {
+//                        Location border = new Location(
+//                                getMazeLocationBlock().getWorld(),
+//                                getMazeLocationBlock().getX() + i,
+//                                getMazeLocationBlock().getY() + k,
+//                                getMazeLocationBlock().getZ() + j
+//                        );
+//                        if (border.getBlock().getType() != Material.AIR) {
+//                            runnableDelayed(border, time, Material.AIR, -1, -1, -1);
+//                        }
+//                    }
+//                }
+//                if (j == -1) {
+//                    for (int k = 0; k < 3; k++) {
+//                        Location border = new Location(
+//                                getMazeLocationBlock().getWorld(),
+//                                getMazeLocationBlock().getX() + i,
+//                                getMazeLocationBlock().getY() + k,
+//                                getMazeLocationBlock().getZ() + j
+//                        );
+//                        if (border.getBlock().getType() != coreMaterial) {
+//                            runnableDelayed(border, time, coreMaterial, -1, -1, -1);
+//                        }
+//                    }
+//                    for (int k = 3; k < getSize() + 1; k++) {
+//                        Location border = new Location(
+//                                getMazeLocationBlock().getWorld(),
+//                                getMazeLocationBlock().getX() + i,
+//                                getMazeLocationBlock().getY() + k,
+//                                getMazeLocationBlock().getZ() + j
+//                        );
+//                        if (border.getBlock().getType() != Material.AIR) {
+//                            runnableDelayed(border, time, Material.AIR, -1, -1, -1);
+//                        }
+//                    }
+//                }
+//                if (j == getSize()) {
+//                    for (int k = 0; k < 3; k++) {
+//                        Location border = new Location(
+//                                getMazeLocationBlock().getWorld(),
+//                                getMazeLocationBlock().getX() + i,
+//                                getMazeLocationBlock().getY() + k,
+//                                getMazeLocationBlock().getZ() + j
+//                        );
+//                        if (border.getBlock().getType() != coreMaterial) {
+//                            runnableDelayed(border, time, coreMaterial, -1, -1, -1);
+//                        }
+//                    }
+//                    for (int k = 3; k < getSize() + 1; k++) {
+//                        Location border = new Location(
+//                                getMazeLocationBlock().getWorld(),
+//                                getMazeLocationBlock().getX() + i,
+//                                getMazeLocationBlock().getY() + k,
+//                                getMazeLocationBlock().getZ() + j
+//                        );
+//                        if (border.getBlock().getType() != Material.AIR) {
+//                            runnableDelayed(border, time, Material.AIR, -1, -1, -1);
+//                        }
+//                    }
+//                }
+//            }
+//            if (i > 0) {
+//                if (i % (int) (getSize() * .15) == 0) {
+//                    time += 2L;
+//                }
+//            }
+//        }
+//
+//        time += 1L;
+//    }
 
     /**
      * Remove old start and end points.

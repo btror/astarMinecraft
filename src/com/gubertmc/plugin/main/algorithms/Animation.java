@@ -1,8 +1,6 @@
 package com.gubertmc.plugin.main.algorithms;
 
 import com.gubertmc.MazeGeneratorPlugin;
-import com.gubertmc.plugin.main.algorithms.astar.Node;
-import com.gubertmc.plugin.main.algorithms.astar.NodeComparator;
 import org.bukkit.Location;
 import org.bukkit.Material;
 

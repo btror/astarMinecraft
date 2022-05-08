@@ -1,4 +1,4 @@
-package com.gubertmc.plugin.main.algorithms.astar;
+package com.gubertmc.plugin.main.algorithms;
 
 public class Node {
     private final int row;
@@ -21,6 +21,8 @@ public class Node {
     public void setF() {
         f = g + h;
     }
+
+    public void setBfsF() { f = h; }
 
     public void setG(int value) {
         g = value;

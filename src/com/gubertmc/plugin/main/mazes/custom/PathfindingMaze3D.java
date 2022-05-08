@@ -52,7 +52,7 @@ public class PathfindingMaze3D extends Maze3D {
             if (isValid()) {
                 setTime(0L);
                 generateCore(coreMaterial, adjustedTime);
-                generateBorder(coreMaterial);
+                // generateBorder(coreMaterial);
                 generateStartAndEndPoints(startPointGlassMaterial, endPointGlassMaterial);
                 generateBlockedAreas(simulationMaze, blockerMaterial);
 

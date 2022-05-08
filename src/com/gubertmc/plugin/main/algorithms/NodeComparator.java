@@ -1,4 +1,4 @@
-package com.gubertmc.plugin.main.algorithms.astar;
+package com.gubertmc.plugin.main.algorithms;
 
 import java.util.Comparator;
 

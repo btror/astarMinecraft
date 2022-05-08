@@ -238,7 +238,8 @@ public class ControlPlatform implements Listener {
                             sign.setColor(DyeColor.WHITE);
                         }
                         case 10 -> {
-                            sign.setLine(1, "2nd Path A*");
+                            sign.setLine(1, "2nd Path");
+                            sign.setLine(2, "(AI only)");
                             sign.setColor(DyeColor.WHITE);
                         }
                         case 11 -> {

@@ -3,8 +3,8 @@ package com.gubertmc.plugin.main.mazes.custom;
 import com.gubertmc.MazeGeneratorPlugin;
 import com.gubertmc.plugin.main.algorithms.Animation;
 import com.gubertmc.plugin.main.algorithms.Simulation;
-import com.gubertmc.plugin.main.algorithms.depthfirstsearch.dfs2d.DepthFirstSearchAnimation2D;
-import com.gubertmc.plugin.main.algorithms.depthfirstsearch.dfs2d.DepthFirstSearchSimulation2D;
+import com.gubertmc.plugin.main.algorithms.bestfirstsearch.bestfirstsearch2d.BestFirstSearchAnimation2D;
+import com.gubertmc.plugin.main.algorithms.bestfirstsearch.bestfirstsearch2d.BestFirstSearchSimulation2D;
 import com.gubertmc.plugin.main.mazes.Maze2D;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -13,9 +13,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import static org.bukkit.Bukkit.getServer;
 
-public class DepthFirstSearchMaze2D extends Maze2D {
+public class BestFirstSearchMaze2D extends Maze2D {
 
-    public DepthFirstSearchMaze2D(MazeGeneratorPlugin plugin, Block block, int size, double wallPercentage) {
+    public BestFirstSearchMaze2D(MazeGeneratorPlugin plugin, Block block, int size, double wallPercentage) {
         super(plugin, block, size, wallPercentage);
     }
 
@@ -43,7 +43,7 @@ public class DepthFirstSearchMaze2D extends Maze2D {
         int count = 0;
         while (!isValid()) {
             int[][][] simulationMaze = generateSimulation();
-            Simulation simulation = new DepthFirstSearchSimulation2D(
+            Simulation simulation = new BestFirstSearchSimulation2D(
                     simulationMaze, getStartCoordinate(), getEndCoordinate()
             );
             simulation.setup();
@@ -63,8 +63,9 @@ public class DepthFirstSearchMaze2D extends Maze2D {
                 new BukkitRunnable() {
                     @Override
                     public void run() {
-                        Animation animation = new DepthFirstSearchAnimation2D(
-                                getPlugin(), getMazeBlockLocations(),
+                        Animation animation = new BestFirstSearchAnimation2D(
+                                getPlugin(),
+                                getMazeBlockLocations(),
                                 getStartCoordinate(),
                                 getEndCoordinate(),
                                 getSize(),
@@ -77,8 +78,8 @@ public class DepthFirstSearchMaze2D extends Maze2D {
                         );
                         animation.setup();
                         setValid(animation.start());
-                        getServer().broadcastMessage(ChatColor.GREEN + "" + getSize() + "x" + getSize() +
-                                " maze generated..."
+                        getServer().broadcastMessage(
+                                ChatColor.GREEN + "" + getSize() + "x" + getSize() + " maze generated..."
                         );
                         animation.showAnimation(getTime());
                         cancel();
@@ -88,12 +89,13 @@ public class DepthFirstSearchMaze2D extends Maze2D {
                 setTime(0);
             } else {
                 count++;
-                System.out.println("Invalid maze - starting new breadthFirstSearchSimulation2D...");
+                System.out.println("Invalid maze - starting new best first search maze...");
             }
             if (count == 50) {
-                getServer().broadcastMessage(ChatColor.RED + "A maze could not be successfully generated " +
-                        "within 50 simulations. You may experience server lag. Creating a larger maze with a " +
-                        "lower percentage of walls/blockers will greatly help and put less stress on the server."
+                getServer().broadcastMessage(
+                        ChatColor.RED + "A maze could not be successfully generated within 50 simulations. You " +
+                                "may experience server lag. Creating a larger maze with a lower percentage of " +
+                                "walls/blockers will greatly help and put less stress on the server."
                 );
             }
         }

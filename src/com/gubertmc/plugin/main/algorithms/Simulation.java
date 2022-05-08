@@ -1,8 +1,5 @@
 package com.gubertmc.plugin.main.algorithms;
 
-import com.gubertmc.plugin.main.algorithms.astar.Node;
-import com.gubertmc.plugin.main.algorithms.astar.NodeComparator;
-
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 

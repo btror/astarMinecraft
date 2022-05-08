@@ -7,7 +7,6 @@ import com.gubertmc.plugin.main.mazes.custom.*;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -26,7 +25,8 @@ public record MazeGeneratorCommand(MazeGeneratorPlugin plugin) implements Comman
     private static Maze maze;
     private static Location mazeLocation;
     private static ControlPlatform controlPlatform;
-    private static final String[] algorithms = {"A* 2D", "A* 3D", "BFS 2D", "BFS 3D", "DFS 2D", "DFS 3D"};
+    private static final String[] algorithms =
+            {"A* 2D", "A* 3D", "Best-FS 2D", "Breadth-FS 2D", "Breadth-FS 3D", "Depth-FS 2D", "Depth-FS 3D"};
     private static int index = 0;
     private static int size = 15;
     private static int originalSize;
@@ -204,25 +204,31 @@ public record MazeGeneratorCommand(MazeGeneratorPlugin plugin) implements Comman
                         size,
                         blockerPercentage
                 );
-                case 2 -> maze = new BreadthFirstSearchMaze2D(
+                case 2 -> maze = new BestFirstSearchMaze2D(
                         plugin,
                         mazeLocation.getBlock(),
                         size,
                         blockerPercentage
                 );
-                case 3 -> maze = new BreadthFirstSearchMaze3D(
+                case 3 -> maze = new BreadthFirstSearchMaze2D(
                         plugin,
                         mazeLocation.getBlock(),
                         size,
                         blockerPercentage
                 );
-                case 4 -> maze = new DepthFirstSearchMaze2D(
+                case 4 -> maze = new BreadthFirstSearchMaze3D(
                         plugin,
                         mazeLocation.getBlock(),
                         size,
                         blockerPercentage
                 );
-                case 5 -> maze = new DepthFirstSearchMaze3D(
+                case 5 -> maze = new DepthFirstSearchMaze2D(
+                        plugin,
+                        mazeLocation.getBlock(),
+                        size,
+                        blockerPercentage
+                );
+                case 6 -> maze = new DepthFirstSearchMaze3D(
                         plugin,
                         mazeLocation.getBlock(),
                         size,

@@ -52,7 +52,7 @@ public class PathfindingMaze2D extends Maze2D {
             if (isValid()) {
                 setTime(0L);
                 generateCore(coreMaterial, adjustedTime);
-                generateBorder(coreMaterial);
+                // generateBorder(coreMaterial);
                 clearOldBeacons();
                 generateStartAndEndPoints(startPointGlassMaterial, endPointGlassMaterial);
                 generateBlockedAreas(simulationMaze, blockerMaterial);

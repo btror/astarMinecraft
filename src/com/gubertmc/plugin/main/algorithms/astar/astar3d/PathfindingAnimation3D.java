@@ -2,7 +2,7 @@ package com.gubertmc.plugin.main.algorithms.astar.astar3d;
 
 import com.gubertmc.MazeGeneratorPlugin;
 import com.gubertmc.plugin.main.algorithms.Animation;
-import com.gubertmc.plugin.main.algorithms.astar.Node;
+import com.gubertmc.plugin.main.algorithms.Node;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.scheduler.BukkitRunnable;
