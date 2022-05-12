@@ -17,19 +17,7 @@
 - Breadth-first search
 - Depth-first search
 
-### More demos and walkthroughs
-<details>
-<summary><b>Initializing maze example</b></summary>
-<br>
-Creating a Maze and ControlPlatform object...
-<br>
-<br>
-<code>/maze astar2d 30 50</code>
-<br>
-<br>
-<img src="Resources/part1.gif" width="550" height="330">
-</details>
-
+### Demos
 <details>
 <summary><b>Starting animation example</b></summary>
 <br>
@@ -37,39 +25,6 @@ Watching the algorithm solve the maze...
 <br>
 <br>
 <img src="Resources/part2.gif" width="550" height="330">
-</details>
-
-<details>
-<summary><b>Changing block types example</b></summary>
-<br>
-Editing the block types used to create the maze and animations...
-<br>
-<br>
-<img src="Resources/part3.gif" width="550" height="330">
-</details>
-
-<details>
-<summary><b>Breadth-first search example</b></summary>
-<br>
-Creating a maze object utilizing BFS...
-<br>
-<br>
-<code>/maze bfs2d 30 40</code>
-<br>
-<br>
-<img src="Resources/part4.gif" width="550" height="330">
-</details>
-
-<details>
-<summary><b>Depth-first search example</b></summary>
-<br>
-Creating a maze object utilizing DFS...
-<br>
-<br>
-<code>/maze dfs2d 40 20</code>
-<br>
-<br>
-<img src="Resources/part5.gif" width="550" height="330">
 </details>
 
 
