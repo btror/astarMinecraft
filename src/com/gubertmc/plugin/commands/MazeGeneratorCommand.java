@@ -202,13 +202,13 @@ public record MazeGeneratorCommand(MazeGeneratorPlugin plugin) implements Comman
                         size,
                         blockerPercentage
                 );
-                case 2 -> maze = new BestFirstSearchMaze2D(
+                case 2 -> maze = new GreedyBestFirstSearchMaze2D(
                         plugin,
                         mazeLocation.getBlock(),
                         size,
                         blockerPercentage
                 );
-                case 3 -> maze = new BestFirstSearchMaze3D(
+                case 3 -> maze = new GreedyBestFirstSearchMaze3D(
                         plugin,
                         mazeLocation.getBlock(),
                         size,

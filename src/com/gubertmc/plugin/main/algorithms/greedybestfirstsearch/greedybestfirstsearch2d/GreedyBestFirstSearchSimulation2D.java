@@ -1,4 +1,4 @@
-package com.gubertmc.plugin.main.algorithms.bestfirstsearch.bestfirstsearch2d;
+package com.gubertmc.plugin.main.algorithms.greedybestfirstsearch.greedybestfirstsearch2d;
 
 import com.gubertmc.plugin.main.algorithms.Node;
 import com.gubertmc.plugin.main.algorithms.Simulation;
@@ -6,9 +6,9 @@ import com.gubertmc.plugin.main.algorithms.Simulation;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 
-public class BestFirstSearchSimulation2D extends Simulation {
+public class GreedyBestFirstSearchSimulation2D extends Simulation {
 
-    public BestFirstSearchSimulation2D(int[][][] maze, int[] startCoordinate, int[] endCoordinate) {
+    public GreedyBestFirstSearchSimulation2D(int[][][] maze, int[] startCoordinate, int[] endCoordinate) {
         super(maze, startCoordinate, endCoordinate, false);
     }
 

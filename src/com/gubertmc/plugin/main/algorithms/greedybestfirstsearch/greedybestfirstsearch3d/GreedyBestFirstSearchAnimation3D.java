@@ -1,4 +1,4 @@
-package com.gubertmc.plugin.main.algorithms.bestfirstsearch.bestfirstsearch3d;
+package com.gubertmc.plugin.main.algorithms.greedybestfirstsearch.greedybestfirstsearch3d;
 
 import com.gubertmc.MazeGeneratorPlugin;
 import com.gubertmc.plugin.main.algorithms.Animation;
@@ -10,9 +10,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 
-public class BestFirstSearchAnimation3D extends Animation {
+public class GreedyBestFirstSearchAnimation3D extends Animation {
 
-    public BestFirstSearchAnimation3D(
+    public GreedyBestFirstSearchAnimation3D(
             MazeGeneratorPlugin plugin,
             Location[][][] tiles,
             int[] startCoordinate,

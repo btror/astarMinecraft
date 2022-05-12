@@ -13,9 +13,9 @@
 
 ### Algorithms
 - A*
-- Best first search
-- Breadth first search
-- Depth first search
+- Greedy best-first search
+- Breadth-first search
+- Depth-first search
 
 ### More demos and walkthroughs
 <details>
