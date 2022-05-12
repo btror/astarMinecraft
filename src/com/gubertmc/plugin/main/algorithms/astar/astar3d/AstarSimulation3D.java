@@ -1,77 +1,34 @@
 package com.gubertmc.plugin.main.algorithms.astar.astar3d;
 
-import com.gubertmc.MazeGeneratorPlugin;
-import com.gubertmc.plugin.main.algorithms.Animation;
+import com.gubertmc.plugin.main.algorithms.Simulation;
 import com.gubertmc.plugin.main.algorithms.Node;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 
-public class PathfindingAnimation3D extends Animation {
+public class AstarSimulation3D extends Simulation {
 
-    public PathfindingAnimation3D(
-            MazeGeneratorPlugin plugin,
-            Location[][][] tiles,
-            int[] startCoordinate,
-            int[] endCoordinate,
-            int size,
-            Material wallMaterial,
-            Material pathMaterial,
-            Material pathSpreadMaterial,
-            Material groundMaterial,
-            Material startGlassMaterial,
-            Material endGlassMaterial
-    ) {
-        super(
-                plugin,
-                tiles,
-                startCoordinate,
-                endCoordinate,
-                size,
-                wallMaterial,
-                pathMaterial,
-                pathSpreadMaterial,
-                groundMaterial,
-                startGlassMaterial,
-                endGlassMaterial,
-                true
-        );
+    public AstarSimulation3D(int[][][] maze, int[] startCoordinate, int[] endCoordinate) {
+        super(maze, startCoordinate, endCoordinate, true);
     }
 
     @Override
     public void setup() {
-        setGrid(new Node[getSize()][getSize()][getSize()]);
-
-        int[][][] tempArray = new int[getSize()][getSize()][getSize()];
-        for (int i = 0; i < getSize(); i++) {
-            for (int j = 0; j < getSize(); j++) {
-                for (int k = 0; k < getSize(); k++) {
-                    tempArray[i][j][k] = 0;
-                }
-            }
-        }
-        setTileGridInt(tempArray);
-
         setCurrentNode(new Node(getStartCoordinate()[1], getStartCoordinate()[0], getStartCoordinate()[2], 0));
         setEndNode(new Node(getEndCoordinate()[1], getEndCoordinate()[0], getEndCoordinate()[2], 0));
         Node[][][] grid = getGrid();
         grid[getStartCoordinate()[1]][getStartCoordinate()[0]][getStartCoordinate()[2]] = getCurrentNode();
-        setGrid(grid);
         grid[getEndCoordinate()[1]][getEndCoordinate()[0]][getEndCoordinate()[2]] = getEndNode();
-        setGrid(grid);
 
         for (int i = 0; i < getSize(); i++) {
             for (int j = 0; j < getSize(); j++) {
                 for (int k = 0; k < getSize(); k++) {
-                    if (getTileGrid()[i][j][k].getBlock().getType() == getPathGroundMaterial()) {
+                    if (getTileGrid()[i][j][k] == 0) {
                         Node node = new Node(i, j, k, 0);
                         grid[i][j][k] = node;
                         setGrid(grid);
                     }
-                    if (getTileGrid()[i][j][k].getBlock().getType() == getWallMaterial()) {
+                    if (getTileGrid()[i][j][k] == 1) {
                         Node node = new Node(i, j, k, 1);
                         grid[i][j][k] = node;
                         setGrid(grid);
@@ -105,7 +62,6 @@ public class PathfindingAnimation3D extends Animation {
             if (getCurrentNode().equals(getEndNode())) {
                 ArrayList<Node> closedList = getClosedList();
                 closedList.add(getCurrentNode());
-                setClosedList(closedList);
 
                 ArrayList<Node> path = generatePath();
 
@@ -113,16 +69,10 @@ public class PathfindingAnimation3D extends Animation {
                     int row = path.get(i).getRow();
                     int col = path.get(i).getCol();
                     int zNum = path.get(i).getZ();
-
-                    if (getTileGridInt()[row][col][zNum] == 1) {
-                        int x = getTileGrid()[row][col][zNum].getBlockX();
-                        int y = getTileGrid()[row][col][zNum].getBlockY();
-                        int z = getTileGrid()[row][col][zNum].getBlockZ();
-
-                        Location floor = new Location(getTileGrid()[row][col][zNum].getWorld(), x, y, z);
-                        ArrayList<Location> thePath = getThePath();
-                        thePath.add(floor);
-                        setThePath(thePath);
+                    if (getTileGrid()[row][col][zNum] == 2) {
+                        int[][][] tileGrid = getTileGrid();
+                        tileGrid[row][col][zNum] = 3;
+                        setTileGrid(tileGrid);
                     }
                 }
                 break;
@@ -130,9 +80,12 @@ public class PathfindingAnimation3D extends Animation {
                 try {
                     calculateNeighborValues();
                 } catch (NullPointerException e) {
-                    System.out.println(e);
+                    System.out.println(e.getMessage());
                 }
-
+                int[][][] tileGrid = getTileGrid();
+                tileGrid[getStartNode().getRow()][getStartNode().getCol()][getStartNode().getZ()] = 4;
+                tileGrid[getEndNode().getRow()][getEndNode().getCol()][getEndNode().getZ()] = 5;
+                setTileGrid(tileGrid);
                 try {
                     assert getOpenList().peek() != null;
                 } catch (NullPointerException e) {
@@ -148,42 +101,6 @@ public class PathfindingAnimation3D extends Animation {
             pathFound = false;
         }
         return pathFound;
-    }
-
-    @Override
-    public void showAnimation(long time) {
-        time += 50L;
-        int count = 1;
-        for (Location loc : getExploredPlaces()) {
-            runnableDelayed(loc, time, getPathSpreadMaterial());
-            count++;
-            if (count % (int) (getSize() * 0.25) == 0) {
-                time += 1L;
-            }
-        }
-
-        time += 10L;
-        for (Location loc : getThePath()) {
-            if (getThePath().get(getThePath().size() - 1) == loc) {
-                // do something cool
-            } else {
-                runnableDelayed(loc, time, getPathMaterial());
-                time += 1L;
-            }
-        }
-    }
-
-    @Override
-    public void runnableDelayed(Location loc, long time, Material material) {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (loc.getBlock().getType() != Material.BEACON) {
-                    loc.getBlock().setType(material);
-                }
-                cancel();
-            }
-        }.runTaskTimer(getPlugin(), time, 20L);
     }
 
     public int calculateG(Node node) {
@@ -215,10 +132,6 @@ public class PathfindingAnimation3D extends Animation {
                 zDistance = zNum - getCurrentNode().getZ();
             } else {
                 zDistance = getCurrentNode().getZ() - zNum;
-            }
-
-            if (zNum == -1) {
-                zDistance = 0;
             }
 
             return (xDistance * 10) + (yDistance * 10) + (zDistance * 10);
@@ -265,17 +178,6 @@ public class PathfindingAnimation3D extends Animation {
         return x + y + z;
     }
 
-    public ArrayList<Node> generatePath() {
-        ArrayList<Node> path = new ArrayList<>();
-        Node temp = getCurrentNode();
-        path.add(temp);
-        while (temp.getParent() != null) {
-            temp = temp.getParent();
-            path.add(temp);
-        }
-        return path;
-    }
-
     public void calculateNeighborValues() {
         int row = getCurrentNode().getRow();
         int col = getCurrentNode().getCol();
@@ -295,19 +197,9 @@ public class PathfindingAnimation3D extends Animation {
             PriorityQueue<Node> openList = getOpenList();
             openList.add(grid[row - 1][col][zNum]);
             setOpenList(openList);
-            int[][][] tileGridInt = getTileGridInt();
-            tileGridInt[row - 1][col][zNum] = 1;
-            setTileGridInt(tileGridInt);
-
-            Location loc = getTileGrid()[row - 1][col][zNum];
-            if (!getExploredPlaces().contains(loc)) {
-                loc = new Location(
-                        loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ()
-                );
-                ArrayList<Location> exploredPlaces = getExploredPlaces();
-                exploredPlaces.add(loc);
-                setExploredPlaces(exploredPlaces);
-            }
+            int[][][] tileGrid = getTileGrid();
+            tileGrid[row - 1][col][zNum] = 2;
+            setTileGrid(tileGrid);
         }
 
         // left node
@@ -324,19 +216,9 @@ public class PathfindingAnimation3D extends Animation {
             PriorityQueue<Node> openList = getOpenList();
             openList.add(grid[row][col + 1][zNum]);
             setOpenList(openList);
-            int[][][] tileGridInt = getTileGridInt();
-            tileGridInt[row][col + 1][zNum] = 1;
-            setTileGridInt(tileGridInt);
-
-            Location loc = getTileGrid()[row][col + 1][zNum];
-            if (!getExploredPlaces().contains(loc)) {
-                loc = new Location(
-                        loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ()
-                );
-                ArrayList<Location> exploredPlaces = getExploredPlaces();
-                exploredPlaces.add(loc);
-                setExploredPlaces(exploredPlaces);
-            }
+            int[][][] tileGrid = getTileGrid();
+            tileGrid[row][col + 1][zNum] = 2;
+            setTileGrid(tileGrid);
         }
 
         // behind node
@@ -353,19 +235,9 @@ public class PathfindingAnimation3D extends Animation {
             PriorityQueue<Node> openList = getOpenList();
             openList.add(grid[row + 1][col][zNum]);
             setOpenList(openList);
-            int[][][] tileGridInt = getTileGridInt();
-            tileGridInt[row + 1][col][zNum] = 1;
-            setTileGridInt(tileGridInt);
-
-            Location loc = getTileGrid()[row + 1][col][zNum];
-            if (!getExploredPlaces().contains(loc)) {
-                loc = new Location(
-                        loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ()
-                );
-                ArrayList<Location> exploredPlaces = getExploredPlaces();
-                exploredPlaces.add(loc);
-                setExploredPlaces(exploredPlaces);
-            }
+            int[][][] tileGrid = getTileGrid();
+            tileGrid[row + 1][col][zNum] = 2;
+            setTileGrid(tileGrid);
         }
 
         // right node
@@ -382,19 +254,9 @@ public class PathfindingAnimation3D extends Animation {
             PriorityQueue<Node> openList = getOpenList();
             openList.add(grid[row][col - 1][zNum]);
             setOpenList(openList);
-            int[][][] tileGridInt = getTileGridInt();
-            tileGridInt[row][col - 1][zNum] = 1;
-            setTileGridInt(tileGridInt);
-
-            Location loc = getTileGrid()[row][col - 1][zNum];
-            if (!getExploredPlaces().contains(loc)) {
-                loc = new Location(
-                        loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ()
-                );
-                ArrayList<Location> exploredPlaces = getExploredPlaces();
-                exploredPlaces.add(loc);
-                setExploredPlaces(exploredPlaces);
-            }
+            int[][][] tileGrid = getTileGrid();
+            tileGrid[row][col - 1][zNum] = 2;
+            setTileGrid(tileGrid);
         }
 
         // bottom node
@@ -410,19 +272,10 @@ public class PathfindingAnimation3D extends Animation {
             setGrid(grid);
             PriorityQueue<Node> openList = getOpenList();
             openList.add(grid[row][col][zNum - 1]);
-            int[][][] tileGridInt = getTileGridInt();
-            tileGridInt[row][col][zNum - 1] = 1;
-            setTileGridInt(tileGridInt);
-
-            Location loc = getTileGrid()[row][col][zNum - 1];
-            if (!getExploredPlaces().contains(loc)) {
-                loc = new Location(
-                        loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ()
-                );
-                ArrayList<Location> exploredPlaces = getExploredPlaces();
-                exploredPlaces.add(loc);
-                setExploredPlaces(exploredPlaces);
-            }
+            setOpenList(openList);
+            int[][][] tileGrid = getTileGrid();
+            tileGrid[row][col][zNum - 1] = 2;
+            setTileGrid(tileGrid);
         }
 
         // top node
@@ -438,19 +291,21 @@ public class PathfindingAnimation3D extends Animation {
             setGrid(grid);
             PriorityQueue<Node> openList = getOpenList();
             openList.add(grid[row][col][zNum + 1]);
-            int[][][] tileGridInt = getTileGridInt();
-            tileGridInt[row][col][zNum + 1] = 1;
-            setTileGridInt(tileGridInt);
-
-            Location loc = getTileGrid()[row][col][zNum + 1];
-            if (!getExploredPlaces().contains(loc)) {
-                loc = new Location(
-                        loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ()
-                );
-                ArrayList<Location> exploredPlaces = getExploredPlaces();
-                exploredPlaces.add(loc);
-                setExploredPlaces(exploredPlaces);
-            }
+            setOpenList(openList);
+            int[][][] tileGrid = getTileGrid();
+            tileGrid[row][col][zNum + 1] = 2;
+            setTileGrid(tileGrid);
         }
+    }
+
+    public ArrayList<Node> generatePath() {
+        ArrayList<Node> path = new ArrayList<>();
+        Node temp = getCurrentNode();
+        path.add(temp);
+        while (temp.getParent() != null) {
+            temp = temp.getParent();
+            path.add(temp);
+        }
+        return path;
     }
 }

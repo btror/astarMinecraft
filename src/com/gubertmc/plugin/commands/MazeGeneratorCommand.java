@@ -26,7 +26,8 @@ public record MazeGeneratorCommand(MazeGeneratorPlugin plugin) implements Comman
     private static Location mazeLocation;
     private static ControlPlatform controlPlatform;
     private static final String[] algorithms =
-            {"A* 2D", "A* 3D", "Best-FS 2D", "Breadth-FS 2D", "Breadth-FS 3D", "Depth-FS 2D", "Depth-FS 3D"};
+            {"A* 2D", "A* 3D", "Best-FS 2D", "Best-FS 3D", "Breadth-FS 2D", "Breadth-FS 3D", "Depth-FS 2D",
+                    "Depth-FS 3D"};
     private static int index = 0;
     private static int size = 15;
     private static int originalSize;
@@ -53,7 +54,7 @@ public record MazeGeneratorCommand(MazeGeneratorPlugin plugin) implements Comman
                     location.getZ() + 1
             );
             mazeLocation = location;
-            maze = new PathfindingMaze2D(
+            maze = new AstarMaze2D(
                     plugin,
                     location.getBlock(),
                     size,
@@ -90,6 +91,7 @@ public record MazeGeneratorCommand(MazeGeneratorPlugin plugin) implements Comman
     public void onButtonPressed(PlayerInteractEvent e) {
         if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
             if (Objects.equals(e.getClickedBlock(), controlPlatform.getStartButton())) {
+                e.getPlayer().sendMessage("Loading...");
                 boolean acceptableFrames = true;
                 ItemFrame[] frames = controlPlatform.getFrames();
 
@@ -101,11 +103,7 @@ public record MazeGeneratorCommand(MazeGeneratorPlugin plugin) implements Comman
                 if (acceptableFrames) {
                     controlPlatform.setFrames(frames);
                     long time = 1L;
-                    System.out.println("original size: " + originalSize);
-                    System.out.println("size: " + size);
-                    System.out.println("--------------------");
                     if (originalSize != size) {
-                        // TODO: clear old maze spaces
                         for (int i = -1; i < originalSize + 1; i++) {
                             for (int j = -1; j < originalSize + 1; j++) {
                                 for (int k = -1; k < originalSize + 1; k++) {
@@ -192,13 +190,13 @@ public record MazeGeneratorCommand(MazeGeneratorPlugin plugin) implements Comman
             }
 
             switch (index) {
-                case 0 -> maze = new PathfindingMaze2D(
+                case 0 -> maze = new AstarMaze2D(
                         plugin,
                         mazeLocation.getBlock(),
                         size,
                         blockerPercentage
                 );
-                case 1 -> maze = new PathfindingMaze3D(
+                case 1 -> maze = new AstarMaze3D(
                         plugin,
                         mazeLocation.getBlock(),
                         size,
@@ -210,25 +208,31 @@ public record MazeGeneratorCommand(MazeGeneratorPlugin plugin) implements Comman
                         size,
                         blockerPercentage
                 );
-                case 3 -> maze = new BreadthFirstSearchMaze2D(
+                case 3 -> maze = new BestFirstSearchMaze3D(
                         plugin,
                         mazeLocation.getBlock(),
                         size,
                         blockerPercentage
                 );
-                case 4 -> maze = new BreadthFirstSearchMaze3D(
+                case 4 -> maze = new BreadthFirstSearchMaze2D(
                         plugin,
                         mazeLocation.getBlock(),
                         size,
                         blockerPercentage
                 );
-                case 5 -> maze = new DepthFirstSearchMaze2D(
+                case 5 -> maze = new BreadthFirstSearchMaze3D(
                         plugin,
                         mazeLocation.getBlock(),
                         size,
                         blockerPercentage
                 );
-                case 6 -> maze = new DepthFirstSearchMaze3D(
+                case 6 -> maze = new DepthFirstSearchMaze2D(
+                        plugin,
+                        mazeLocation.getBlock(),
+                        size,
+                        blockerPercentage
+                );
+                case 7 -> maze = new DepthFirstSearchMaze3D(
                         plugin,
                         mazeLocation.getBlock(),
                         size,

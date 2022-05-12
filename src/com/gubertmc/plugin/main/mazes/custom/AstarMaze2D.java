@@ -3,9 +3,9 @@ package com.gubertmc.plugin.main.mazes.custom;
 import com.gubertmc.MazeGeneratorPlugin;
 import com.gubertmc.plugin.main.algorithms.Animation;
 import com.gubertmc.plugin.main.algorithms.Simulation;
-import com.gubertmc.plugin.main.algorithms.astar.astar3d.PathfindingAnimation3D;
-import com.gubertmc.plugin.main.algorithms.astar.astar3d.PathfindingSimulation3D;
-import com.gubertmc.plugin.main.mazes.Maze3D;
+import com.gubertmc.plugin.main.algorithms.astar.astar2d.AstarAnimation2D;
+import com.gubertmc.plugin.main.algorithms.astar.astar2d.AstarSimulation2D;
+import com.gubertmc.plugin.main.mazes.Maze2D;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -13,9 +13,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import static org.bukkit.Bukkit.getServer;
 
-public class PathfindingMaze3D extends Maze3D {
+public class AstarMaze2D extends Maze2D {
 
-    public PathfindingMaze3D(MazeGeneratorPlugin plugin, Block block, int size, double wallPercentage) {
+    public AstarMaze2D(MazeGeneratorPlugin plugin, Block block, int size, double wallPercentage) {
         super(plugin, block, size, wallPercentage);
     }
 
@@ -43,7 +43,7 @@ public class PathfindingMaze3D extends Maze3D {
         int count = 0;
         while (!isValid()) {
             int[][][] simulationMaze = generateSimulation();
-            Simulation simulation = new PathfindingSimulation3D(
+            Simulation simulation = new AstarSimulation2D(
                     simulationMaze, getStartCoordinate(), getEndCoordinate()
             );
             simulation.setup();
@@ -53,6 +53,7 @@ public class PathfindingMaze3D extends Maze3D {
                 setTime(0L);
                 generateCore(coreMaterial, adjustedTime);
                 // generateBorder(coreMaterial);
+                clearOldBeacons();
                 generateStartAndEndPoints(startPointGlassMaterial, endPointGlassMaterial);
                 generateBlockedAreas(simulationMaze, blockerMaterial);
 
@@ -62,7 +63,7 @@ public class PathfindingMaze3D extends Maze3D {
                 new BukkitRunnable() {
                     @Override
                     public void run() {
-                        Animation animation = new PathfindingAnimation3D(
+                        Animation animation = new AstarAnimation2D(
                                 getPlugin(),
                                 getMazeBlockLocations(),
                                 getStartCoordinate(),
@@ -77,8 +78,8 @@ public class PathfindingMaze3D extends Maze3D {
                         );
                         animation.setup();
                         setValid(animation.start());
-                        getServer().broadcastMessage(ChatColor.GREEN + "" + getSize() + "x" + getSize() + "x"
-                                + getSize() + " maze generated..."
+                        getServer().broadcastMessage(ChatColor.GREEN + "" + getSize() + "x" + getSize()
+                                + " maze generated..."
                         );
                         animation.showAnimation(getTime());
                         cancel();
@@ -91,9 +92,9 @@ public class PathfindingMaze3D extends Maze3D {
                 System.out.println("Invalid maze - starting new simulation...");
             }
             if (count == 50) {
-                getServer().broadcastMessage(ChatColor.RED + "A maze could not be successfully generated within" +
-                        " 50 simulations. You may experience server lag. Creating a larger maze with a lower" +
-                        " percentage of walls/blockers will greatly help and put less stress on the server."
+                getServer().broadcastMessage(ChatColor.RED + "A maze could not be successfully generated within " +
+                        "50 simulations. You may experience server lag. Creating a larger maze with a lower " +
+                        "percentage of walls/blockers will greatly help and put less stress on the server."
                 );
             }
         }

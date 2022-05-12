@@ -10,9 +10,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 
-public class PathfindingAnimation2D extends Animation {
+public class AstarAnimation2D extends Animation {
 
-    public PathfindingAnimation2D(
+    public AstarAnimation2D(
             MazeGeneratorPlugin plugin,
             Location[][][] tiles,
             int[] startCoordinate,
