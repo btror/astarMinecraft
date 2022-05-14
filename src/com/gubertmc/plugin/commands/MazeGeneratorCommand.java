@@ -26,7 +26,7 @@ public record MazeGeneratorCommand(MazeGeneratorPlugin plugin) implements Comman
     private static Location mazeLocation;
     private static ControlPlatform controlPlatform;
     private static final String[] algorithms =
-            {"A* 2D", "A* 3D", "Best-FS 2D", "Best-FS 3D", "Breadth-FS 2D", "Breadth-FS 3D", "Depth-FS 2D",
+            {"A* 2D", "A* 3D", "Greedy BFS 2D", "Greedy BFS 3D", "Breadth-FS 2D", "Breadth-FS 3D", "Depth-FS 2D",
                     "Depth-FS 3D"};
     private static int index = 0;
     private static int size = 15;
@@ -83,9 +83,9 @@ public record MazeGeneratorCommand(MazeGeneratorPlugin plugin) implements Comman
     }
 
     /**
-     * Clear the old maze out and create a new one.
+     * Generate a new maze.
      *
-     * @param e PlayerInteractEvent
+     * @param e player interaction.
      */
     @EventHandler
     public void onButtonPressed(PlayerInteractEvent e) {

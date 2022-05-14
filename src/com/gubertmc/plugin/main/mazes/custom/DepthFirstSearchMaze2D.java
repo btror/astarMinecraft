@@ -88,7 +88,7 @@ public class DepthFirstSearchMaze2D extends Maze2D {
                 setTime(0);
             } else {
                 count++;
-                System.out.println("Invalid maze - starting new breadthFirstSearchSimulation2D...");
+                System.out.println("Invalid maze - starting new simulation...");
             }
             if (count == 50) {
                 getServer().broadcastMessage(ChatColor.RED + "A maze could not be successfully generated " +

@@ -51,12 +51,12 @@ public class ControlPlatform implements Listener {
     }
 
     /**
-     * Spawn a control platform.
+     * Spawns a control platform.
+     * <p>
+     * Logic for spawning the control platform outline, buttons, item-frames, signs, etc...
      */
     public void spawn() {
-        // 13 blocks long.
-        for (int i = 0; i < 13; i++) { // was 11
-            // Create control platform floor.
+        for (int i = 0; i < 13; i++) {
             for (int j = 0; j < 5; j++) {
                 Location floor = new Location(
                         mazeLocationBlock.getWorld(),
@@ -67,7 +67,6 @@ public class ControlPlatform implements Listener {
                 floor.getBlock().setType(Material.STRIPPED_OAK_WOOD);
             }
 
-            // Create control platform wall.
             for (int k = 1; k < 5; k++) {
                 Location wall = new Location(
                         mazeLocationBlock.getWorld(),
@@ -77,7 +76,6 @@ public class ControlPlatform implements Listener {
                 );
                 wall.getBlock().setType(Material.STRIPPED_OAK_WOOD);
 
-                // Create signs for size, algorithm, and blocker percentage toggle.
                 if (k == 3 && i > 1) {
                     if (i != 9 && i != 5) {
                         Location location = new Location(
@@ -170,7 +168,6 @@ public class ControlPlatform implements Listener {
                     algorithmSign = sign;
                 }
 
-                // Create bottom item frames and buttons.
                 if (k == 2 && i > 4 && i < 12) {
                     if (i != 8) {
                         ItemFrame frame = mazeLocationBlock.getWorld().spawn(wall.add(0, 0, -1), ItemFrame.class);
@@ -204,7 +201,6 @@ public class ControlPlatform implements Listener {
                     }
                 }
 
-                // Create signs for item frames.
                 if (k == 1 && i > 1 && i != 3 && i != 5 && i != 9) {
                     Location location = new Location(
                             mazeLocationBlock.getWorld(),
