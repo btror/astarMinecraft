@@ -2,7 +2,7 @@ package com.gubertmc.plugin.main.algorithms.astar.astar3d;
 
 import com.gubertmc.MazeGeneratorPlugin;
 import com.gubertmc.plugin.main.algorithms.Animation;
-import com.gubertmc.plugin.main.algorithms.astar.Node;
+import com.gubertmc.plugin.main.algorithms.Node;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -10,9 +10,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 
-public class PathfindingAnimation3D extends Animation {
+public class AstarAnimation3D extends Animation {
 
-    public PathfindingAnimation3D(
+    public AstarAnimation3D(
             MazeGeneratorPlugin plugin,
             Location[][][] tiles,
             int[] startCoordinate,

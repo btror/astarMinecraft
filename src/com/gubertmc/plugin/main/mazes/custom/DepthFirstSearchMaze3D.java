@@ -3,8 +3,8 @@ package com.gubertmc.plugin.main.mazes.custom;
 import com.gubertmc.MazeGeneratorPlugin;
 import com.gubertmc.plugin.main.algorithms.Animation;
 import com.gubertmc.plugin.main.algorithms.Simulation;
-import com.gubertmc.plugin.main.algorithms.dfs.dfs3d.DepthFirstSearchAnimation3D;
-import com.gubertmc.plugin.main.algorithms.dfs.dfs3d.DepthFirstSearchSimulation3D;
+import com.gubertmc.plugin.main.algorithms.depthfirstsearch.dfs3d.DepthFirstSearchAnimation3D;
+import com.gubertmc.plugin.main.algorithms.depthfirstsearch.dfs3d.DepthFirstSearchSimulation3D;
 import com.gubertmc.plugin.main.mazes.Maze3D;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -52,7 +52,7 @@ public class DepthFirstSearchMaze3D extends Maze3D {
             if (isValid()) {
                 setTime(0L);
                 generateCore(coreMaterial, adjustedTime);
-                generateBorder(coreMaterial);
+                // generateBorder(coreMaterial);
                 generateStartAndEndPoints(startPointGlassMaterial, endPointGlassMaterial);
                 generateBlockedAreas(simulationMaze, blockerMaterial);
 

@@ -1,4 +1,4 @@
-package com.gubertmc.plugin.main.algorithms.bfs.bfs3d;
+package com.gubertmc.plugin.main.algorithms.breadthfirstsearch.bfs3d;
 
 import com.gubertmc.plugin.main.algorithms.Simulation;
 

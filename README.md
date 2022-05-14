@@ -5,65 +5,41 @@
 #### This is an implementation of the A* pathfinding algorithm (and other algorithms).
 
 ### Video
-[![I made an AI in Minecraft | A* pathfinding](Resources/thumbnail.jpg)](https://www.youtube.com/watch?v=Xl7rD66Rv3g "I made an AI in Minecraft | A* pathfinding")
+[![I made an AI in Minecraft | A* pathfinding](resources/thumbnail.jpg)](https://www.youtube.com/watch?v=Xl7rD66Rv3g "I made an AI in Minecraft | A* pathfinding")
 
 
 ### Command
 <code>/maze</code>
 
-### More demos and walkthroughs
+### Algorithms
+- A*
+- Greedy best-first search
+- Breadth-first search
+- Depth-first search
+
+### Screenshots
 <details>
-<summary><b>Initializing maze example</b></summary>
+<summary><b>Control platform</b></summary>
+Manage maze attributes and characteristics with the control platform.
 <br>
-Creating a Maze and ControlPlatform object...
-<br>
-<br>
-<code>/maze astar2d 30 50</code>
-<br>
-<br>
-<img src="Resources/part1.gif" width="550" height="330">
+
+![](resources/screenshot1.png)
 </details>
 
 <details>
-<summary><b>Starting animation example</b></summary>
+<summary><b>A* 2D maze example</b></summary>
+View of a 2D A* maze.
 <br>
-Watching the algorithm solve the maze...
-<br>
-<br>
-<img src="Resources/part2.gif" width="550" height="330">
+
+![](resources/screenshot2.png)
 </details>
 
 <details>
-<summary><b>Changing block types example</b></summary>
+<summary><b>Greedy best-first search 3D maze example</b></summary>
+View of a 3D greedy best-first search maze.
 <br>
-Editing the block types used to create the maze and animations...
-<br>
-<br>
-<img src="Resources/part3.gif" width="550" height="330">
-</details>
 
-<details>
-<summary><b>Breadth-first search example</b></summary>
-<br>
-Creating a maze object utilizing BFS...
-<br>
-<br>
-<code>/maze bfs2d 30 40</code>
-<br>
-<br>
-<img src="Resources/part4.gif" width="550" height="330">
-</details>
-
-<details>
-<summary><b>Depth-first search example</b></summary>
-<br>
-Creating a maze object utilizing DFS...
-<br>
-<br>
-<code>/maze dfs2d 40 20</code>
-<br>
-<br>
-<img src="Resources/part5.gif" width="550" height="330">
+![](resources/screenshot3.png)
 </details>
 
 

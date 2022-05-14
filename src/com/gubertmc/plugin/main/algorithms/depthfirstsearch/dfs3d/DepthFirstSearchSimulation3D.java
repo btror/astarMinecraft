@@ -1,4 +1,4 @@
-package com.gubertmc.plugin.main.algorithms.dfs.dfs3d;
+package com.gubertmc.plugin.main.algorithms.depthfirstsearch.dfs3d;
 
 import com.gubertmc.plugin.main.algorithms.Simulation;
 

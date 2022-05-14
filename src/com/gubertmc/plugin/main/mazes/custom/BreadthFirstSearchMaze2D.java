@@ -3,8 +3,8 @@ package com.gubertmc.plugin.main.mazes.custom;
 import com.gubertmc.MazeGeneratorPlugin;
 import com.gubertmc.plugin.main.algorithms.Animation;
 import com.gubertmc.plugin.main.algorithms.Simulation;
-import com.gubertmc.plugin.main.algorithms.bfs.bfs2d.BreadthFirstSearchAnimation2D;
-import com.gubertmc.plugin.main.algorithms.bfs.bfs2d.BreadthFirstSearchSimulation2D;
+import com.gubertmc.plugin.main.algorithms.breadthfirstsearch.bfs2d.BreadthFirstSearchAnimation2D;
+import com.gubertmc.plugin.main.algorithms.breadthfirstsearch.bfs2d.BreadthFirstSearchSimulation2D;
 import com.gubertmc.plugin.main.mazes.Maze2D;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -52,7 +52,7 @@ public class BreadthFirstSearchMaze2D extends Maze2D {
             if (isValid()) {
                 setTime(0L);
                 generateCore(coreMaterial, adjustedTime);
-                generateBorder(coreMaterial);
+                // generateBorder(coreMaterial);
                 clearOldBeacons();
                 generateStartAndEndPoints(startPointGlassMaterial, endPointGlassMaterial);
                 generateBlockedAreas(simulationMaze, blockerMaterial);
@@ -89,7 +89,7 @@ public class BreadthFirstSearchMaze2D extends Maze2D {
                 setTime(0);
             } else {
                 count++;
-                System.out.println("Invalid maze - starting new breadthFirstSearchSimulation2D...");
+                System.out.println("Invalid maze - starting new simulation...");
             }
             if (count == 50) {
                 getServer().broadcastMessage(

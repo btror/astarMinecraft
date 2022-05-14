@@ -77,14 +77,14 @@ public abstract class Maze {
      */
     public abstract void generateBlockedAreas(int[][][] simulationMaze, Material blockerMaterial);
 
-    /**
-     * Generate the maze border.
-     * 2D is the wall around the maze.
-     * 3D is the shell around the volume.
-     *
-     * @param coreMaterial floor material for 2D | volume material for 3D.
-     */
-    public abstract void generateBorder(Material coreMaterial);
+//    /**
+//     * Generate the maze border.
+//     * 2D is the wall around the maze.
+//     * 3D is the shell around the volume.
+//     *
+//     * @param coreMaterial floor material for 2D | volume material for 3D.
+//     */
+//    public abstract void generateBorder(Material coreMaterial);
 
     /**
      * Handle the animations.

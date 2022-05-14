@@ -1,15 +1,15 @@
-package com.gubertmc.plugin.main.algorithms.astar.astar3d;
+package com.gubertmc.plugin.main.algorithms.greedybestfirstsearch.greedybestfirstsearch3d;
 
+import com.gubertmc.plugin.main.algorithms.Node;
 import com.gubertmc.plugin.main.algorithms.Simulation;
-import com.gubertmc.plugin.main.algorithms.astar.Node;
 
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 
-public class PathfindingSimulation3D extends Simulation {
+public class GreedyBestFirstSearchSimulation3D extends Simulation {
 
-    public PathfindingSimulation3D(int[][][] maze, int[] startCoordinate, int[] endCoordinate) {
-        super(maze, startCoordinate, endCoordinate, true);
+    public GreedyBestFirstSearchSimulation3D(int[][][] maze, int[] startCoordinate, int[] endCoordinate) {
+        super(maze, startCoordinate, endCoordinate, false);
     }
 
     @Override
@@ -38,11 +38,9 @@ public class PathfindingSimulation3D extends Simulation {
         }
 
         Node currentNode = getCurrentNode();
-        int g = calculateG(currentNode);
-        currentNode.setG(g);
         int h = calculateH(currentNode);
         currentNode.setH(h);
-        currentNode.setF();
+        currentNode.setBfsF();
         setCurrentNode(currentNode);
         setStartNode(currentNode);
         PriorityQueue<Node> openList = getOpenList();
@@ -103,42 +101,6 @@ public class PathfindingSimulation3D extends Simulation {
         return pathFound;
     }
 
-    public int calculateG(Node node) {
-        int row = node.getRow();
-        int col = node.getCol();
-        int zNum = node.getZ();
-        if (row == getCurrentNode().getRow() && col == getCurrentNode().getCol() && zNum == getCurrentNode().getZ()) {
-            return 0;
-        }
-
-        Node parent = node.getParent();
-        if (parent == null) {
-            int xDistance;
-            if (col > getCurrentNode().getCol()) {
-                xDistance = col - getCurrentNode().getCol();
-            } else {
-                xDistance = getCurrentNode().getCol() - col;
-            }
-
-            int yDistance;
-            if (row > getCurrentNode().getRow()) {
-                yDistance = row - getCurrentNode().getRow();
-            } else {
-                yDistance = getCurrentNode().getRow() - row;
-            }
-
-            int zDistance;
-            if (zNum > getCurrentNode().getZ()) {
-                zDistance = zNum - getCurrentNode().getZ();
-            } else {
-                zDistance = getCurrentNode().getZ() - zNum;
-            }
-
-            return (xDistance * 10) + (yDistance * 10) + (zDistance * 10);
-        }
-        return 10 + parent.getG();
-    }
-
     public int calculateH(Node node) {
         int row = node.getRow();
         int col = node.getCol();
@@ -188,11 +150,9 @@ public class PathfindingSimulation3D extends Simulation {
                 && !getClosedList().contains(getGrid()[row - 1][col][zNum])) {
             Node[][][] grid = getGrid();
             grid[row - 1][col][zNum].setParent(getCurrentNode());
-            int g = calculateG(grid[row - 1][col][zNum]);
-            grid[row - 1][col][zNum].setG(g);
             int h = calculateH(grid[row - 1][col][zNum]);
             grid[row - 1][col][zNum].setH(h);
-            grid[row - 1][col][zNum].setF();
+            grid[row - 1][col][zNum].setBfsF();
             setGrid(grid);
             PriorityQueue<Node> openList = getOpenList();
             openList.add(grid[row - 1][col][zNum]);
@@ -207,11 +167,9 @@ public class PathfindingSimulation3D extends Simulation {
                 && !getClosedList().contains(getGrid()[row][col + 1][zNum])) {
             Node[][][] grid = getGrid();
             grid[row][col + 1][zNum].setParent(getCurrentNode());
-            int g = calculateG(grid[row][col + 1][zNum]);
-            grid[row][col + 1][zNum].setG(g);
             int h = calculateH(grid[row][col + 1][zNum]);
             grid[row][col + 1][zNum].setH(h);
-            grid[row][col + 1][zNum].setF();
+            grid[row][col + 1][zNum].setBfsF();
             setGrid(grid);
             PriorityQueue<Node> openList = getOpenList();
             openList.add(grid[row][col + 1][zNum]);
@@ -226,11 +184,9 @@ public class PathfindingSimulation3D extends Simulation {
                 && !getClosedList().contains(getGrid()[row + 1][col][zNum])) {
             Node[][][] grid = getGrid();
             grid[row + 1][col][zNum].setParent(getCurrentNode());
-            int g = calculateG(grid[row + 1][col][zNum]);
-            grid[row + 1][col][zNum].setG(g);
             int h = calculateH(grid[row + 1][col][zNum]);
             grid[row + 1][col][zNum].setH(h);
-            grid[row + 1][col][zNum].setF();
+            grid[row + 1][col][zNum].setBfsF();
             setGrid(grid);
             PriorityQueue<Node> openList = getOpenList();
             openList.add(grid[row + 1][col][zNum]);
@@ -245,11 +201,9 @@ public class PathfindingSimulation3D extends Simulation {
                 && !getClosedList().contains(getGrid()[row][col - 1][zNum])) {
             Node[][][] grid = getGrid();
             grid[row][col - 1][zNum].setParent(getCurrentNode());
-            int g = calculateG(grid[row][col - 1][zNum]);
-            grid[row][col - 1][zNum].setG(g);
             int h = calculateH(grid[row][col - 1][zNum]);
             grid[row][col - 1][zNum].setH(h);
-            grid[row][col - 1][zNum].setF();
+            grid[row][col - 1][zNum].setBfsF();
             setGrid(grid);
             PriorityQueue<Node> openList = getOpenList();
             openList.add(grid[row][col - 1][zNum]);
@@ -264,11 +218,9 @@ public class PathfindingSimulation3D extends Simulation {
                 && !getClosedList().contains(getGrid()[row][col][zNum - 1])) {
             Node[][][] grid = getGrid();
             grid[row][col][zNum - 1].setParent(getCurrentNode());
-            int g = calculateG(grid[row][col][zNum - 1]);
-            grid[row][col][zNum - 1].setG(g);
             int h = calculateH(grid[row][col][zNum - 1]);
             grid[row][col][zNum - 1].setH(h);
-            grid[row][col][zNum - 1].setF();
+            grid[row][col][zNum - 1].setBfsF();
             setGrid(grid);
             PriorityQueue<Node> openList = getOpenList();
             openList.add(grid[row][col][zNum - 1]);
@@ -283,11 +235,9 @@ public class PathfindingSimulation3D extends Simulation {
                 && !getClosedList().contains(getGrid()[row][col][zNum + 1])) {
             Node[][][] grid = getGrid();
             grid[row][col][zNum + 1].setParent(getCurrentNode());
-            int g = calculateG(grid[row][col][zNum + 1]);
-            grid[row][col][zNum + 1].setG(g);
             int h = calculateH(grid[row][col][zNum + 1]);
             grid[row][col][zNum + 1].setH(h);
-            grid[row][col][zNum + 1].setF();
+            grid[row][col][zNum + 1].setBfsF();
             setGrid(grid);
             PriorityQueue<Node> openList = getOpenList();
             openList.add(grid[row][col][zNum + 1]);
