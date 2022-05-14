@@ -20,7 +20,6 @@
 ### Screenshots
 <details>
 <summary><b>Control platform</b></summary>
-<br>
 Manage maze attributes and characteristics with the control platform.
 <br>
 
@@ -29,7 +28,6 @@ Manage maze attributes and characteristics with the control platform.
 
 <details>
 <summary><b>A* 2D maze example</b></summary>
-<br>
 View of a 2D A* maze.
 <br>
 
@@ -38,8 +36,7 @@ View of a 2D A* maze.
 
 <details>
 <summary><b>Greedy best-first search 3D maze example</b></summary>
-<br>
-View of a 2D A* maze.
+View of a 3D greedy best-first search maze.
 <br>
 
 ![](resources/screenshot3.png)
