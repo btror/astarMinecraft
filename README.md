@@ -23,8 +23,8 @@
 <br>
 Manage maze attributes and characteristics with the control platform.
 <br>
-<br>
-<img src="resources/screenshot1.png" width="550" height="330">
+
+![](resources/screenshot1.png)
 </details>
 
 <details>
@@ -32,8 +32,8 @@ Manage maze attributes and characteristics with the control platform.
 <br>
 View of a 2D A* maze.
 <br>
-<br>
-<img src="resources/screenshot1.png" width="550" height="330">
+
+![](resources/screenshot2.png)
 </details>
 
 <details>
@@ -41,8 +41,8 @@ View of a 2D A* maze.
 <br>
 View of a 2D A* maze.
 <br>
-<br>
-<img src="resources/screenshot1.png" width="550" height="330">
+
+![](resources/screenshot3.png)
 </details>
 
 
