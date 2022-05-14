@@ -5,7 +5,7 @@
 #### This is an implementation of the A* pathfinding algorithm (and other algorithms).
 
 ### Video
-[![I made an AI in Minecraft | A* pathfinding](Resources/thumbnail.jpg)](https://www.youtube.com/watch?v=Xl7rD66Rv3g "I made an AI in Minecraft | A* pathfinding")
+[![I made an AI in Minecraft | A* pathfinding](resources/thumbnail.jpg)](https://www.youtube.com/watch?v=Xl7rD66Rv3g "I made an AI in Minecraft | A* pathfinding")
 
 
 ### Command
@@ -17,14 +17,32 @@
 - Breadth-first search
 - Depth-first search
 
-### Demos
+### Screenshots
 <details>
-<summary><b>Starting animation example</b></summary>
+<summary><b>Control platform</b></summary>
 <br>
-Watching the algorithm solve the maze...
+Manage maze attributes and characteristics with the control platform.
 <br>
 <br>
-<img src="Resources/part2.gif" width="550" height="330">
+<img src="resources/screenshot1.png" width="550" height="330">
+</details>
+
+<details>
+<summary><b>A* 2D maze example</b></summary>
+<br>
+View of a 2D A* maze.
+<br>
+<br>
+<img src="resources/screenshot1.png" width="550" height="330">
+</details>
+
+<details>
+<summary><b>Greedy best-first search 3D maze example</b></summary>
+<br>
+View of a 2D A* maze.
+<br>
+<br>
+<img src="resources/screenshot1.png" width="550" height="330">
 </details>
 
 
