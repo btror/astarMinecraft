@@ -26,7 +26,7 @@ public record MazeGeneratorCommand(MazeGeneratorPlugin plugin) implements Comman
     private static Location mazeLocation;
     private static ControlPlatform controlPlatform;
     private static final String[] algorithms =
-            {"A* 2D", "A* Diagonal 2D",  "A* 3D", "Greedy BFS 2D", "Greedy BFS 3D", "Breadth-FS 2D", "Breadth-FS 3D",
+            {"A* 2D", "A* Diagonal 2D",  "A* 3D", "A* Diagonal 3D", "Greedy BFS 2D", "Greedy BFS 3D", "Breadth-FS 2D", "Breadth-FS 3D",
                     "Depth-FS 2D", "Depth-FS 3D"};
     private static int index = 0;
     private static int size = 15;
@@ -208,37 +208,43 @@ public record MazeGeneratorCommand(MazeGeneratorPlugin plugin) implements Comman
                         size,
                         blockerPercentage
                 );
-                case 3 -> maze = new GreedyBestFirstSearchMaze2D(
+                case 3 -> maze = new AstarMazeDiagonal3D(
                         plugin,
                         mazeLocation.getBlock(),
                         size,
                         blockerPercentage
                 );
-                case 4 -> maze = new GreedyBestFirstSearchMaze3D(
+                case 4 -> maze = new GreedyBestFirstSearchMaze2D(
                         plugin,
                         mazeLocation.getBlock(),
                         size,
                         blockerPercentage
                 );
-                case 5 -> maze = new BreadthFirstSearchMaze2D(
+                case 5 -> maze = new GreedyBestFirstSearchMaze3D(
                         plugin,
                         mazeLocation.getBlock(),
                         size,
                         blockerPercentage
                 );
-                case 6 -> maze = new BreadthFirstSearchMaze3D(
+                case 6 -> maze = new BreadthFirstSearchMaze2D(
                         plugin,
                         mazeLocation.getBlock(),
                         size,
                         blockerPercentage
                 );
-                case 7 -> maze = new DepthFirstSearchMaze2D(
+                case 7 -> maze = new BreadthFirstSearchMaze3D(
                         plugin,
                         mazeLocation.getBlock(),
                         size,
                         blockerPercentage
                 );
-                case 8 -> maze = new DepthFirstSearchMaze3D(
+                case 8 -> maze = new DepthFirstSearchMaze2D(
+                        plugin,
+                        mazeLocation.getBlock(),
+                        size,
+                        blockerPercentage
+                );
+                case 9 -> maze = new DepthFirstSearchMaze3D(
                         plugin,
                         mazeLocation.getBlock(),
                         size,

@@ -3,8 +3,8 @@ package com.gubertmc.plugin.main.mazes.custom;
 import com.gubertmc.MazeGeneratorPlugin;
 import com.gubertmc.plugin.main.algorithms.Animation;
 import com.gubertmc.plugin.main.algorithms.Simulation;
-import com.gubertmc.plugin.main.algorithms.astar.astar3d.AstarAnimation3D;
-import com.gubertmc.plugin.main.algorithms.astar.astar3d.AstarSimulation3D;
+import com.gubertmc.plugin.main.algorithms.astar.astar3d.diagonalmovement.AstarAnimationDiagonal3D;
+import com.gubertmc.plugin.main.algorithms.astar.astar3d.diagonalmovement.AstarSimulationDiagonal3D;
 import com.gubertmc.plugin.main.mazes.Maze3D;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -13,9 +13,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import static org.bukkit.Bukkit.getServer;
 
-public class AstarMaze3D extends Maze3D {
+public class AstarMazeDiagonal3D extends Maze3D {
 
-    public AstarMaze3D(MazeGeneratorPlugin plugin, Block block, int size, double wallPercentage) {
+    public AstarMazeDiagonal3D(MazeGeneratorPlugin plugin, Block block, int size, double wallPercentage) {
         super(plugin, block, size, wallPercentage);
     }
 
@@ -43,7 +43,7 @@ public class AstarMaze3D extends Maze3D {
         int count = 0;
         while (!isValid()) {
             int[][][] simulationMaze = generateSimulation();
-            Simulation simulation = new AstarSimulation3D(
+            Simulation simulation = new AstarSimulationDiagonal3D(
                     simulationMaze, getStartCoordinate(), getEndCoordinate()
             );
             simulation.setup();
@@ -62,7 +62,7 @@ public class AstarMaze3D extends Maze3D {
                 new BukkitRunnable() {
                     @Override
                     public void run() {
-                        Animation animation = new AstarAnimation3D(
+                        Animation animation = new AstarAnimationDiagonal3D(
                                 getPlugin(),
                                 getMazeBlockLocations(),
                                 getStartCoordinate(),
