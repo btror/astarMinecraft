@@ -1,17 +1,17 @@
-package com.gubertmc.plugin.main.algorithms.astar.astar2d.diagonalmovement;
+package com.gubertmc.plugin.main.algorithms.greedybestfirstsearch.greedybestfirstsearch2d.diagonalmovement;
 
 import com.gubertmc.MazeGeneratorPlugin;
 import com.gubertmc.plugin.main.algorithms.Node;
-import com.gubertmc.plugin.main.algorithms.astar.astar2d.AstarAnimation2D;
+import com.gubertmc.plugin.main.algorithms.greedybestfirstsearch.greedybestfirstsearch2d.GreedyBestFirstSearchAnimation2D;
 import org.bukkit.Location;
 import org.bukkit.Material;
 
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 
-public class AstarAnimationDiagonal2D extends AstarAnimation2D {
+public class GreedyBestFirstSearchAnimationDiagonal2D extends GreedyBestFirstSearchAnimation2D {
 
-    public AstarAnimationDiagonal2D(
+    public GreedyBestFirstSearchAnimationDiagonal2D(
             MazeGeneratorPlugin plugin,
             Location[][][] tiles,
             int[] startCoordinate,
@@ -40,44 +40,6 @@ public class AstarAnimationDiagonal2D extends AstarAnimation2D {
     }
 
     @Override
-    public int calculateG(Node node) {
-        int row = node.getRow();
-        int col = node.getCol();
-        if (row == getCurrentNode().getRow() && col == getCurrentNode().getCol()) {
-            return 0;
-        }
-
-        Node parent = node.getParent();
-        if (parent == null) {
-            int xDistance;
-            if (col > getCurrentNode().getCol()) {
-                xDistance = col - getCurrentNode().getCol();
-            } else {
-                xDistance = getCurrentNode().getCol() - col;
-            }
-
-            int yDistance;
-            if (row > getCurrentNode().getRow()) {
-                yDistance = row - getCurrentNode().getRow();
-            } else {
-                yDistance = getCurrentNode().getRow() - row;
-            }
-
-            if (xDistance != 0 && yDistance != 0) {
-                return 14;
-            } else {
-                return (xDistance * 10) + (yDistance * 10);
-            }
-        }
-
-        if (col != parent.getCol() && row != parent.getRow()) {
-            return 14 + parent.getG();
-        }
-
-        return 10 + parent.getG();
-    }
-
-    @Override
     public void calculateNeighborValues() {
         int row = getCurrentNode().getRow();
         int col = getCurrentNode().getCol();
@@ -88,8 +50,6 @@ public class AstarAnimationDiagonal2D extends AstarAnimation2D {
                 && !getClosedList().contains(getGrid()[row - 1][col][zNum])) {
             Node[][][] grid = getGrid();
             grid[row - 1][col][zNum].setParent(getCurrentNode());
-            int g = calculateG(grid[row - 1][col][zNum]);
-            grid[row - 1][col][zNum].setG(g);
             int h = calculateH(grid[row - 1][col][zNum]);
             grid[row - 1][col][zNum].setH(h);
             grid[row - 1][col][zNum].setF();
@@ -117,8 +77,6 @@ public class AstarAnimationDiagonal2D extends AstarAnimation2D {
                 && !getClosedList().contains(getGrid()[row - 1][col + 1][zNum])) {
             Node[][][] grid = getGrid();
             grid[row - 1][col + 1][zNum].setParent(getCurrentNode());
-            int g = calculateG(grid[row - 1][col + 1][zNum]);
-            grid[row - 1][col + 1][zNum].setG(g);
             int h = calculateH(grid[row - 1][col + 1][zNum]);
             grid[row - 1][col + 1][zNum].setH(h);
             grid[row - 1][col + 1][zNum].setF();
@@ -146,8 +104,6 @@ public class AstarAnimationDiagonal2D extends AstarAnimation2D {
                 && !getClosedList().contains(getGrid()[row][col + 1][zNum])) {
             Node[][][] grid = getGrid();
             grid[row][col + 1][zNum].setParent(getCurrentNode());
-            int g = calculateG(grid[row][col + 1][zNum]);
-            grid[row][col + 1][zNum].setG(g);
             int h = calculateH(grid[row][col + 1][zNum]);
             grid[row][col + 1][zNum].setH(h);
             grid[row][col + 1][zNum].setF();
@@ -175,8 +131,6 @@ public class AstarAnimationDiagonal2D extends AstarAnimation2D {
                 && !getClosedList().contains(getGrid()[row + 1][col + 1][zNum])) {
             Node[][][] grid = getGrid();
             grid[row + 1][col + 1][zNum].setParent(getCurrentNode());
-            int g = calculateG(grid[row + 1][col + 1][zNum]);
-            grid[row + 1][col + 1][zNum].setG(g);
             int h = calculateH(grid[row + 1][col + 1][zNum]);
             grid[row + 1][col + 1][zNum].setH(h);
             grid[row + 1][col + 1][zNum].setF();
@@ -204,8 +158,6 @@ public class AstarAnimationDiagonal2D extends AstarAnimation2D {
                 && !getClosedList().contains(getGrid()[row + 1][col][zNum])) {
             Node[][][] grid = getGrid();
             grid[row + 1][col][zNum].setParent(getCurrentNode());
-            int g = calculateG(grid[row + 1][col][zNum]);
-            grid[row + 1][col][zNum].setG(g);
             int h = calculateH(grid[row + 1][col][zNum]);
             grid[row + 1][col][zNum].setH(h);
             grid[row + 1][col][zNum].setF();
@@ -233,8 +185,6 @@ public class AstarAnimationDiagonal2D extends AstarAnimation2D {
                 && !getClosedList().contains(getGrid()[row + 1][col - 1][zNum])) {
             Node[][][] grid = getGrid();
             grid[row + 1][col - 1][zNum].setParent(getCurrentNode());
-            int g = calculateG(grid[row + 1][col - 1][zNum]);
-            grid[row + 1][col - 1][zNum].setG(g);
             int h = calculateH(grid[row + 1][col - 1][zNum]);
             grid[row + 1][col - 1][zNum].setH(h);
             grid[row + 1][col - 1][zNum].setF();
@@ -262,8 +212,6 @@ public class AstarAnimationDiagonal2D extends AstarAnimation2D {
                 && !getClosedList().contains(getGrid()[row][col - 1][zNum])) {
             Node[][][] grid = getGrid();
             grid[row][col - 1][zNum].setParent(getCurrentNode());
-            int g = calculateG(grid[row][col - 1][zNum]);
-            grid[row][col - 1][zNum].setG(g);
             int h = calculateH(grid[row][col - 1][zNum]);
             grid[row][col - 1][zNum].setH(h);
             grid[row][col - 1][zNum].setF();
@@ -291,8 +239,6 @@ public class AstarAnimationDiagonal2D extends AstarAnimation2D {
                 && !getClosedList().contains(getGrid()[row - 1][col - 1][zNum])) {
             Node[][][] grid = getGrid();
             grid[row - 1][col - 1][zNum].setParent(getCurrentNode());
-            int g = calculateG(grid[row - 1][col - 1][zNum]);
-            grid[row - 1][col - 1][zNum].setG(g);
             int h = calculateH(grid[row - 1][col - 1][zNum]);
             grid[row - 1][col - 1][zNum].setH(h);
             grid[row - 1][col - 1][zNum].setF();

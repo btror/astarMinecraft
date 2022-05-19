@@ -5,7 +5,7 @@ public class Node {
     private final int col;
     private final int z;
     private int f;
-    private int g;
+    private int g = 0;
     private int h;
     private final int type;
     private Node parent;

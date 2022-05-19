@@ -1,4 +1,4 @@
-package com.gubertmc.plugin.main.algorithms.greedybestfirstsearch.greedybestfirstsearch3d.nondiagonalmovement;
+package com.gubertmc.plugin.main.algorithms.greedybestfirstsearch.greedybestfirstsearch3d;
 
 import com.gubertmc.plugin.main.algorithms.Node;
 import com.gubertmc.plugin.main.algorithms.Simulation;

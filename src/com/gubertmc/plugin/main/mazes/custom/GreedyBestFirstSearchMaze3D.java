@@ -3,8 +3,8 @@ package com.gubertmc.plugin.main.mazes.custom;
 import com.gubertmc.MazeGeneratorPlugin;
 import com.gubertmc.plugin.main.algorithms.Animation;
 import com.gubertmc.plugin.main.algorithms.Simulation;
-import com.gubertmc.plugin.main.algorithms.greedybestfirstsearch.greedybestfirstsearch3d.nondiagonalmovement.GreedyBestFirstSearchAnimation3D;
-import com.gubertmc.plugin.main.algorithms.greedybestfirstsearch.greedybestfirstsearch3d.nondiagonalmovement.GreedyBestFirstSearchSimulation3D;
+import com.gubertmc.plugin.main.algorithms.greedybestfirstsearch.greedybestfirstsearch3d.GreedyBestFirstSearchAnimation3D;
+import com.gubertmc.plugin.main.algorithms.greedybestfirstsearch.greedybestfirstsearch3d.GreedyBestFirstSearchSimulation3D;
 import com.gubertmc.plugin.main.mazes.Maze3D;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -98,5 +98,4 @@ public class GreedyBestFirstSearchMaze3D extends Maze3D {
             }
         }
     }
-
 }

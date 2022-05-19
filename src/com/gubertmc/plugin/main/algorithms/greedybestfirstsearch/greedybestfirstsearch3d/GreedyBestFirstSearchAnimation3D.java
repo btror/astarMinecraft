@@ -1,4 +1,4 @@
-package com.gubertmc.plugin.main.algorithms.greedybestfirstsearch.greedybestfirstsearch2d.nondiagonalmovement;
+package com.gubertmc.plugin.main.algorithms.greedybestfirstsearch.greedybestfirstsearch3d;
 
 import com.gubertmc.MazeGeneratorPlugin;
 import com.gubertmc.plugin.main.algorithms.Animation;
@@ -10,9 +10,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.ArrayList;
 import java.util.PriorityQueue;
 
-public class GreedyBestFirstSearchAnimation2D extends Animation {
+public class GreedyBestFirstSearchAnimation3D extends Animation {
 
-    public GreedyBestFirstSearchAnimation2D(
+    public GreedyBestFirstSearchAnimation3D(
             MazeGeneratorPlugin plugin,
             Location[][][] tiles,
             int[] startCoordinate,
@@ -37,7 +37,7 @@ public class GreedyBestFirstSearchAnimation2D extends Animation {
                 groundMaterial,
                 startGlassMaterial,
                 endGlassMaterial,
-                false
+                true
         );
     }
 
@@ -55,25 +55,27 @@ public class GreedyBestFirstSearchAnimation2D extends Animation {
         }
         setTileGridInt(tempArray);
 
-        setCurrentNode(new Node(getStartCoordinate()[1], getStartCoordinate()[0], -1, 0));
-        setEndNode(new Node(getEndCoordinate()[1], getEndCoordinate()[0], -1, 0));
+        setCurrentNode(new Node(getStartCoordinate()[1], getStartCoordinate()[0], getStartCoordinate()[2], 0));
+        setEndNode(new Node(getEndCoordinate()[1], getEndCoordinate()[0], getEndCoordinate()[2], 0));
         Node[][][] grid = getGrid();
-        grid[getStartCoordinate()[1]][getStartCoordinate()[0]][0] = getCurrentNode();
+        grid[getStartCoordinate()[1]][getStartCoordinate()[0]][getStartCoordinate()[2]] = getCurrentNode();
         setGrid(grid);
-        grid[getEndCoordinate()[1]][getEndCoordinate()[0]][0] = getEndNode();
+        grid[getEndCoordinate()[1]][getEndCoordinate()[0]][getEndCoordinate()[2]] = getEndNode();
         setGrid(grid);
 
         for (int i = 0; i < getSize(); i++) {
             for (int j = 0; j < getSize(); j++) {
-                if (getTileGrid()[i][j][0].getBlock().getType() == Material.AIR) {
-                    Node node = new Node(i, j, -1, 0);
-                    grid[i][j][0] = node;
-                    setGrid(grid);
-                }
-                if (getTileGrid()[i][j][0].getBlock().getType() == getWallMaterial()) {
-                    Node node = new Node(i, j, -1, 1);
-                    grid[i][j][0] = node;
-                    setGrid(grid);
+                for (int k = 0; k < getSize(); k++) {
+                    if (getTileGrid()[i][j][k].getBlock().getType() == getPathGroundMaterial()) {
+                        Node node = new Node(i, j, k, 0);
+                        grid[i][j][k] = node;
+                        setGrid(grid);
+                    }
+                    if (getTileGrid()[i][j][k].getBlock().getType() == getWallMaterial()) {
+                        Node node = new Node(i, j, k, 1);
+                        grid[i][j][k] = node;
+                        setGrid(grid);
+                    }
                 }
             }
         }
@@ -108,11 +110,11 @@ public class GreedyBestFirstSearchAnimation2D extends Animation {
                 for (int i = path.size() - 1; i > -1; i--) {
                     int row = path.get(i).getRow();
                     int col = path.get(i).getCol();
-                    int zNum = 0;
+                    int zNum = path.get(i).getZ();
 
                     if (getTileGridInt()[row][col][zNum] == 1) {
                         int x = getTileGrid()[row][col][zNum].getBlockX();
-                        int y = getTileGrid()[row][col][0].getBlockY() - 1;
+                        int y = getTileGrid()[row][col][zNum].getBlockY();
                         int z = getTileGrid()[row][col][zNum].getBlockZ();
 
                         Location floor = new Location(getTileGrid()[row][col][zNum].getWorld(), x, y, z);
@@ -128,6 +130,7 @@ public class GreedyBestFirstSearchAnimation2D extends Animation {
                 } catch (NullPointerException e) {
                     System.out.println(e);
                 }
+
                 try {
                     assert getOpenList().peek() != null;
                 } catch (NullPointerException e) {
@@ -173,7 +176,7 @@ public class GreedyBestFirstSearchAnimation2D extends Animation {
         new BukkitRunnable() {
             @Override
             public void run() {
-                if (loc.getBlock().getType() != getEndPointGlass()) {
+                if (loc.getBlock().getType() != Material.BEACON) {
                     loc.getBlock().setType(material);
                 }
                 cancel();
@@ -184,8 +187,10 @@ public class GreedyBestFirstSearchAnimation2D extends Animation {
     public int calculateH(Node node) {
         int row = node.getRow();
         int col = node.getCol();
+        int zNum = node.getZ();
         int x = 0;
         int y = 0;
+        int z = 0;
 
         while (col < getEndNode().getCol() || col > getEndNode().getCol()) {
             x += 10;
@@ -205,8 +210,17 @@ public class GreedyBestFirstSearchAnimation2D extends Animation {
                 row--;
             }
         }
+        while (zNum < getEndNode().getZ() || zNum > getEndNode().getZ()) {
+            z += 10;
+            if (zNum < getEndNode().getZ()) {
+                zNum++;
+            }
+            if (zNum > getEndNode().getZ()) {
+                zNum--;
+            }
+        }
 
-        return x + y;
+        return x + y + z;
     }
 
     public ArrayList<Node> generatePath() {
@@ -223,7 +237,7 @@ public class GreedyBestFirstSearchAnimation2D extends Animation {
     public void calculateNeighborValues() {
         int row = getCurrentNode().getRow();
         int col = getCurrentNode().getCol();
-        int zNum = 0;
+        int zNum = getCurrentNode().getZ();
 
         // front node
         if (row - 1 > -1 && getGrid()[row - 1][col][zNum].getType() == 0
@@ -244,7 +258,7 @@ public class GreedyBestFirstSearchAnimation2D extends Animation {
             Location loc = getTileGrid()[row - 1][col][zNum];
             if (!getExploredPlaces().contains(loc)) {
                 loc = new Location(
-                        loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ()
+                        loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ()
                 );
                 ArrayList<Location> exploredPlaces = getExploredPlaces();
                 exploredPlaces.add(loc);
@@ -271,7 +285,7 @@ public class GreedyBestFirstSearchAnimation2D extends Animation {
             Location loc = getTileGrid()[row][col + 1][zNum];
             if (!getExploredPlaces().contains(loc)) {
                 loc = new Location(
-                        loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ()
+                        loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ()
                 );
                 ArrayList<Location> exploredPlaces = getExploredPlaces();
                 exploredPlaces.add(loc);
@@ -298,7 +312,7 @@ public class GreedyBestFirstSearchAnimation2D extends Animation {
             Location loc = getTileGrid()[row + 1][col][zNum];
             if (!getExploredPlaces().contains(loc)) {
                 loc = new Location(
-                        loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ()
+                        loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ()
                 );
                 ArrayList<Location> exploredPlaces = getExploredPlaces();
                 exploredPlaces.add(loc);
@@ -325,7 +339,59 @@ public class GreedyBestFirstSearchAnimation2D extends Animation {
             Location loc = getTileGrid()[row][col - 1][zNum];
             if (!getExploredPlaces().contains(loc)) {
                 loc = new Location(
-                        loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY() - 1, loc.getBlock().getZ()
+                        loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ()
+                );
+                ArrayList<Location> exploredPlaces = getExploredPlaces();
+                exploredPlaces.add(loc);
+                setExploredPlaces(exploredPlaces);
+            }
+        }
+
+        // bottom node
+        if (zNum - 1 > -1 && getGrid()[row][col][zNum - 1].getType() == 0
+                && !getClosedList().contains(getGrid()[row][col][zNum - 1])) {
+            Node[][][] grid = getGrid();
+            grid[row][col][zNum - 1].setParent(getCurrentNode());
+            int h = calculateH(grid[row][col][zNum - 1]);
+            grid[row][col][zNum - 1].setH(h);
+            grid[row][col][zNum - 1].setBfsF();
+            setGrid(grid);
+            PriorityQueue<Node> openList = getOpenList();
+            openList.add(grid[row][col][zNum - 1]);
+            int[][][] tileGridInt = getTileGridInt();
+            tileGridInt[row][col][zNum - 1] = 1;
+            setTileGridInt(tileGridInt);
+
+            Location loc = getTileGrid()[row][col][zNum - 1];
+            if (!getExploredPlaces().contains(loc)) {
+                loc = new Location(
+                        loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ()
+                );
+                ArrayList<Location> exploredPlaces = getExploredPlaces();
+                exploredPlaces.add(loc);
+                setExploredPlaces(exploredPlaces);
+            }
+        }
+
+        // top node
+        if (zNum + 1 < getSize() && getGrid()[row][col][zNum + 1].getType() == 0
+                && !getClosedList().contains(getGrid()[row][col][zNum + 1])) {
+            Node[][][] grid = getGrid();
+            grid[row][col][zNum + 1].setParent(getCurrentNode());
+            int h = calculateH(grid[row][col][zNum + 1]);
+            grid[row][col][zNum + 1].setH(h);
+            grid[row][col][zNum + 1].setBfsF();
+            setGrid(grid);
+            PriorityQueue<Node> openList = getOpenList();
+            openList.add(grid[row][col][zNum + 1]);
+            int[][][] tileGridInt = getTileGridInt();
+            tileGridInt[row][col][zNum + 1] = 1;
+            setTileGridInt(tileGridInt);
+
+            Location loc = getTileGrid()[row][col][zNum + 1];
+            if (!getExploredPlaces().contains(loc)) {
+                loc = new Location(
+                        loc.getWorld(), loc.getBlock().getX(), loc.getBlock().getY(), loc.getBlock().getZ()
                 );
                 ArrayList<Location> exploredPlaces = getExploredPlaces();
                 exploredPlaces.add(loc);

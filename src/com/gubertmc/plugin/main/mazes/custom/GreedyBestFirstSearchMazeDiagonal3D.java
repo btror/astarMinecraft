@@ -3,9 +3,9 @@ package com.gubertmc.plugin.main.mazes.custom;
 import com.gubertmc.MazeGeneratorPlugin;
 import com.gubertmc.plugin.main.algorithms.Animation;
 import com.gubertmc.plugin.main.algorithms.Simulation;
-import com.gubertmc.plugin.main.algorithms.greedybestfirstsearch.greedybestfirstsearch2d.GreedyBestFirstSearchAnimation2D;
-import com.gubertmc.plugin.main.algorithms.greedybestfirstsearch.greedybestfirstsearch2d.GreedyBestFirstSearchSimulation2D;
-import com.gubertmc.plugin.main.mazes.Maze2D;
+import com.gubertmc.plugin.main.algorithms.greedybestfirstsearch.greedybestfirstsearch3d.diagonalmovement.GreedyBestFirstSearchAnimationDiagonal3D;
+import com.gubertmc.plugin.main.algorithms.greedybestfirstsearch.greedybestfirstsearch3d.diagonalmovement.GreedyBestFirstSearchSimulationDiagonal3D;
+import com.gubertmc.plugin.main.mazes.Maze3D;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -13,9 +13,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import static org.bukkit.Bukkit.getServer;
 
-public class GreedyBestFirstSearchMaze2D extends Maze2D {
+public class GreedyBestFirstSearchMazeDiagonal3D extends Maze3D {
 
-    public GreedyBestFirstSearchMaze2D(MazeGeneratorPlugin plugin, Block block, int size, double wallPercentage) {
+    public GreedyBestFirstSearchMazeDiagonal3D(MazeGeneratorPlugin plugin, Block block, int size, double wallPercentage) {
         super(plugin, block, size, wallPercentage);
     }
 
@@ -43,7 +43,7 @@ public class GreedyBestFirstSearchMaze2D extends Maze2D {
         int count = 0;
         while (!isValid()) {
             int[][][] simulationMaze = generateSimulation();
-            Simulation simulation = new GreedyBestFirstSearchSimulation2D(
+            Simulation simulation = new GreedyBestFirstSearchSimulationDiagonal3D(
                     simulationMaze, getStartCoordinate(), getEndCoordinate()
             );
             simulation.setup();
@@ -53,7 +53,6 @@ public class GreedyBestFirstSearchMaze2D extends Maze2D {
                 setTime(0L);
                 generateCore(coreMaterial, adjustedTime);
                 // generateBorder(coreMaterial);
-                clearOldBeacons();
                 generateStartAndEndPoints(startPointGlassMaterial, endPointGlassMaterial);
                 generateBlockedAreas(simulationMaze, blockerMaterial);
 
@@ -63,7 +62,7 @@ public class GreedyBestFirstSearchMaze2D extends Maze2D {
                 new BukkitRunnable() {
                     @Override
                     public void run() {
-                        Animation animation = new GreedyBestFirstSearchAnimation2D(
+                        Animation animation = new GreedyBestFirstSearchAnimationDiagonal3D(
                                 getPlugin(),
                                 getMazeBlockLocations(),
                                 getStartCoordinate(),
@@ -78,8 +77,8 @@ public class GreedyBestFirstSearchMaze2D extends Maze2D {
                         );
                         animation.setup();
                         setValid(animation.start());
-                        getServer().broadcastMessage(
-                                ChatColor.GREEN + "" + getSize() + "x" + getSize() + " maze generated..."
+                        getServer().broadcastMessage(ChatColor.GREEN + "" + getSize() + "x" + getSize() + "x"
+                                + getSize() + " maze generated..."
                         );
                         animation.showAnimation(getTime());
                         cancel();
@@ -92,10 +91,9 @@ public class GreedyBestFirstSearchMaze2D extends Maze2D {
                 System.out.println("Invalid maze - starting new simulation...");
             }
             if (count == 50) {
-                getServer().broadcastMessage(
-                        ChatColor.RED + "A maze could not be successfully generated within 50 simulations. You " +
-                                "may experience server lag. Creating a larger maze with a lower percentage of " +
-                                "walls/blockers will greatly help and put less stress on the server."
+                getServer().broadcastMessage(ChatColor.RED + "A maze could not be successfully generated within" +
+                        " 50 simulations. You may experience server lag. Creating a larger maze with a lower" +
+                        " percentage of walls/blockers will greatly help and put less stress on the server."
                 );
             }
         }
