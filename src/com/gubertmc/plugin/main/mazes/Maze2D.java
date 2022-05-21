@@ -47,7 +47,7 @@ public abstract class Maze2D extends Maze {
 
             int distance = (int) Math.sqrt(Math.pow(randomEndX - randomStartX, 2)
                     + Math.pow(randomEndY - randomStartY, 2));
-            if (getSize() / 1.3 < distance) {
+            if (getSize() / 1.2 < distance) {
                 badPositions = false;
             }
         }

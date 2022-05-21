@@ -51,7 +51,7 @@ public abstract class Maze3D extends Maze {
 
             int distance = (int) Math.sqrt(Math.pow(randomEndX - randomStartX, 2)
                     + Math.pow(randomEndY - randomStartY, 2) + Math.pow(randomEndZ - randomStartZ, 2));
-            if (getSize() / 1.3 < distance) {
+            if (getSize() / 1.2 < distance) {
                 badPositions = false;
             }
         }
@@ -151,7 +151,7 @@ public abstract class Maze3D extends Maze {
                     } else {
                         runnableDelayed(floor, time, coreMaterial, i, j, k);
                     }
-                    if (count % 110 == 0) {
+                    if (count % (getSize() * getSize() + 2) == 0) {
                         time += 1L;
                     }
                     count++;

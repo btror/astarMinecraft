@@ -13,9 +13,21 @@
 
 ### Algorithms
 - A*
+  - 2D non-diagonal
+  - 3D non-diagonal
+  - 2D diagonal
+  - 3D diagonal
 - Greedy best-first search
+  - 2D non-diagonal
+  - 3D non-diagonal
+  - 2D diagonal
+  - 3D diagonal
 - Breadth-first search
+  - 2D non-diagonal
+  - 3D non-diagonal
 - Depth-first search
+  - 2D non-diagonal
+  - 3D non-diagonal
 
 ### Screenshots
 <details>

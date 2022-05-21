@@ -39,7 +39,7 @@ public class GreedyBestFirstSearchSimulation2D extends Simulation {
         Node currentNode = getCurrentNode();
         int h = calculateH(currentNode);
         currentNode.setH(h);
-        currentNode.setBfsF();
+        currentNode.setF();
         setCurrentNode(currentNode);
         setStartNode(currentNode);
         PriorityQueue<Node> openList = getOpenList();
@@ -141,7 +141,7 @@ public class GreedyBestFirstSearchSimulation2D extends Simulation {
             grid[row - 1][col][zNum].setParent(getCurrentNode());
             int h = calculateH(grid[row - 1][col][zNum]);
             grid[row - 1][col][zNum].setH(h);
-            grid[row - 1][col][zNum].setBfsF();
+            grid[row - 1][col][zNum].setF();
             setGrid(grid);
             PriorityQueue<Node> openList = getOpenList();
             openList.add(grid[row - 1][col][zNum]);
@@ -158,7 +158,7 @@ public class GreedyBestFirstSearchSimulation2D extends Simulation {
             grid[row][col + 1][zNum].setParent(getCurrentNode());
             int h = calculateH(grid[row][col + 1][zNum]);
             grid[row][col + 1][zNum].setH(h);
-            grid[row][col + 1][zNum].setBfsF();
+            grid[row][col + 1][zNum].setF();
             setGrid(grid);
             PriorityQueue<Node> openList = getOpenList();
             openList.add(grid[row][col + 1][zNum]);
@@ -175,7 +175,7 @@ public class GreedyBestFirstSearchSimulation2D extends Simulation {
             grid[row + 1][col][zNum].setParent(getCurrentNode());
             int h = calculateH(grid[row + 1][col][zNum]);
             grid[row + 1][col][zNum].setH(h);
-            grid[row + 1][col][zNum].setBfsF();
+            grid[row + 1][col][zNum].setF();
             setGrid(grid);
             PriorityQueue<Node> openList = getOpenList();
             openList.add(grid[row + 1][col][zNum]);
@@ -192,7 +192,7 @@ public class GreedyBestFirstSearchSimulation2D extends Simulation {
             grid[row][col - 1][zNum].setParent(getCurrentNode());
             int h = calculateH(grid[row][col - 1][zNum]);
             grid[row][col - 1][zNum].setH(h);
-            grid[row][col - 1][zNum].setBfsF();
+            grid[row][col - 1][zNum].setF();
             setGrid(grid);
             PriorityQueue<Node> openList = getOpenList();
             openList.add(grid[row][col - 1][zNum]);

@@ -3,8 +3,8 @@ package com.gubertmc.plugin.main.mazes.custom;
 import com.gubertmc.MazeGeneratorPlugin;
 import com.gubertmc.plugin.main.algorithms.Animation;
 import com.gubertmc.plugin.main.algorithms.Simulation;
-import com.gubertmc.plugin.main.algorithms.greedybestfirstsearch.greedybestfirstsearch3d.GreedyBestFirstSearchAnimation3D;
-import com.gubertmc.plugin.main.algorithms.greedybestfirstsearch.greedybestfirstsearch3d.GreedyBestFirstSearchSimulation3D;
+import com.gubertmc.plugin.main.algorithms.greedybestfirstsearch.greedybestfirstsearch3d.diagonalmovement.GreedyBestFirstSearchAnimationDiagonal3D;
+import com.gubertmc.plugin.main.algorithms.greedybestfirstsearch.greedybestfirstsearch3d.diagonalmovement.GreedyBestFirstSearchSimulationDiagonal3D;
 import com.gubertmc.plugin.main.mazes.Maze3D;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -13,9 +13,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import static org.bukkit.Bukkit.getServer;
 
-public class GreedyBestFirstSearchMaze3D extends Maze3D {
+public class GreedyBestFirstSearchMazeDiagonal3D extends Maze3D {
 
-    public GreedyBestFirstSearchMaze3D(MazeGeneratorPlugin plugin, Block block, int size, double wallPercentage) {
+    public GreedyBestFirstSearchMazeDiagonal3D(MazeGeneratorPlugin plugin, Block block, int size, double wallPercentage) {
         super(plugin, block, size, wallPercentage);
     }
 
@@ -43,7 +43,7 @@ public class GreedyBestFirstSearchMaze3D extends Maze3D {
         int count = 0;
         while (!isValid()) {
             int[][][] simulationMaze = generateSimulation();
-            Simulation simulation = new GreedyBestFirstSearchSimulation3D(
+            Simulation simulation = new GreedyBestFirstSearchSimulationDiagonal3D(
                     simulationMaze, getStartCoordinate(), getEndCoordinate()
             );
             simulation.setup();
@@ -62,7 +62,7 @@ public class GreedyBestFirstSearchMaze3D extends Maze3D {
                 new BukkitRunnable() {
                     @Override
                     public void run() {
-                        Animation animation = new GreedyBestFirstSearchAnimation3D(
+                        Animation animation = new GreedyBestFirstSearchAnimationDiagonal3D(
                                 getPlugin(),
                                 getMazeBlockLocations(),
                                 getStartCoordinate(),
