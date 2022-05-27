@@ -6,6 +6,6 @@ commands:
   maze:
     description: generates a maze
     usage: /maze
-  test:
-    description: test command
-    usage: /test
+  snake:
+    description: starts game of snake
+    usage: /snake

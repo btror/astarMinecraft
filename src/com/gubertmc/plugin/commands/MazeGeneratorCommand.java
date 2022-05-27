@@ -1,9 +1,9 @@
 package com.gubertmc.plugin.commands;
 
 import com.gubertmc.MazeGeneratorPlugin;
-import com.gubertmc.plugin.ControlPlatform;
-import com.gubertmc.plugin.main.Maze;
-import com.gubertmc.plugin.main.mazes.custom.*;
+import com.gubertmc.plugin.main.mazegenerator.ControlPlatform;
+import com.gubertmc.plugin.main.mazegenerator.Maze;
+import com.gubertmc.plugin.main.mazegenerator.mazes.custom.*;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -13,7 +13,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventException;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
