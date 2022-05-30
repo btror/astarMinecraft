@@ -9,6 +9,7 @@ import org.bukkit.block.Block;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.PriorityQueue;
 
 public class Ai {
@@ -27,6 +28,8 @@ public class Ai {
     ArrayList<Location> exploredPlaces = new ArrayList<>();
 
     private Node[][] arenaNodes;
+    private long time;
+    private int snakeLength;
 
     public Ai(
             MazeGeneratorPlugin plugin,
@@ -36,13 +39,15 @@ public class Ai {
             int targetRow,
             int targetCol,
             Material snakeBodyMaterial,
-            Material foodMaterial
+            Material foodMaterial,
+            int snakeLength
     ) {
         this.plugin = plugin;
         this.arenaBlockLocations = arenaBlockLocations;
         this.size = arenaBlockLocations[0].length;
         this.snakeBodyMaterial = snakeBodyMaterial;
         this.foodMaterial = foodMaterial;
+        this.snakeLength = snakeLength;
 
         currentNode = new Node(arenaBlockLocations[startRow][startCol], startRow, startCol, 0);
         targetNode = new Node(arenaBlockLocations[targetRow][targetCol], targetRow, targetCol, 0);
@@ -50,8 +55,13 @@ public class Ai {
 
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                Node node = new Node(arenaBlockLocations[i][j], i, j, 0);
-                arenaNodes[i][j] = node;
+                if (arenaBlockLocations[i][j].getBlock().getType() == snakeBodyMaterial) {
+                    Node node = new Node(arenaBlockLocations[i][j], i, j, 4);
+                    arenaNodes[i][j] = node;
+                } else {
+                    Node node = new Node(arenaBlockLocations[i][j], i, j, 0);
+                    arenaNodes[i][j] = node;
+                }
             }
         }
         arenaNodes[startRow][startCol] = currentNode;
@@ -71,8 +81,9 @@ public class Ai {
     }
 
     // 0 is open space, 1 is explored, 2 is start, 3 is target, 4 is finalPath
-    public void start() {
-        long time = 0L;
+    public boolean start() {
+        time = 2L;
+
         while (!openList.isEmpty() && !currentNode.equals(targetNode)) {
             currentNode = openList.peek();
             openList.remove(openList.peek());
@@ -81,29 +92,62 @@ public class Ai {
                 System.out.println("current node = target node");
                 closedList.add(currentNode);
                 ArrayList<Node> path = generatePath();
-                for (int i = path.size() - 1; i > -1; i--) {
+                Collections.reverse(path);
+                for (int i = 1; i < path.size(); i++) {
                     int row = path.get(i).getRow();
                     int col = path.get(i).getCol();
-                    arenaBlockLocations[row][col].getBlock().setType(Material.GREEN_WOOL);
-                    arenaNodes[row][col].setType(4);
-                    runnableDelayed(arenaNodes[row][col], time, snakeBodyMaterial, row, col);
-                    time += 5L;
+
+                    int row2 = path.get(i - 1).getRow();
+                    int col2 = path.get(i - 1).getCol();
+
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            Location location = new Location(
+                                    arenaBlockLocations[row][col].getWorld(),
+                                    arenaBlockLocations[row][col].getX(),
+                                    arenaBlockLocations[row][col].getY(),
+                                    arenaBlockLocations[row][col].getZ()
+                            );
+                            location.getBlock().setType(snakeBodyMaterial);
+                            arenaNodes[row][col].setType(4);
+                            arenaBlockLocations[row][col] = location;
+
+                            Location location2 = new Location(
+                                    arenaBlockLocations[row2][col2].getWorld(),
+                                    arenaBlockLocations[row2][col2].getX(),
+                                    arenaBlockLocations[row2][col2].getY(),
+                                    arenaBlockLocations[row2][col2].getZ()
+                            );
+                            location2.getBlock().setType(Material.BLACK_WOOL);
+                            arenaNodes[row2][col2].setType(0);
+                            arenaBlockLocations[row2][col2] = location2;
+
+                            cancel();
+                        }
+                    }.runTaskTimer(plugin, time, 20L);
+
+                    time += 2L;
                 }
-                break;
+                return true;
             } else {
                 calculateNeighborValues();
                 arenaBlockLocations[targetNode.getRow()][targetNode.getCol()].getBlock().setType(foodMaterial);
                 try {
                     assert openList.peek() != null;
                     System.out.println("GAME OVER!");
-                } catch (NullPointerException e){
+                } catch (NullPointerException e) {
                     System.out.println("No path could be found");
                 }
                 closedList.add(currentNode);
             }
         }
+        return false;
     }
 
+    public long getTime() {
+        return time;
+    }
 
 
     public void calculateNeighborValues() {
@@ -241,7 +285,7 @@ public class Ai {
         // get the parent nodes
         Node temp = currentNode;
         path.add(temp);
-        while(temp.getParent() != null) {
+        while (temp.getParent() != null) {
             temp = temp.getParent();
             path.add(temp);
         }
@@ -252,15 +296,20 @@ public class Ai {
         new BukkitRunnable() {
             @Override
             public void run() {
-                if (row < 0 || row > size || col < 0 || col > size) {
-                    node.getLocation().getBlock().setType(material);
-                    cancel();
+                Location location = new Location(
+                        arenaBlockLocations[row][col].getWorld(),
+                        arenaBlockLocations[row][col].getX(),
+                        arenaBlockLocations[row][col].getY(),
+                        arenaBlockLocations[row][col].getZ()
+                );
+                location.getBlock().setType(material);
+                if (material == snakeBodyMaterial) {
+                    arenaNodes[row][col].setType(4);
                 } else {
-                    node.getLocation().getBlock().setType(material);
-
-                    arenaNodes[row][col] = node;
-                    cancel();
+                    arenaNodes[row][col].setType(0);
                 }
+                arenaBlockLocations[row][col] = location;
+                cancel();
             }
         }.runTaskTimer(plugin, time, 20L);
     }

@@ -27,7 +27,7 @@ public class Food {
         foodLocation = new Location(
                 arenaLocationBlock.getWorld(),
                 arenaLocationBlock.getX() + x,
-                arenaLocationBlock.getY() + 1,
+                arenaLocationBlock.getY(),
                 arenaLocationBlock.getZ() + y
         );
 

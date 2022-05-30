@@ -13,7 +13,7 @@ public class Snake {
     private boolean snakeIsAlive;
     private boolean foodIsEaten;
     private Material snakeBodyMaterial;
-    private int row, col;
+    private Ai ai;
 
     public Snake(MazeGeneratorPlugin plugin, Location[][] arenaBlockLocations) {
         this.plugin = plugin;
@@ -22,25 +22,24 @@ public class Snake {
         this.snakeIsAlive = true;
         this.foodIsEaten = false;
         this.snakeBodyMaterial = Material.GREEN_WOOL;
-        row = (int) (Math.random() * arenaBlockLocations[0].length);
-        col = (int) (Math.random() * arenaBlockLocations[0].length);
     }
 
-    public void pursueFood(Food targetFood) {
-        Ai ai = new Ai(
+    public boolean pursueFood(int startRow, int startCol, Food targetFood, int snakeLength) {
+        ai = new Ai(
                 plugin,
                 arenaBlockLocations,
-                row,
-                col,
+                startRow,
+                startCol,
                 targetFood.getX(),
                 targetFood.getY(),
                 snakeBodyMaterial,
-                targetFood.getFoodMaterial()
+                targetFood.getFoodMaterial(),
+                snakeLength
         );
-        ai.start();
         // if the ai doesn't reach the food set foodIsEaten to false
         System.out.println("AFTER STARTING AI");
-        snakeIsAlive = false;
+        // snakeIsAlive = false;
+        return ai.start();
     }
 
     public boolean getSnakeIsAlive() {
@@ -49,6 +48,10 @@ public class Snake {
 
     public boolean getFoodStatus() {
         return foodIsEaten;
+    }
+
+    public long getTime() {
+        return ai.getTime();
     }
 
 }
