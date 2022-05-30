@@ -8,32 +8,32 @@ import org.bukkit.block.Block;
 public class Snake {
 
     private final MazeGeneratorPlugin plugin;
-    private final Block arenaLocationBlock;
-    private final Location startLocation;
-    private final int size;
+    private Location[][] arenaBlockLocations;
 
     private boolean snakeIsAlive;
     private boolean foodIsEaten;
     private Material snakeBodyMaterial;
+    private int row, col;
 
-    public Snake(MazeGeneratorPlugin plugin, Block arenaLocationBlock, Location spawnLocation, int size) {
+    public Snake(MazeGeneratorPlugin plugin, Location[][] arenaBlockLocations) {
         this.plugin = plugin;
-        this.arenaLocationBlock = arenaLocationBlock;
-        this.startLocation = spawnLocation;
-        this.size = size;
+        this.arenaBlockLocations = arenaBlockLocations;
 
         this.snakeIsAlive = true;
         this.foodIsEaten = false;
         this.snakeBodyMaterial = Material.GREEN_WOOL;
+        row = (int) (Math.random() * arenaBlockLocations[0].length);
+        col = (int) (Math.random() * arenaBlockLocations[0].length);
     }
 
     public void pursueFood(Food targetFood) {
         Ai ai = new Ai(
                 plugin,
-                arenaLocationBlock,
-                size,
-                startLocation,
-                targetFood.getLocation(),
+                arenaBlockLocations,
+                row,
+                col,
+                targetFood.getX(),
+                targetFood.getY(),
                 snakeBodyMaterial,
                 targetFood.getFoodMaterial()
         );

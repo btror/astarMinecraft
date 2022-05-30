@@ -40,8 +40,6 @@ public record SnakeGameCommand(MazeGeneratorPlugin plugin) implements CommandExe
             arena.startGame();
             // end game
 
-            arena.spawnArena(Material.BLACK_WOOL);
-
             player.sendMessage("Spawning control platform...");
             return true;
 

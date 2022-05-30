@@ -14,42 +14,48 @@ import java.util.PriorityQueue;
 public class Ai {
 
     private final MazeGeneratorPlugin plugin;
-    private final Block arenaLocationBlock;
     private final int size;
-    private Location startLocation;
-    private Location currentLocation;
-    private Location targetLocation;
     private Node startNode;
     private Node targetNode;
     private Node currentNode;
     private Material snakeBodyMaterial;
     private Material foodMaterial;
+    private Location[][] arenaBlockLocations;
 
     private ArrayList<Node> closedList = new ArrayList<>();
     private final PriorityQueue<Node> openList = new PriorityQueue<>(10, new NodeComparator());
     ArrayList<Location> exploredPlaces = new ArrayList<>();
 
-    private Node[][] arenaBlockLocations;
+    private Node[][] arenaNodes;
 
     public Ai(
             MazeGeneratorPlugin plugin,
-            Block arenaLocationBlock,
-            int size,
-            Location startLocation,
-            Location targetLocation,
+            Location[][] arenaBlockLocations,
+            int startRow,
+            int startCol,
+            int targetRow,
+            int targetCol,
             Material snakeBodyMaterial,
             Material foodMaterial
     ) {
         this.plugin = plugin;
-        this.arenaLocationBlock = arenaLocationBlock;
-        this.size = size;
-        this.startLocation = startLocation;
-        this.currentLocation = startLocation;
-        this.targetLocation = targetLocation;
+        this.arenaBlockLocations = arenaBlockLocations;
+        this.size = arenaBlockLocations[0].length;
         this.snakeBodyMaterial = snakeBodyMaterial;
         this.foodMaterial = foodMaterial;
 
-        visualizeArena();
+        currentNode = new Node(arenaBlockLocations[startRow][startCol], startRow, startCol, 0);
+        targetNode = new Node(arenaBlockLocations[targetRow][targetCol], targetRow, targetCol, 0);
+        arenaNodes = new Node[size][size];
+
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                Node node = new Node(arenaBlockLocations[i][j], i, j, 0);
+                arenaNodes[i][j] = node;
+            }
+        }
+        arenaNodes[startRow][startCol] = currentNode;
+        arenaNodes[targetRow][targetCol] = targetNode;
 
         int g = calculateG(currentNode);
         currentNode.setG(g);
@@ -60,72 +66,45 @@ public class Ai {
         currentNode.setF();
 
         startNode = currentNode;
+
         openList.add(currentNode);
     }
 
     // 0 is open space, 1 is explored, 2 is start, 3 is target, 4 is finalPath
     public void start() {
         long time = 0L;
-        while (!openList.isEmpty() && !currentNode.equals(targetNode)) { // open list isn't empty or goal node isn't reached
+        while (!openList.isEmpty() && !currentNode.equals(targetNode)) {
             currentNode = openList.peek();
             openList.remove(openList.peek());
+
             if (currentNode.equals(targetNode)) {
+                System.out.println("current node = target node");
                 closedList.add(currentNode);
                 ArrayList<Node> path = generatePath();
                 for (int i = path.size() - 1; i > -1; i--) {
                     int row = path.get(i).getRow();
                     int col = path.get(i).getCol();
-                    System.out.println("value - " + arenaBlockLocations[row][col].getType());
-                    if (arenaBlockLocations[row][col].getType() == 1) {
-                        Location location = arenaBlockLocations[row][col].getLocation();
-                        arenaBlockLocations[row][col].setLocation(location);
-                        runnableDelayed(arenaBlockLocations[row][col], time, snakeBodyMaterial, row, col);
-                    }
+                    arenaBlockLocations[row][col].getBlock().setType(Material.GREEN_WOOL);
+                    arenaNodes[row][col].setType(4);
+                    runnableDelayed(arenaNodes[row][col], time, snakeBodyMaterial, row, col);
                     time += 5L;
                 }
-                System.out.println("MAZE SOLVED");
                 break;
             } else {
-                try {
-                    calculateNeighborValues();
-                } catch (NullPointerException e){
-                    System.out.println("OH NOOO");
-                    System.out.println(e.getMessage());
-                }
+                calculateNeighborValues();
+                arenaBlockLocations[targetNode.getRow()][targetNode.getCol()].getBlock().setType(foodMaterial);
                 try {
                     assert openList.peek() != null;
+                    System.out.println("GAME OVER!");
                 } catch (NullPointerException e){
-                    System.out.println(e.getMessage());
+                    System.out.println("No path could be found");
                 }
                 closedList.add(currentNode);
             }
         }
     }
 
-    public void visualizeArena() {
-        arenaBlockLocations = new Node[size][size];
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                Location location = new Location(
-                        arenaLocationBlock.getWorld(),
-                        arenaLocationBlock.getX() + i,
-                        arenaLocationBlock.getY() + 1,
-                        arenaLocationBlock.getZ() + j
-                );
-                arenaBlockLocations[i][j] = new Node(location, i, j, 0);
-//                if (location.getBlock().getType() == targetLocation.getBlock().getType()) {
-//                    System.out.println("target if");
-//                    targetNode = new Node(location, i, j, 3);
-//                } else if (location.getBlock().getType() == startLocation.getBlock().getType()){
-//                    currentNode = new Node(location, i, j, 2);
-//                    System.out.println("start if");
-//                } else {
-//                    System.out.println("normal if");
-//                    arenaBlockLocations[i][j] = new Node(location, i, j, 0);
-//                }
-            }
-        }
-    }
+
 
     public void calculateNeighborValues() {
         System.out.println("CALCULATING NEIGHBORS");
@@ -133,68 +112,69 @@ public class Ai {
         int col = currentNode.getCol();
 
         // front node
-        if (row - 1 > -1 && arenaBlockLocations[row - 1][col].getType() == 0
-                && !closedList.contains(arenaBlockLocations[row - 1][col])) {
-            arenaBlockLocations[row - 1][col].setParent(currentNode);
-            int g = calculateG(arenaBlockLocations[row - 1][col]);
-            arenaBlockLocations[row - 1][col].setG(g);
-            int h = calculateH(arenaBlockLocations[row - 1][col]);
-            arenaBlockLocations[row - 1][col].setH(h);
-            arenaBlockLocations[row - 1][col].setF();
-            openList.add(arenaBlockLocations[row - 1][col]);
-            arenaBlockLocations[row - 1][col].setType(1);
-            if (!exploredPlaces.contains(arenaBlockLocations[row - 1][col].getLocation())) {
-                exploredPlaces.add(arenaBlockLocations[row - 1][col].getLocation());
+        if (row - 1 > -1 && arenaNodes[row - 1][col].getType() == 0
+                && !closedList.contains(arenaNodes[row - 1][col])) {
+            arenaNodes[row - 1][col].setParent(currentNode);
+            int g = calculateG(arenaNodes[row - 1][col]);
+            arenaNodes[row - 1][col].setG(g);
+            int h = calculateH(arenaNodes[row - 1][col]);
+            arenaNodes[row - 1][col].setH(h);
+            arenaNodes[row - 1][col].setF();
+            openList.add(arenaNodes[row - 1][col]);
+            arenaNodes[row - 1][col].setType(1);
+            if (!exploredPlaces.contains(arenaNodes[row - 1][col].getLocation())) {
+                exploredPlaces.add(arenaNodes[row - 1][col].getLocation());
             }
         }
 
         // left node
-        if (col + 1 < size && arenaBlockLocations[row][col + 1].getType() == 0
-                && !closedList.contains(arenaBlockLocations[row][col + 1])) {
-            arenaBlockLocations[row][col + 1].setParent(currentNode);
-            int g = calculateG(arenaBlockLocations[row][col + 1]);
-            arenaBlockLocations[row][col + 1].setG(g);
-            int h = calculateH(arenaBlockLocations[row][col + 1]);
-            arenaBlockLocations[row][col + 1].setH(h);
-            arenaBlockLocations[row][col + 1].setF();
-            openList.add(arenaBlockLocations[row][col + 1]);
-            arenaBlockLocations[row][col + 1].setType(1);
-            if (!exploredPlaces.contains(arenaBlockLocations[row][col + 1].getLocation())) {
-                exploredPlaces.add(arenaBlockLocations[row][col + 1].getLocation());
+        if (col + 1 < size && arenaNodes[row][col + 1].getType() == 0
+                && !closedList.contains(arenaNodes[row][col + 1])) {
+            arenaNodes[row][col + 1].setParent(currentNode);
+            int g = calculateG(arenaNodes[row][col + 1]);
+            arenaNodes[row][col + 1].setG(g);
+            int h = calculateH(arenaNodes[row][col + 1]);
+            arenaNodes[row][col + 1].setH(h);
+            arenaNodes[row][col + 1].setF();
+            openList.add(arenaNodes[row][col + 1]);
+            arenaNodes[row][col + 1].setType(1);
+            if (!exploredPlaces.contains(arenaNodes[row][col + 1].getLocation())) {
+                exploredPlaces.add(arenaNodes[row][col + 1].getLocation());
             }
         }
 
         // behind node
-        if (row + 1 < size && arenaBlockLocations[row + 1][col].getType() == 0
-                && !closedList.contains(arenaBlockLocations[row + 1][col])) {
-            arenaBlockLocations[row + 1][col].setParent(currentNode);
-            int g = calculateG(arenaBlockLocations[row + 1][col]);
-            arenaBlockLocations[row + 1][col].setG(g);
-            int h = calculateH(arenaBlockLocations[row + 1][col]);
-            arenaBlockLocations[row + 1][col].setH(h);
-            arenaBlockLocations[row + 1][col].setF();
-            openList.add(arenaBlockLocations[row + 1][col]);
-            arenaBlockLocations[row + 1][col].setType(1);
-            if (!exploredPlaces.contains(arenaBlockLocations[row + 1][col].getLocation())) {
-                exploredPlaces.add(arenaBlockLocations[row + 1][col].getLocation());
+        if (row + 1 < size && arenaNodes[row + 1][col].getType() == 0
+                && !closedList.contains(arenaNodes[row + 1][col])) {
+            arenaNodes[row + 1][col].setParent(currentNode);
+            int g = calculateG(arenaNodes[row + 1][col]);
+            arenaNodes[row + 1][col].setG(g);
+            int h = calculateH(arenaNodes[row + 1][col]);
+            arenaNodes[row + 1][col].setH(h);
+            arenaNodes[row + 1][col].setF();
+            openList.add(arenaNodes[row + 1][col]);
+            arenaNodes[row + 1][col].setType(1);
+            if (!exploredPlaces.contains(arenaNodes[row + 1][col].getLocation())) {
+                exploredPlaces.add(arenaNodes[row + 1][col].getLocation());
             }
         }
 
         // right node
-        if (col - 1 > -1 && arenaBlockLocations[row][col - 1].getType() == 0
-                && !closedList.contains(arenaBlockLocations[row][col - 1])) {
-            arenaBlockLocations[row][col - 1].setParent(currentNode);
-            int g = calculateG(arenaBlockLocations[row][col - 1]);
-            arenaBlockLocations[row][col - 1].setG(g);
-            int h = calculateH(arenaBlockLocations[row][col - 1]);
-            arenaBlockLocations[row][col - 1].setH(h);
-            arenaBlockLocations[row][col - 1].setF();
-            openList.add(arenaBlockLocations[row][col - 1]);
-            arenaBlockLocations[row][col - 1].setType(1);
-            if (!exploredPlaces.contains(arenaBlockLocations[row][col - 1].getLocation())) {
-                exploredPlaces.add(arenaBlockLocations[row][col - 1].getLocation());
+        if (col - 1 > -1 && arenaNodes[row][col - 1].getType() == 0
+                && !closedList.contains(arenaNodes[row][col - 1])) {
+            arenaNodes[row][col - 1].setParent(currentNode);
+            int g = calculateG(arenaNodes[row][col - 1]);
+            arenaNodes[row][col - 1].setG(g);
+            int h = calculateH(arenaNodes[row][col - 1]);
+            arenaNodes[row][col - 1].setH(h);
+            arenaNodes[row][col - 1].setF();
+            openList.add(arenaNodes[row][col - 1]);
+            arenaNodes[row][col - 1].setType(1);
+            if (!exploredPlaces.contains(arenaNodes[row][col - 1].getLocation())) {
+                exploredPlaces.add(arenaNodes[row][col - 1].getLocation());
             }
         }
+
     }
 
     /*
@@ -277,7 +257,8 @@ public class Ai {
                     cancel();
                 } else {
                     node.getLocation().getBlock().setType(material);
-                    arenaBlockLocations[row][col] = node;
+
+                    arenaNodes[row][col] = node;
                     cancel();
                 }
             }

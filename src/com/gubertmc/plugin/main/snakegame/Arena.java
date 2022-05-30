@@ -31,18 +31,8 @@ public class Arena {
         Food food = spawnFood(Material.YELLOW_WOOL);
         food.spawn();
 
-        // create start location for snake
-        int xCoordinate = (int) (Math.random() * size);
-        int yCoordinate = (int) (Math.random() * size);
-        Location spawnLocation = new Location(
-                arenaLocationBlock.getWorld(),
-                arenaLocationBlock.getX() + xCoordinate,
-                arenaLocationBlock.getY() + 1,
-                arenaLocationBlock.getZ() + yCoordinate
-        );
-
         // run the algorithm
-        Snake snake = new Snake(plugin, arenaLocationBlock, spawnLocation, size);
+        Snake snake = new Snake(plugin, arenaBlockLocations);
         snake.pursueFood(food);
 
         boolean gameOver = false;
@@ -73,7 +63,8 @@ public class Arena {
                         arenaLocationBlock.getY(),
                         arenaLocationBlock.getZ() + j
                 );
-                runnableDelayed(location, time, arenaMaterial, -1, -1);
+                location.getBlock().setType(arenaMaterial);
+                arenaBlockLocations[i][j] = location;
             }
             time += 1L;
         }
@@ -84,21 +75,5 @@ public class Arena {
         int yCoordinate = (int) (Math.random() * size);
 
         return new Food(arenaLocationBlock, xCoordinate, yCoordinate, false);
-    }
-
-    public void runnableDelayed(Location location, long time, Material material, int row, int col) {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (row < 0 || row > size || col < 0 || col > size) {
-                    location.getBlock().setType(material);
-                    cancel();
-                } else {
-                    location.getBlock().setType(material);
-                    arenaBlockLocations[row][col] = location;
-                    cancel();
-                }
-            }
-        }.runTaskTimer(plugin, time, 20L);
     }
 }
