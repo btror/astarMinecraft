@@ -1,9 +1,12 @@
 package com.gubertmc.plugin.main.snakegame;
 
 import com.gubertmc.MazeGeneratorPlugin;
+import com.gubertmc.plugin.main.snakegame.logicalcomponents.Node;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+
+import java.util.ArrayList;
 
 public class Snake {
 
@@ -24,22 +27,14 @@ public class Snake {
         this.snakeBodyMaterial = Material.GREEN_WOOL;
     }
 
-    public boolean pursueFood(int startRow, int startCol, Food targetFood, int snakeLength) {
+    public void start(int startRow, int startCol) {
         ai = new Ai(
                 plugin,
                 arenaBlockLocations,
                 startRow,
-                startCol,
-                targetFood.getX(),
-                targetFood.getY(),
-                snakeBodyMaterial,
-                targetFood.getFoodMaterial(),
-                snakeLength
+                startCol
         );
-        // if the ai doesn't reach the food set foodIsEaten to false
-        System.out.println("AFTER STARTING AI");
-        // snakeIsAlive = false;
-        return ai.start();
+        ai.start();
     }
 
     public boolean getSnakeIsAlive() {
