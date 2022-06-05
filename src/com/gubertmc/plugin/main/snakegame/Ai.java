@@ -96,13 +96,12 @@ public class Ai {
                     int row = path.get(i).getRow();
                     int col = path.get(i).getCol();
 
-                    int row2 = path.get(i - 1).getRow();
-                    int col2 = path.get(i - 1).getCol();
-
+                    int finalI = i;
                     new BukkitRunnable() {
                         @Override
                         public void run() {
-                            arenaBlockLocations[path.get(path.size() - 1).getRow()][path.get(path.size() - 1).getCol()].getBlock().setType(foodMaterial);
+                            arenaBlockLocations[path.get(path.size() - 1).getRow()][path.get(path.size() - 1).getCol()]
+                                    .getBlock().setType(foodMaterial);
                             Location location = new Location(
                                     arenaBlockLocations[row][col].getWorld(),
                                     arenaBlockLocations[row][col].getX(),
@@ -113,30 +112,52 @@ public class Ai {
                             arenaNodes[row][col].setType(4);
                             arenaBlockLocations[row][col] = location;
 
-                            Location location2 = new Location(
-                                    arenaBlockLocations[row2][col2].getWorld(),
-                                    arenaBlockLocations[row2][col2].getX(),
-                                    arenaBlockLocations[row2][col2].getY(),
-                                    arenaBlockLocations[row2][col2].getZ()
-                            );
-                            location2.getBlock().setType(Material.BLACK_WOOL);
-                            arenaNodes[row2][col2].setType(0);
-                            arenaBlockLocations[row2][col2] = location2;
+                            if (finalI - snakeLength > 0) {
+                                int row2 = path.get(finalI - snakeLength).getRow();
+                                int col2 = path.get(finalI - snakeLength).getCol();
+                                Location location2 = new Location(
+                                        arenaBlockLocations[row2][col2].getWorld(),
+                                        arenaBlockLocations[row2][col2].getX(),
+                                        arenaBlockLocations[row2][col2].getY(),
+                                        arenaBlockLocations[row2][col2].getZ()
+                                );
+                                location2.getBlock().setType(Material.BLACK_WOOL);
+                                arenaNodes[row2][col2].setType(0);
+                                arenaBlockLocations[row2][col2] = location2;
+                                closedList.remove(arenaNodes[row2][col2]);
+                            }
 
+                            if (finalI == path.size() - 1) {
+                                snakeLength++;
+
+//                                for (int x = 0; x < size; x++) {
+//                                    for (int x2 = 0; x2 < size; x2++) {
+//                                        if (arenaBlockLocations[x][x2].getBlock().getType() == snakeBodyMaterial) {
+//                                            Node node = new Node(arenaBlockLocations[x][x2], x, x2, 4);
+//                                            arenaNodes[x][x2] = node;
+//                                        } else {
+//                                            Node node = new Node(arenaBlockLocations[x][x2], x, x2, 0);
+//                                            arenaNodes[x][x2] = node;
+//                                        }
+//                                    }
+//                                }
+                            }
                             cancel();
                         }
                     }.runTaskTimer(plugin, time, 20L);
                     System.out.println("time - " + time);
                     time += 5L;
                 }
-
                 System.out.println("END OF PATH");
                 openList.clear();
+                exploredPlaces.clear();
+                closedList.clear();
 
                 int targetRow = (int) (Math.random() * arenaBlockLocations[0].length);
                 int targetCol = (int) (Math.random() * arenaBlockLocations[0].length);
 
-                currentNode = new Node(arenaBlockLocations[targetNode.getRow()][targetNode.getCol()], targetNode.getRow(), targetNode.getCol(), 0);
+                currentNode = new Node(arenaBlockLocations[targetNode.getRow()][targetNode.getCol()],
+                        targetNode.getRow(), targetNode.getCol(), 0);
                 targetNode = new Node(arenaBlockLocations[targetRow][targetCol], targetRow, targetCol, 0);
                 arenaNodes = new Node[size][size];
 
@@ -170,7 +191,6 @@ public class Ai {
                 try {
                     assert openList.peek() != null;
                 } catch (NullPointerException e) {
-                    System.out.println("GAME OVER");
                 }
                 closedList.add(currentNode);
             }
