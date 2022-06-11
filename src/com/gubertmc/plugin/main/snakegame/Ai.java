@@ -7,6 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.checkerframework.checker.units.qual.A;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,6 +23,7 @@ public class Ai {
     private Material snakeBodyMaterial;
     private Material foodMaterial;
     private Location[][] arenaBlockLocations;
+    private ArrayList<Node> snakeBody = new ArrayList<>();
 
     private ArrayList<Node> closedList = new ArrayList<>();
     private final PriorityQueue<Node> openList = new PriorityQueue<>(10, new NodeComparator());
@@ -30,6 +32,7 @@ public class Ai {
     private Node[][] arenaNodes;
     private long time;
     private int snakeLength;
+    private ArrayList<Node> oldSnakeBodyNodes = new ArrayList<>();
 
     public Ai(
             MazeGeneratorPlugin plugin,
@@ -76,6 +79,7 @@ public class Ai {
         startNode = currentNode;
 
         openList.add(currentNode);
+        snakeBody.add(currentNode);
         arenaBlockLocations[targetNode.getRow()][targetNode.getCol()].getBlock().setType(foodMaterial);
     }
 
@@ -93,55 +97,61 @@ public class Ai {
                 ArrayList<Node> path = generatePath();
                 Collections.reverse(path);
                 for (int i = 1; i < path.size(); i++) {
-                    int row = path.get(i).getRow();
-                    int col = path.get(i).getCol();
-
                     int finalI = i;
+
                     new BukkitRunnable() {
                         @Override
                         public void run() {
+                            int snakeHeadRow = path.get(finalI).getRow();
+                            int snakeHeadCol = path.get(finalI).getCol();
+
+                            // make the food visible
                             arenaBlockLocations[path.get(path.size() - 1).getRow()][path.get(path.size() - 1).getCol()]
                                     .getBlock().setType(foodMaterial);
-                            Location location = new Location(
-                                    arenaBlockLocations[row][col].getWorld(),
-                                    arenaBlockLocations[row][col].getX(),
-                                    arenaBlockLocations[row][col].getY(),
-                                    arenaBlockLocations[row][col].getZ()
-                            );
-                            location.getBlock().setType(snakeBodyMaterial);
-                            arenaNodes[row][col].setType(4);
-                            arenaBlockLocations[row][col] = location;
 
-                            if (finalI - snakeLength > 0) {
-                                int row2 = path.get(finalI - snakeLength).getRow();
-                                int col2 = path.get(finalI - snakeLength).getCol();
-                                Location location2 = new Location(
-                                        arenaBlockLocations[row2][col2].getWorld(),
-                                        arenaBlockLocations[row2][col2].getX(),
-                                        arenaBlockLocations[row2][col2].getY(),
-                                        arenaBlockLocations[row2][col2].getZ()
-                                );
-                                location2.getBlock().setType(Material.BLACK_WOOL);
-                                arenaNodes[row2][col2].setType(0);
-                                arenaBlockLocations[row2][col2] = location2;
-                                closedList.remove(arenaNodes[row2][col2]);
+                            // clear old snake body locations
+                            if (oldSnakeBodyNodes.size() > 0) {
+                                oldSnakeBodyNodes.get(0).getLocation().getBlock().setType(Material.BLACK_WOOL);
+                                oldSnakeBodyNodes.remove(0);
                             }
 
-                            if (finalI == path.size() - 1) {
-                                snakeLength++;
+                            // update the head of the snake
+                            arenaNodes[snakeHeadRow][snakeHeadCol].setType(4);
+                            arenaNodes[snakeHeadRow][snakeHeadCol].getLocation().getBlock().setType(snakeBodyMaterial);
+                            arenaBlockLocations[snakeHeadRow][snakeHeadCol] = arenaNodes[snakeHeadRow][snakeHeadCol]
+                                    .getLocation();
 
-//                                for (int x = 0; x < size; x++) {
-//                                    for (int x2 = 0; x2 < size; x2++) {
-//                                        if (arenaBlockLocations[x][x2].getBlock().getType() == snakeBodyMaterial) {
-//                                            Node node = new Node(arenaBlockLocations[x][x2], x, x2, 4);
-//                                            arenaNodes[x][x2] = node;
-//                                        } else {
-//                                            Node node = new Node(arenaBlockLocations[x][x2], x, x2, 0);
-//                                            arenaNodes[x][x2] = node;
-//                                        }
+                            // update the snake body - turn the old snake body nodes to normal nodes
+                            if (finalI - snakeBody.size() > 0) {
+                                arenaNodes[path.get(finalI - snakeBody.size()).getRow()][path.get(finalI - snakeBody
+                                        .size()).getCol()].setType(0);
+                                arenaNodes[path.get(finalI - snakeBody.size()).getRow()][path.get(finalI - snakeBody
+                                        .size()).getCol()].getLocation().getBlock().setType(Material.BLACK_WOOL);
+                                arenaBlockLocations[path.get(finalI - snakeBody.size()).getRow()][path.get(finalI
+                                        - snakeBody.size()).getCol()] = arenaNodes[path.get(finalI - snakeBody.size())
+                                        .getRow()][path.get(finalI - snakeBody.size()).getCol()].getLocation();
+                                closedList.remove(arenaNodes[path.get(finalI - snakeBody.size()).getRow()][path.get(
+                                        finalI - snakeBody.size()).getCol()]);
+                            }
+
+                            // grow the snake body (since it ate the food)
+                            if (finalI == path.size() - 1) {
+                                // oldSnakeBodyNodes = path;
+                                for (Node node: path) {
+                                    if (node.getLocation().getBlock().getType() == snakeBodyMaterial) {
+                                        oldSnakeBodyNodes.add(node);
+                                    }
+                                }
+
+//                                for (Node node : oldSnakeBodyNodes) {
+//                                    if (node.getLocation().getBlock().getType() == Material.BLACK_WOOL) {
+//                                        oldSnakeBodyNodes.remove(node);
 //                                    }
 //                                }
+                                snakeBody.add(arenaNodes[snakeHeadRow][snakeHeadCol]);
+                                snakeLength++;
                             }
+
                             cancel();
                         }
                     }.runTaskTimer(plugin, time, 20L);
