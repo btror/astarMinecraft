@@ -1,20 +1,13 @@
 package com.gubertmc.plugin.main.snakegame;
 
 import com.gubertmc.MazeGeneratorPlugin;
-import com.gubertmc.plugin.main.mazegenerator.algorithms.Animation;
-import com.gubertmc.plugin.main.mazegenerator.algorithms.astar.astar2d.AstarAnimation2D;
 import com.gubertmc.plugin.main.snakegame.logicalcomponents.Node;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.checkerframework.checker.units.qual.A;
 
 import java.util.ArrayList;
-
-import static org.bukkit.Bukkit.getServer;
 
 public class Arena {
 
@@ -23,9 +16,6 @@ public class Arena {
     private final int size;
 
     private final Location[][] arenaBlockLocations;
-    private Food food;
-    private boolean snakeIsStillAlive;
-    private int numberOfFoodEaten;
     private ArrayList<Node> path;
 
     public Arena(MazeGeneratorPlugin plugin, Block arenaLocationBlock, int size) {
@@ -38,12 +28,23 @@ public class Arena {
 
     public void startGame() {
         spawnArena(Material.BLACK_WOOL);
+//        long time = 0L;
 
         // run the algorithm
-        Snake snake = new Snake(plugin, arenaBlockLocations);
         int startRow = (int) (Math.random() * arenaBlockLocations[0].length);
         int startCol = (int) (Math.random() * arenaBlockLocations[0].length);
-        snake.start(startRow, startCol);
+        Ai ai = new Ai(
+                plugin,
+                arenaBlockLocations,
+                startRow,
+                startCol
+        );
+        ai.start();
+
+//        for (Node node : path) {
+//            runnableDelayed(node.getLocation(), time, Material.GREEN_WOOL);
+//            time += 1L;
+//        }
     }
 
     public void spawnArena(Material arenaMaterial) {
@@ -53,14 +54,16 @@ public class Arena {
                 location.getBlock().setType(arenaMaterial);
                 arenaBlockLocations[i][j] = location;
             }
-            // time += 1L;
         }
     }
 
-    public Food spawnFood(Material foodMaterial) {
-        int xCoordinate = (int) (Math.random() * size);
-        int yCoordinate = (int) (Math.random() * size);
-
-        return new Food(arenaLocationBlock, xCoordinate, yCoordinate, false);
+    public void runnableDelayed(Location loc, long time, Material material) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                loc.getBlock().setType(material);
+                cancel();
+            }
+        }.runTaskTimer(plugin, time, 20L);
     }
 }

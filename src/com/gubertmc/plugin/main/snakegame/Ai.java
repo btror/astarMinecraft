@@ -20,8 +20,8 @@ public class Ai {
     private Node startNode;
     private Node targetNode;
     private Node currentNode;
-    private Material snakeBodyMaterial;
-    private Material foodMaterial;
+    private final Material snakeBodyMaterial;
+    private final Material foodMaterial;
     private Location[][] arenaBlockLocations;
     private ArrayList<Node> snakeBody = new ArrayList<>();
 
@@ -31,7 +31,6 @@ public class Ai {
 
     private Node[][] arenaNodes;
     private long time;
-    private int snakeLength;
     private ArrayList<Node> oldSnakeBodyNodes = new ArrayList<>();
 
     public Ai(
@@ -45,7 +44,6 @@ public class Ai {
         this.size = arenaBlockLocations[0].length;
         this.snakeBodyMaterial = Material.GREEN_WOOL;
         this.foodMaterial = Material.YELLOW_WOOL;
-        this.snakeLength = 1;
 
         int targetRow = (int) (Math.random() * arenaBlockLocations[0].length);
         int targetCol = (int) (Math.random() * arenaBlockLocations[0].length);
@@ -87,6 +85,7 @@ public class Ai {
     public void start() {
         time = 0L;
 
+        // open list must have something and the current node cannot be the target node
         while (!openList.isEmpty() && !currentNode.equals(targetNode)) {
             currentNode = openList.peek();
             openList.remove(openList.peek());
@@ -130,26 +129,16 @@ public class Ai {
                                 arenaBlockLocations[path.get(finalI - snakeBody.size()).getRow()][path.get(finalI
                                         - snakeBody.size()).getCol()] = arenaNodes[path.get(finalI - snakeBody.size())
                                         .getRow()][path.get(finalI - snakeBody.size()).getCol()].getLocation();
-                                closedList.remove(arenaNodes[path.get(finalI - snakeBody.size()).getRow()][path.get(
-                                        finalI - snakeBody.size()).getCol()]);
                             }
 
                             // grow the snake body (since it ate the food)
                             if (finalI == path.size() - 1) {
-                                // oldSnakeBodyNodes = path;
                                 for (Node node: path) {
                                     if (node.getLocation().getBlock().getType() == snakeBodyMaterial) {
                                         oldSnakeBodyNodes.add(node);
                                     }
                                 }
-
-//                                for (Node node : oldSnakeBodyNodes) {
-//                                    if (node.getLocation().getBlock().getType() == Material.BLACK_WOOL) {
-//                                        oldSnakeBodyNodes.remove(node);
-//                                    }
-//                                }
                                 snakeBody.add(arenaNodes[snakeHeadRow][snakeHeadCol]);
-                                snakeLength++;
                             }
 
                             cancel();
@@ -163,14 +152,18 @@ public class Ai {
                 exploredPlaces.clear();
                 closedList.clear();
 
+                // create new food
                 int targetRow = (int) (Math.random() * arenaBlockLocations[0].length);
                 int targetCol = (int) (Math.random() * arenaBlockLocations[0].length);
 
+                // reset current and target node
                 currentNode = new Node(arenaBlockLocations[targetNode.getRow()][targetNode.getCol()],
                         targetNode.getRow(), targetNode.getCol(), 0);
                 targetNode = new Node(arenaBlockLocations[targetRow][targetCol], targetRow, targetCol, 0);
+
                 arenaNodes = new Node[size][size];
 
+                // reset maze nodes
                 for (int i = 0; i < size; i++) {
                     for (int j = 0; j < size; j++) {
                         if (arenaBlockLocations[i][j].getBlock().getType() == snakeBodyMaterial) {
@@ -182,9 +175,11 @@ public class Ai {
                         }
                     }
                 }
+
                 arenaNodes[currentNode.getRow()][currentNode.getCol()] = currentNode;
                 arenaNodes[targetRow][targetCol] = targetNode;
 
+                // calculate heuristics for current node to new target node
                 int g = calculateG(currentNode);
                 currentNode.setG(g);
 
@@ -200,8 +195,7 @@ public class Ai {
                 calculateNeighborValues();
                 try {
                     assert openList.peek() != null;
-                } catch (NullPointerException e) {
-                }
+                } catch (NullPointerException ignored) {}
                 closedList.add(currentNode);
             }
         }
