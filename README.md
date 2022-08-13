@@ -5,7 +5,7 @@
 #### This is an implementation of the A* pathfinding algorithm (and other algorithms).
 
 ### Video
-[![I made an AI in Minecraft | A* pathfinding](resources/thumbnail.jpg)](https://www.youtube.com/watch?v=Xl7rD66Rv3g "I made an AI in Minecraft | A* pathfinding")
+[![I made an AI in Minecraft | A* pathfinding](resources/thumbnail.jpg)](https://www.youtube.com/watch?v=qsGHX9EjpYk&t=28s&ab_channel=BrandonRorie "I made an AI in Minecraft | A* pathfinding")
 
 
 ### Command
